@@ -1,2 +1,6 @@
 *.png
+__pycache__
+venv/
+experiments/
+*.log
 *.h5

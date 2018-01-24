@@ -209,6 +209,7 @@ def main():
             generator=train_generator,
             steps_per_epoch=train_steps,
             epochs=epochs,
+            verbose=2,
             validation_data=dev_generator,
             validation_steps=validation_steps,
             callbacks=callbacks,
