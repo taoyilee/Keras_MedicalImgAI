@@ -4,3 +4,4 @@ venv/
 experiments/
 *.log
 *.h5
+*.jpg
