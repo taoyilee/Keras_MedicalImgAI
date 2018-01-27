@@ -15,15 +15,17 @@ def load_generator_data(generator, steps, class_num):
 
     """
     batches_x = []
+    batches_x_orig = []
     batches_y_classes = []
     for i in range(class_num):
         batches_y_classes.append([])
     for i in range(steps):
-        batch_x, batch_y = next(generator)
+        batch_x, batch_y, batch_x_orig = next(generator)
         batches_x.append(batch_x)
+        batches_x_orig.append(batch_x_orig)
         for c, batch_y_class in enumerate(batch_y):
             batches_y_classes[c].append(batch_y_class)
-    return np.concatenate(batches_x, axis=0), [np.concatenate(c, axis=0) for c in batches_y_classes]
+    return np.concatenate(batches_x, axis=0), [np.concatenate(c, axis=0) for c in batches_y_classes], np.concatenate(batches_x_orig, axis=0)
 
 
 class MultipleClassAUROC(Callback):

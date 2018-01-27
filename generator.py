@@ -34,7 +34,7 @@ def custom_image_generator(generator, directory, class_names, batch_size=16, tar
         # now shape is (batch#, 14)
         batch_y_multilabel = np.array(batch_y_multilabel)
         # make the output [y1, y2, y3 ... y14] where yx shape is (batch#, 1)
-        yield (batch_x - mean) / std, [np.array(y) for y in batch_y_multilabel.T.tolist()]
+        yield (batch_x - mean) / std, [np.array(y) for y in batch_y_multilabel.T.tolist()], batch_x
 
 
 def label2vec(label, class_names):
