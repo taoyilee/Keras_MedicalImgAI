@@ -5,3 +5,4 @@ experiments/
 *.log
 *.h5
 *.jpg
+imgdir
