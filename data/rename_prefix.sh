@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for a in `find $1 -name "*.png" -type f`;
+for a in `find $1 -name "*.jpg" -type f`;
 do 
 	prefix_dir="$(cut -d'/' -f1 <<< $a)"
 	filename="$(cut -d'/' -f2 <<< $a)"	

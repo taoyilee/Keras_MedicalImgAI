@@ -19,10 +19,10 @@ with open('image_data_entry.csv', 'w', newline='') as csvfile:
 
     for images in  os.listdir(path=imgdir):
         img = cv.imread(imgdir + images )
-        if fnmatch.fnmatch(images, 'FX_*.png'):
+        if fnmatch.fnmatch(images, 'FX_*.jpg'):
             print ('Fractured ' + images)
             spamwriter.writerow([images, 'FX', patient_ID, img.shape[0], img.shape[1]])
-        if fnmatch.fnmatch(images, 'NM_*.png'):
+        if fnmatch.fnmatch(images, 'NM_*.jpg'):
             print ('Normal ' + images)
             spamwriter.writerow([images, 'Normal', patient_ID, img.shape[0], img.shape[1]])
         patient_ID = patient_ID + 1
