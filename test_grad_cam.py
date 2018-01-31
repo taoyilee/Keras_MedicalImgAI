@@ -22,6 +22,7 @@ def main():
     # default config
     output_dir = cp["DEFAULT"].get("output_dir")
     class_names = cp["DEFAULT"].get("class_names").split(",")
+    image_dimension = cp["DEFAULT"].getint("image_dimension")
 
     # test config
     batch_size = cp["TEST"].getint("batch_size")
@@ -48,8 +49,10 @@ def main():
         test_data_path,
         batch_size=batch_size,
         class_names=class_names,
+        target_size=(image_dimension, image_dimension),
+        cam=True
     )
-    x, y, x_orig = load_generator_data(test_generator, step_test, len(class_names))
+    x, y, x_orig = load_generator_data(test_generator, step_test, len(class_names), cam=True)
     xshape = np.shape(x)
     print(f"x = {xshape}")
     #x0 = x[0:1,:,:,:]
@@ -58,7 +61,7 @@ def main():
     #print(f"x0 = {x0shape}")
 
     print("** load model **")
-    model = get_model(class_names)
+    model = get_model(class_names, image_dimension=image_dimension)
     if use_best_weights:
         print("** use best weights **")
         model.load_weights(best_weights_path)
@@ -70,29 +73,22 @@ def main():
     y_hat = model.predict(x)
 
     print("** perform grad cam **")
-    print("y_hat = {}".format(y_hat))
-    print("shape y_hat = {}".format(np.shape(y_hat)))
+    #print("y_hat = {}".format(y_hat))
+    #print("shape y_hat = {}".format(np.shape(y_hat)))
     fx_prob = y_hat[0][:, 0]
     nm_prob = y_hat[1][:, 0]
-    print("fx_prob = {}".format(np.shape(fx_prob)))
+    #print("fx_prob = {}".format(np.shape(fx_prob)))
     with open('predicted_class.csv', 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
         csvwriter.writerow(['ID', 'FX Probability', 'Normal Probability'])
         for i in range(len(fx_prob)):
             csvwriter.writerow([i, fx_prob[i], nm_prob[i]])
-    #print(predicted_class)
-    #for l in model.layers:
-    #    print("layer name = {} {}".format(l.name, l.__class__.__name__))
             xi_orig = 255*x_orig[i, :]
-            #print("image = {}".format(x0_orig))
-            #print("image dimension = {}".format(np.shape(xi_orig)))
-            #print("image pixel class = {}".format(x0_orig[0,0,0].__class__.__name__))
             cv2.imwrite(f"imgdir/orig_image_{i}.jpg", np.uint8(xi_orig))
             predicted_class = 0 if fx_prob[i] > nm_prob[i] else 1
-            cam, heatmap = gc.grad_cam(model, x[np.newaxis, i, :], predicted_class, "conv5_blk_scale")
-            cv2.imwrite(f"imgdir/gradcam.jpg_{i}", cam)
-            cv2.imwrite(f"imgdir/concat_gradcam_{i}.jpg", np.concatenate((np.uint8(xi_orig), cam), axis=1))
-    #print(f"yhat = {y_hat}")
+            cam, heatmap = gc.grad_cam(model, x[np.newaxis, i, :], predicted_class, "conv5_blk_scale", image_dimension=image_dimension)
+            cv2.imwrite(f"imgdir/gradcam_{i}.jpg", 0.4*cam + 0.6*np.uint8(xi_orig))
+            #cv2.imwrite(f"imgdir/concat_gradcam_{i}.jpg", np.concatenate((np.uint8(xi_orig), cam), axis=1))
 
 if __name__ == "__main__":
     main()

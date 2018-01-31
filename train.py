@@ -12,6 +12,7 @@ from keras.utils import multi_gpu_model
 from models.densenet121 import get_model
 from utility import split_data, get_sample_counts, create_symlink
 from weights import get_class_weights
+import numpy as np
 
 
 def main():
@@ -27,6 +28,7 @@ def main():
     dev_patient_count = cp["DEFAULT"].getint("dev_patient_count")
     data_entry_file = cp["DEFAULT"].get("data_entry_file")
     class_names = cp["DEFAULT"].get("class_names").split(",")
+    image_dimension = cp["DEFAULT"].getint("image_dimension")
 
     # train config
     use_base_model_weights = cp["TRAIN"].getboolean("use_base_model_weights")
@@ -95,6 +97,8 @@ def main():
 
         # get train/dev sample counts
         train_counts, train_pos_counts = get_sample_counts(output_dir, "train", class_names)
+        print(f"Train counts = {train_counts}, with {train_pos_counts} positive labels")
+
         dev_counts, _ = get_sample_counts(output_dir, "dev", class_names)
 
         # compute steps
@@ -146,7 +150,7 @@ def main():
                 model_weights_file = os.path.join(output_dir, output_weights_name)
         else:
             model_weights_file = None
-        model = get_model(class_names, base_model_weights_file, model_weights_file)
+        model = get_model(class_names, base_model_weights_file, model_weights_file, image_dimension=image_dimension)
         if show_model_summary:
             print(model.summary())
 
@@ -157,17 +161,21 @@ def main():
         print("** create image generators **")
         train_data_path = f"{output_dir}/{symlink_dir_name}/train/"
         train_generator = custom_image_generator(
-            ImageDataGenerator(horizontal_flip=True, rescale=1./255),
+            ImageDataGenerator(horizontal_flip=True, vertical_flip=True, rotation_range=2, width_shift_range=0.01, height_shift_range=0.01, zoom_range=0.03, rescale=1./255),
             train_data_path,
             batch_size=batch_size,
             class_names=class_names,
+            target_size=(image_dimension, image_dimension)
         )
+
         dev_data_path = f"{output_dir}/{symlink_dir_name}/dev/"
         dev_generator = custom_image_generator(
-            ImageDataGenerator(horizontal_flip=True, rescale=1./255),
+            #ImageDataGenerator(horizontal_flip=True, rescale=1./255),
+            ImageDataGenerator(horizontal_flip=True, vertical_flip=True, rotation_range=2, width_shift_range=0.01, height_shift_range=0.01, zoom_range=0.05, rescale=1./255),
             dev_data_path,
             batch_size=batch_size,
             class_names=class_names,
+            target_size=(image_dimension, image_dimension)
         )
 
         output_weights_path = os.path.join(output_dir, output_weights_name)
@@ -205,6 +213,8 @@ def main():
         ]
 
         print("** training start **")
+        for c, w in class_weights.items():
+            print(f"  {c}: {w}")
         history = model_train.fit_generator(
             generator=train_generator,
             steps_per_epoch=train_steps,

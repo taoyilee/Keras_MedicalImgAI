@@ -18,6 +18,7 @@ def main():
     # default config
     output_dir = cp["DEFAULT"].get("output_dir")
     class_names = cp["DEFAULT"].get("class_names").split(",")
+    image_dimension = cp["DEFAULT"].getint("image_dimension")
 
     # test config
     batch_size = cp["TEST"].getint("batch_size")
@@ -41,11 +42,13 @@ def main():
         test_data_path,
         batch_size=batch_size,
         class_names=class_names,
+        target_size=(image_dimension, image_dimension),
+        cam=False
     )
-    x, y = load_generator_data(test_generator, step_test, len(class_names))
+    x, y = load_generator_data(test_generator, step_test, len(class_names), cam=False)
 
     print("** load model **")
-    model = get_model(class_names)
+    model = get_model(class_names, image_dimension=image_dimension)
     if use_best_weights:
         print("** use best weights **")
         model.load_weights(best_weights_path)

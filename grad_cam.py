@@ -23,7 +23,7 @@ def normalize(x):
 
 def load_image(path):
     img_path = sys.argv[1]
-    img = image.load_img(img_path, target_size=(224, 224))
+    img = image.load_img(img_path, target_size=(1024, 1024))
     x = image.img_to_array(img)
     x = np.expand_dims(x, axis=0)
     x = preprocess_input(x)
@@ -85,7 +85,7 @@ def deprocess_image(x):
     x = np.clip(x, 0, 255).astype('uint8')
     return x
 
-def grad_cam(input_model, image, category_index, layer_name):
+def grad_cam(input_model, image, category_index, layer_name, image_dimension=512):
     output = input_model.output
 
     nb_classes = 2
@@ -110,7 +110,7 @@ def grad_cam(input_model, image, category_index, layer_name):
     for i, w in enumerate(weights):
         cam += w * output[:, :, i]
 
-    cam = cv2.resize(cam, (224, 224))
+    cam = cv2.resize(cam, (image_dimension, image_dimension))
     cam = np.maximum(cam, 0)
     heatmap = cam / np.max(cam)
 

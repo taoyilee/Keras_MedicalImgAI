@@ -12,7 +12,7 @@ from keras.layers.normalization import BatchNormalization
 from .custom_layers import Scale
 
 
-def get_model(class_names, base_weights_path=None, weights_path=None):
+def get_model(class_names, base_weights_path=None, weights_path=None, image_dimension=512):
     """
     Create model for transfer learning
 
@@ -27,7 +27,7 @@ def get_model(class_names, base_weights_path=None, weights_path=None):
     if weights_path == "":
         weights_path = None
 
-    base_model = densenet121(reduction=0.5, classes=1000, weights_path=base_weights_path)
+    base_model = densenet121(reduction=0.5, classes=1000, weights_path=base_weights_path, image_dimension=image_dimension)
 
     # create our own output
     x = base_model.get_layer("conv5_blk_scale").output
@@ -49,7 +49,7 @@ def get_model(class_names, base_weights_path=None, weights_path=None):
 
 
 def densenet121(nb_dense_block=4, growth_rate=32, nb_filter=64, reduction=0.0, dropout_rate=0.0, weight_decay=1e-4,
-                classes=1000, weights_path=None):
+                classes=1000, weights_path=None, image_dimension=512):
     """
     Instantiate the DenseNet 121 architecture,
         # Arguments
@@ -73,10 +73,10 @@ def densenet121(nb_dense_block=4, growth_rate=32, nb_filter=64, reduction=0.0, d
     global concat_axis
     if kb.image_dim_ordering() == 'tf':
         concat_axis = 3
-        img_input = Input(shape=(224, 224, 3), name='data')
+        img_input = Input(shape=(image_dimension, image_dimension, 1), name='data')
     else:
         concat_axis = 1
-        img_input = Input(shape=(3, 224, 224), name='data')
+        img_input = Input(shape=(1, image_dimension, image_dimension), name='data')
 
     # From architecture for ImageNet (Table 1 in the paper)
     nb_filter = 64

@@ -8,7 +8,7 @@ from keras.callbacks import Callback
 from sklearn.metrics import roc_auc_score
 
 
-def load_generator_data(generator, steps, class_num):
+def load_generator_data(generator, steps, class_num, cam=False):
     """
     Return some data collected from a generator, use this to ensure all images
     are processed by exactly the same steps in the customized ImageDataGenerator.
@@ -20,12 +20,18 @@ def load_generator_data(generator, steps, class_num):
     for i in range(class_num):
         batches_y_classes.append([])
     for i in range(steps):
-        batch_x, batch_y, batch_x_orig = next(generator)
+        if cam:
+            batch_x, batch_y, batch_x_orig = next(generator)
+            batches_x_orig.append(batch_x_orig)
+        else:
+            batch_x, batch_y = next(generator)
         batches_x.append(batch_x)
-        batches_x_orig.append(batch_x_orig)
         for c, batch_y_class in enumerate(batch_y):
             batches_y_classes[c].append(batch_y_class)
-    return np.concatenate(batches_x, axis=0), [np.concatenate(c, axis=0) for c in batches_y_classes], np.concatenate(batches_x_orig, axis=0)
+    if cam:
+        return np.concatenate(batches_x, axis=0), [np.concatenate(c, axis=0) for c in batches_y_classes], np.concatenate(batches_x_orig, axis=0)
+    else:
+        return np.concatenate(batches_x, axis=0), [np.concatenate(c, axis=0) for c in batches_y_classes]
 
 
 class MultipleClassAUROC(Callback):
