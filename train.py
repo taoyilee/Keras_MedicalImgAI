@@ -29,6 +29,7 @@ def main():
     data_entry_file = cp["DEFAULT"].get("data_entry_file")
     class_names = cp["DEFAULT"].get("class_names").split(",")
     image_dimension = cp["DEFAULT"].getint("image_dimension")
+    color_mode = cp["DEFAULT"].get("color_mode")
 
     # train config
     use_base_model_weights = cp["TRAIN"].getboolean("use_base_model_weights")
@@ -150,7 +151,7 @@ def main():
                 model_weights_file = os.path.join(output_dir, output_weights_name)
         else:
             model_weights_file = None
-        model = get_model(class_names, base_model_weights_file, model_weights_file, image_dimension=image_dimension)
+        model = get_model(class_names, base_model_weights_file, model_weights_file, image_dimension=image_dimension, color_mode=color_mode)
         if show_model_summary:
             print(model.summary())
 

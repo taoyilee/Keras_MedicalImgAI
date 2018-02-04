@@ -3,5 +3,4 @@ __pycache__
 venv/
 experiments/
 *.log
-*.jpg
 imgdir
