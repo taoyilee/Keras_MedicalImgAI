@@ -33,6 +33,17 @@ def load_generator_data(generator, steps, class_num, cam=False):
     else:
         return np.concatenate(batches_x, axis=0), [np.concatenate(c, axis=0) for c in batches_y_classes]
 
+class SaveBaseModel(Callback):
+    def __init__(self, filepath, save_weights_only=False):
+        self.filepath = filepath
+        self.save_weights_only = save_weights_only
+
+    def on_train_end(self, logs={}):
+        if self.save_weights_only:
+            self.model.base_model.save_weights(self.filepath, overwrite=True)
+        else:
+            self.model.base_model.save(self.filepath, overwrite=True)
+
 
 class MultipleClassAUROC(Callback):
     """
