@@ -2,7 +2,7 @@ import json
 import shutil
 import os
 import pickle
-from callback import MultipleClassAUROC, MultiGPUModelCheckpoint
+from callback import MultipleClassAUROC, MultiGPUModelCheckpoint, SaveBaseModel
 from configparser import ConfigParser
 from generator import custom_image_generator
 from keras.callbacks import ModelCheckpoint, TensorBoard, ReduceLROnPlateau
@@ -162,7 +162,7 @@ def main():
         print("** create image generators **")
         train_data_path = f"{output_dir}/{symlink_dir_name}/train/"
         train_generator = custom_image_generator(
-            ImageDataGenerator(horizontal_flip=True, vertical_flip=True, rotation_range=2, width_shift_range=0.01, height_shift_range=0.01, zoom_range=0.03, rescale=1./255),
+            ImageDataGenerator(horizontal_flip=True, vertical_flip=True, rotation_range=180, width_shift_range=0.01, height_shift_range=0.01, zoom_range=0.1, rescale=1./255),
             train_data_path,
             batch_size=batch_size,
             class_names=class_names,
@@ -172,7 +172,7 @@ def main():
         dev_data_path = f"{output_dir}/{symlink_dir_name}/dev/"
         dev_generator = custom_image_generator(
             #ImageDataGenerator(horizontal_flip=True, rescale=1./255),
-            ImageDataGenerator(horizontal_flip=True, vertical_flip=True, rotation_range=2, width_shift_range=0.01, height_shift_range=0.01, zoom_range=0.05, rescale=1./255),
+            ImageDataGenerator(horizontal_flip=True, vertical_flip=True, rescale=1./255),
             dev_data_path,
             batch_size=batch_size,
             class_names=class_names,
@@ -211,6 +211,7 @@ def main():
             TensorBoard(log_dir=os.path.join(output_dir, "logs"), batch_size=batch_size),
             ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=patience_reduce_lr, verbose=1),
             auroc,
+            SaveBaseModel(filepath=cp["TRAIN"].get("base_model_weights_file"), save_weights_only=False)
         ]
 
         print("** training start **")
