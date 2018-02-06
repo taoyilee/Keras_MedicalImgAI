@@ -70,25 +70,27 @@ def main():
         model.load_weights(weights_path)
 
     print("** make prediction **")
-    y_hat = model.predict(x)
-
+    y_hat = np.array(model.predict(x)).squeeze()
+    y_hat = y_hat.swapaxes(0,1)
     print("** perform grad cam **")
-    #print("y_hat = {}".format(y_hat))
-    #print("shape y_hat = {}".format(np.shape(y_hat)))
-    fx_prob = y_hat[0][:, 0]
-    nm_prob = y_hat[1][:, 0]
-    #print("fx_prob = {}".format(np.shape(fx_prob)))
     with open('predicted_class.csv', 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        csvwriter.writerow(['ID', 'FX Probability', 'Normal Probability'])
-        for i in range(len(fx_prob)):
-            csvwriter.writerow([i, fx_prob[i], nm_prob[i]])
+        csv_header = ['ID', 'Most probable diagnosis']
+        for i, v in enumerate(class_names):
+            csv_header.append(f"{v}_Prob")
+        csvwriter.writerow(csv_header)
+        for i, v in enumerate(y_hat):
+            predicted_class = np.argmax(v)
+            print(f"** y_hat[{i+1}] = {v.round(3)} Prediction: {class_names[predicted_class]}")
+            csv_row = [str(i+1), f"{class_names[predicted_class]}"] + [str(vi.round(3)) for vi in v] 
+            csvwriter.writerow(csv_row)
             xi_orig = 255*x_orig[i, :]
             cv2.imwrite(f"imgdir/orig_image_{i}.jpg", np.uint8(xi_orig))
-            predicted_class = 0 if fx_prob[i] > nm_prob[i] else 1
             cam, heatmap = gc.grad_cam(model, x[np.newaxis, i, :], predicted_class, "conv5_blk_scale", image_dimension=image_dimension)
-            cv2.imwrite(f"imgdir/gradcam_{i}.jpg", 0.4*cam + 0.6*np.uint8(xi_orig))
-            #cv2.imwrite(f"imgdir/concat_gradcam_{i}.jpg", np.concatenate((np.uint8(xi_orig), cam), axis=1))
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            gradcam_img = 0.4*cam + 0.6*np.uint8(xi_orig)
+            cv2.putText(gradcam_img, f"Predicted as:{class_names[predicted_class]}", (5, 20), font, 1, (255,255,255), 2, cv2.LINE_AA)
+            cv2.imwrite(f"imgdir/gradcam_{i}.jpg", gradcam_img)
 
 if __name__ == "__main__":
     main()
