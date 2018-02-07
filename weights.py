@@ -14,8 +14,10 @@ def get_class_weights(total_counts, class_positive_counts, multiply, use_class_b
     Returns:
     class_weight - dict of dict, ex: {"Effusion": { 0: 0.01, 1: 0.99 }, ... }
     """
-    def get_single_class_weight(pos_counts, total_counts):
+
+    def get_single_class_weight(pos_counts):
         denominator = (total_counts - pos_counts) * multiply + pos_counts
+        #print(f"Total counts = {total_counts}, Positive counts = {pos_counts}")
         return {
             0: pos_counts / denominator,
             1: (denominator - pos_counts) / denominator,
@@ -46,7 +48,7 @@ def get_class_weights(total_counts, class_positive_counts, multiply, use_class_b
     label_counts = np.array(list(class_positive_counts.values()))
     class_weights = {}
     for i, class_name in enumerate(class_names):
-        class_weights[class_name] = get_single_class_weight(label_counts[i], total_counts)
+        class_weights[class_name] = get_single_class_weight(label_counts[i])
 
     if use_class_balancing:
         class_weights = balancing(class_weights, label_counts)

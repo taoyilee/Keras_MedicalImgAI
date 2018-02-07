@@ -1,36 +1,8 @@
-import numpy as np
 import os
-import pandas as pd
-import random
 import shutil
 
-
-def split_data(data_entry_file, class_names, train_patient_count, dev_patient_count,
-               output_dir, random_state):
-    """
-    Create dataset split csv files
-
-    """
-    e = pd.read_csv(data_entry_file)
-
-    # one hot encode
-    for c in class_names:
-        e[c] = e["Finding Labels"].apply(lambda labels: 1 if c in labels else 0)
-
-    # shuffle and split
-    pid = list(e["Patient ID"].unique())
-    random.seed(random_state)
-    random.shuffle(pid)
-    train = e[e["Patient ID"].isin(pid[:train_patient_count])]
-    dev = e[e["Patient ID"].isin(pid[train_patient_count:train_patient_count+dev_patient_count])]
-    test = e[e["Patient ID"].isin(pid[train_patient_count+dev_patient_count:])]
-
-    # export csv
-    output_fields = ["Image Index", "Patient ID", "Finding Labels"] + class_names
-    train[output_fields].to_csv(os.path.join(output_dir, "train.csv"), index=False)
-    dev[output_fields].to_csv(os.path.join(output_dir, "dev.csv"), index=False)
-    test[output_fields].to_csv(os.path.join(output_dir, "test.csv"), index=False)
-    return
+import numpy as np
+import pandas as pd
 
 
 def get_sample_counts(output_dir, dataset, class_names):
@@ -60,8 +32,8 @@ def create_symlink_for_sample(src_file, label, dataset, dst_name, image_source_d
 
     """
     src_path = os.path.join(image_source_dir, src_file)
-    #labels = label.split("|")
-    #for l in labels:
+    # labels = label.split("|")
+    # for l in labels:
     dst_dir = os.path.join(dst_name, dataset, label)
     if not os.path.isdir(dst_dir):
         os.makedirs(dst_dir)

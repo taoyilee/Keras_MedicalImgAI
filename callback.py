@@ -1,9 +1,10 @@
 import json
-import keras.backend as kb
-import numpy as np
 import os
 import shutil
 import warnings
+
+import keras.backend as kb
+import numpy as np
 from keras.callbacks import Callback
 from sklearn.metrics import roc_auc_score
 
@@ -29,9 +30,11 @@ def load_generator_data(generator, steps, class_num, cam=False):
         for c, batch_y_class in enumerate(batch_y):
             batches_y_classes[c].append(batch_y_class)
     if cam:
-        return np.concatenate(batches_x, axis=0), [np.concatenate(c, axis=0) for c in batches_y_classes], np.concatenate(batches_x_orig, axis=0)
+        return np.concatenate(batches_x, axis=0), [np.concatenate(c, axis=0) for c in
+                                                   batches_y_classes], np.concatenate(batches_x_orig, axis=0)
     else:
         return np.concatenate(batches_x, axis=0), [np.concatenate(c, axis=0) for c in batches_y_classes]
+
 
 class SaveBaseModel(Callback):
     def __init__(self, filepath, save_weights_only=False):
@@ -49,6 +52,7 @@ class MultipleClassAUROC(Callback):
     """
     Monitor mean AUROC and update model
     """
+
     def __init__(self, generator, steps, class_names, weights_path, stats=None):
         super(Callback, self).__init__()
         self.generator = generator
@@ -136,6 +140,7 @@ class MultiGPUModelCheckpoint(Callback):
     Checkpointing callback for multi_gpu_model
     copy from https://github.com/keras-team/keras/issues/8463
     """
+
     def __init__(self, filepath, base_model, monitor='val_loss', verbose=0,
                  save_best_only=False, save_weights_only=False,
                  mode='auto', period=1):

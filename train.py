@@ -1,20 +1,20 @@
 import argparse
 import importlib
 import json
-import shutil
 import os
 import pickle
-from callback import MultipleClassAUROC, MultiGPUModelCheckpoint
+import shutil
 from configparser import ConfigParser
-from generator import custom_image_generator
+
+import numpy as np
 from keras.callbacks import ModelCheckpoint, TensorBoard, ReduceLROnPlateau
 from keras.optimizers import Adam
-from keras.preprocessing.image import ImageDataGenerator
 from keras.utils import multi_gpu_model
+
+from callback import MultipleClassAUROC, MultiGPUModelCheckpoint, SaveBaseModel
 from models.densenet121 import get_model
-from utility import split_data, get_sample_counts, create_symlink
+from utility import create_symlink
 from weights import get_class_weights
-import numpy as np
 
 
 def main(config_file):
@@ -28,7 +28,13 @@ def main(config_file):
     model_name = cp["DEFAULT"].get("nn_model")
     dataset_name = cp["DEFAULT"].get("dataset_name")
 
-    dataset_pkg = importlib.import_module(dataset_name)
+    dataset_spec = importlib.util.spec_from_file_location(dataset_name, f"./datasets/{dataset_name}.py")
+    if dataset_spec is None:
+        print(f"can't find the {dataset_name} module")
+    else:
+        # If you chose to perform the actual import ...
+        dataset_pkg = importlib.util.module_from_spec(dataset_spec)
+        dataset_spec.loader.exec_module(dataset_pkg)
 
     train_patient_ratio = cp["DEFAULT"].getint("train_patient_ratio")
     dev_patient_ratio = cp["DEFAULT"].getint("dev_patient_ratio")
@@ -94,27 +100,15 @@ def main(config_file):
                 shutil.copy(f"./data/default_split/{dataset}.csv", output_dir)
         elif not use_skip_split:
             print("** split dataset **")
-            dataset_generator = dataset_pkg.load_data(image_dir=image_source_dir, data_entry=data_entry_file, train_ratio=train_patient_ratio,
-                                  dev_ratio=dev_patient_ratio,
-                                  output_dir=output_dir, img_dim=256, class_names=class_names)
-            split_data(
-                data_entry_file,
-                class_names,
-                train_patient_count,
-                dev_patient_count,
-                output_dir,
-                split_dataset_random_state,
-            )
-
-        # get train/dev sample counts
-        train_counts, train_pos_counts = get_sample_counts(output_dir, "train", class_names)
-        print(f"Train counts = {train_counts}, with {train_pos_counts} positive labels")
-
-        dev_counts, _ = get_sample_counts(output_dir, "dev", class_names)
+            dataset0 = dataset_pkg.DataSet(image_dir=image_source_dir, data_entry=data_entry_file,
+                                           train_ratio=train_patient_ratio,
+                                           dev_ratio=dev_patient_ratio,
+                                           output_dir=output_dir, img_dim=256, class_names=class_names,
+                                           random_state=split_dataset_random_state)
 
         # compute steps
         if train_steps == "auto":
-            train_steps = int(train_counts / batch_size)
+            train_steps = int(dataset0.train_count / batch_size)
         else:
             try:
                 train_steps = int(train_steps)
@@ -126,7 +120,7 @@ def main(config_file):
         print(f"** train_steps: {train_steps} **")
 
         if validation_steps == "auto":
-            validation_steps = int(dev_counts / batch_size)
+            validation_steps = int(dataset0.dev_count / batch_size)
         else:
             try:
                 validation_steps = int(validation_steps)
@@ -140,8 +134,8 @@ def main(config_file):
         # compute class weights
         print("** compute class weights from training data **")
         class_weights = get_class_weights(
-            train_counts,
-            train_pos_counts,
+            dataset0.train_count,
+            dataset0.train_pos_count,
             multiply=positive_weights_multiply,
             use_class_balancing=use_class_balancing
         )
@@ -161,32 +155,15 @@ def main(config_file):
                 model_weights_file = os.path.join(output_dir, output_weights_name)
         else:
             model_weights_file = None
-        model = get_model(class_names, base_model_weights_file, model_weights_file, image_dimension=image_dimension, color_mode=color_mode)
+        model = get_model(class_names, base_model_weights_file, model_weights_file, image_dimension=image_dimension,
+                          color_mode=color_mode)
         if show_model_summary:
             print(model.summary())
 
-        # recreate symlink folder for ImageDataGenerator
-        symlink_dir_name = "image_links"
-        create_symlink(image_source_dir, output_dir, symlink_dir_name)
 
         print("** create image generators **")
-        train_data_path = f"{output_dir}/{symlink_dir_name}/train/"
-        train_generator = custom_image_generator(
-            ImageDataGenerator(horizontal_flip=True, rescale=1. / 255),
-            train_data_path,
-            batch_size=batch_size,
-            class_names=class_names,
-            target_size=(image_dimension, image_dimension),
-            verbose=verbosity
-        )
-        dev_data_path = f"{output_dir}/{symlink_dir_name}/dev/"
-        dev_generator = custom_image_generator(
-            ImageDataGenerator(horizontal_flip=True, rescale=1. / 255),
-            dev_data_path,
-            batch_size=batch_size,
-            class_names=class_names,
-            target_size=(image_dimension, image_dimension)
-        )
+        train_generator = dataset0.train_generator()
+        dev_generator = dataset0.dev_generator()
 
         output_weights_path = os.path.join(output_dir, output_weights_name)
         print(f"** set output weights path to: {output_weights_path} **")
@@ -227,6 +204,8 @@ def main(config_file):
         print(f"** training with: {epochs} epochs @ {train_steps} steps/epoch **")
         for c, w in class_weights.items():
             print(f"  {c}: {w}")
+        x, y = next(train_generator)
+        print(f" x = {np.shape(x)}, y = {np.shape(y)}")
         history = model_train.fit_generator(
             generator=train_generator,
             steps_per_epoch=train_steps,
@@ -252,6 +231,11 @@ def main(config_file):
 
 
 if __name__ == "__main__":
+    '''
+    Entry Point
+    '''
+
+    # use argparse to accept command line variables (config.ini)
     parser = argparse.ArgumentParser(description='Train a specfic dataset')
     parser.add_argument('config', metavar='config', type=str, help='an integer for the accumulator')
     args = parser.parse_args()
