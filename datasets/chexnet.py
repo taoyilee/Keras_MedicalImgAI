@@ -63,7 +63,8 @@ class DataSet:
     def train_generator(self, verbosity=0):
         i = 0
         while True:
-            print(f"now yielding batch {i}")
+            if verbosity > 0:
+                print(f"now yielding traing batch {i}")
             yield batch_generator(self.train["Image Index"].iloc[i:i + self.batch_size],
                                   self.train["One_Hot_Labels"].iloc[i: i + self.batch_size].tolist(), self.image_dir,
                                   img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
@@ -73,6 +74,8 @@ class DataSet:
     def dev_generator(self, verbosity=0):
         i = 0
         while True:
+            if verbosity > 0:
+                print(f"now yielding dev batch {i}")
             yield batch_generator(self.dev["Image Index"].iloc[i:i + self.batch_size],
                                   self.dev["One_Hot_Labels"].iloc[i:i + self.batch_size].tolist(), self.image_dir,
                                   img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
@@ -82,6 +85,8 @@ class DataSet:
     def test_generator(self, verbosity=0):
         i = 0
         while True:
+            if verbosity > 0:
+                print(f"now yielding test batch {i}")
             yield batch_generator(self.test["Image Index"].iloc[i:i + self.batch_size],
                                   self.test["One_Hot_Labels"].iloc[i:i + self.batch_size].tolist(), self.image_dir,
                                   img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
