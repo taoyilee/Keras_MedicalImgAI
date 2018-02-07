@@ -41,6 +41,12 @@ class SaveBaseModel(Callback):
         self.filepath = filepath
         self.save_weights_only = save_weights_only
 
+    def on_epoch_end(self, epoch, logs={}):
+        if self.save_weights_only:
+            self.model.base_model.save_weights(self.filepath, overwrite=True)
+        else:
+            self.model.base_model.save(self.filepath, overwrite=True)
+
     def on_train_end(self, logs={}):
         if self.save_weights_only:
             self.model.base_model.save_weights(self.filepath, overwrite=True)

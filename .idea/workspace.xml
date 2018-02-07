@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="974d2909-fdd6-435c-9414-fae7fbd813bf" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/chexnet_config.ini" afterPath="$PROJECT_DIR$/chexnet_config.ini" />
+      <change beforePath="$PROJECT_DIR$/callback.py" afterPath="$PROJECT_DIR$/callback.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -26,12 +26,24 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="chexnet_config.ini" pinned="false" current-in-tab="true">
+      <file leaf-file-name="chexnet_config.ini" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/chexnet_config.ini">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
+            <state relative-caret-position="120">
               <caret line="11" column="22" lean-forward="false" selection-start-line="11" selection-start-column="22" selection-end-line="11" selection-end-column="22" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="callback.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/callback.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="315">
+              <caret line="47" column="57" lean-forward="false" selection-start-line="47" selection-start-column="57" selection-end-line="47" selection-end-column="57" />
+              <folding>
+                <element signature="e#0#11#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -73,7 +85,6 @@
         <option value="$PROJECT_DIR$/test/test_chexnet_data.ipynb" />
         <option value="$PROJECT_DIR$/pxr_config.ini" />
         <option value="$PROJECT_DIR$/requirements.txt" />
-        <option value="$PROJECT_DIR$/callback.py" />
         <option value="$PROJECT_DIR$/datasets/ds_utility.py" />
         <option value="$PROJECT_DIR$/datasets/chexnet_ds/utility.py" />
         <option value="$PROJECT_DIR$/datasets/utility.py" />
@@ -83,6 +94,7 @@
         <option value="$PROJECT_DIR$/datasets/chexnet.py" />
         <option value="$PROJECT_DIR$/train.py" />
         <option value="$PROJECT_DIR$/chexnet_config.ini" />
+        <option value="$PROJECT_DIR$/callback.py" />
       </list>
     </option>
   </component>
@@ -320,7 +332,14 @@
       <option name="project" value="LOCAL" />
       <updated>1518029425139</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="modify dataset split">
+      <created>1518029542712</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1518029542712</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -361,7 +380,8 @@
     <MESSAGE value="print batch number from generator" />
     <MESSAGE value="bugfix: print actual batch number" />
     <MESSAGE value="use multithreading to improve generator efficiency" />
-    <option name="LAST_COMMIT_MESSAGE" value="use multithreading to improve generator efficiency" />
+    <MESSAGE value="modify dataset split" />
+    <option name="LAST_COMMIT_MESSAGE" value="modify dataset split" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -559,13 +579,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/callback.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="42" column="0" lean-forward="false" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/test/test_chexnet_data.ipynb">
       <provider selected="true" editor-type-id="ipnb-editor">
         <state>
@@ -653,9 +666,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/chexnet_config.ini">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
+        <state relative-caret-position="120">
           <caret line="11" column="22" lean-forward="false" selection-start-line="11" selection-start-column="22" selection-end-line="11" selection-end-column="22" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/callback.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="47" column="57" lean-forward="false" selection-start-line="47" selection-start-column="57" selection-end-line="47" selection-end-column="57" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
