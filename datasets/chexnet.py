@@ -62,15 +62,15 @@ class DataSet:
 
     def train_generator(self, verbosity=0):
         batch = self.train.sample(frac=1)  # shuffle
-        return DataSequence(batch, image_dir=self.image_dir,
+        return DataSequence(batch, image_dir=self.image_dir, set_name='train',
                             img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
 
     def dev_generator(self, verbosity=0):
         batch = self.dev.sample(frac=1)  # shuffle
-        return DataSequence(batch, image_dir=self.image_dir,
+        return DataSequence(batch, image_dir=self.image_dir, set_name='dev',
                             img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
 
     def test_generator(self, verbosity=0):
         batch = self.test.sample(frac=1)  # shuffle
-        return DataSequence(batch, image_dir=self.image_dir,
+        return DataSequence(batch, image_dir=self.image_dir, set_name='test',
                             img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)

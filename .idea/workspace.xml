@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="974d2909-fdd6-435c-9414-fae7fbd813bf" name="Default" comment="bug fix in common generator">
+    <list default="true" id="974d2909-fdd6-435c-9414-fae7fbd813bf" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/datasets/chexnet.py" afterPath="$PROJECT_DIR$/datasets/chexnet.py" />
       <change beforePath="$PROJECT_DIR$/datasets/dataset_utility.py" afterPath="$PROJECT_DIR$/datasets/dataset_utility.py" />
@@ -35,11 +35,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="chexnet.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="chexnet.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/datasets/chexnet.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="548">
-              <caret line="68" column="38" lean-forward="false" selection-start-line="68" selection-start-column="38" selection-end-line="68" selection-end-column="38" />
+            <state relative-caret-position="503">
+              <caret line="74" column="75" lean-forward="false" selection-start-line="74" selection-start-column="75" selection-end-line="74" selection-end-column="75" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -47,11 +47,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="dataset_utility.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="dataset_utility.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/datasets/dataset_utility.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="525">
-              <caret line="35" column="42" lean-forward="true" selection-start-line="35" selection-start-column="42" selection-end-line="35" selection-end-column="42" />
+            <state relative-caret-position="405">
+              <caret line="27" column="32" lean-forward="true" selection-start-line="27" selection-start-column="32" selection-end-line="27" selection-end-column="32" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -116,8 +116,8 @@
         <option value="$PROJECT_DIR$/chexnet_config.ini" />
         <option value="$PROJECT_DIR$/callback.py" />
         <option value="$PROJECT_DIR$/train.py" />
-        <option value="$PROJECT_DIR$/datasets/chexnet.py" />
         <option value="$PROJECT_DIR$/datasets/dataset_utility.py" />
+        <option value="$PROJECT_DIR$/datasets/chexnet.py" />
       </list>
     </option>
   </component>
@@ -397,7 +397,14 @@
       <option name="project" value="LOCAL" />
       <updated>1518031217458</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="use utils.sequence to ensure thread safe (no redundant data in one epoch)">
+      <created>1518033151171</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1518033151171</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -444,7 +451,8 @@
     <MESSAGE value="clean up generator code" />
     <MESSAGE value="bug fix in common_generator" />
     <MESSAGE value="bug fix in common generator" />
-    <option name="LAST_COMMIT_MESSAGE" value="bug fix in common generator" />
+    <MESSAGE value="use utils.sequence to ensure thread safe (no redundant data in one epoch)" />
+    <option name="LAST_COMMIT_MESSAGE" value="use utils.sequence to ensure thread safe (no redundant data in one epoch)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -721,22 +729,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/datasets/chexnet.py">
+    <entry file="file://$PROJECT_DIR$/datasets/dataset_utility.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="548">
-          <caret line="68" column="38" lean-forward="false" selection-start-line="68" selection-start-column="38" selection-end-line="68" selection-end-column="38" />
+        <state relative-caret-position="405">
+          <caret line="27" column="32" lean-forward="true" selection-start-line="27" selection-start-column="32" selection-end-line="27" selection-end-column="32" />
           <folding>
-            <element signature="e#0#9#0" expanded="true" />
+            <element signature="e#0#11#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/datasets/dataset_utility.py">
+    <entry file="file://$PROJECT_DIR$/datasets/chexnet.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="525">
-          <caret line="35" column="42" lean-forward="true" selection-start-line="35" selection-start-column="42" selection-end-line="35" selection-end-column="42" />
+        <state relative-caret-position="503">
+          <caret line="74" column="75" lean-forward="false" selection-start-line="74" selection-start-column="75" selection-end-line="74" selection-end-column="75" />
           <folding>
-            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
