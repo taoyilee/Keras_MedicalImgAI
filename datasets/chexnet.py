@@ -60,30 +60,30 @@ class DataSet:
         self.dev[output_fields].to_csv(os.path.join(output_dir, "dev.csv"), index=False)
         self.test[output_fields].to_csv(os.path.join(output_dir, "test.csv"), index=False)
 
-    def train_generator(self):
+    def train_generator(self, verbosity=0):
         i = 0
         while True:
             yield batch_generator(self.train["Image Index"].iloc[i:i + self.batch_size],
                                   self.train["One_Hot_Labels"].iloc[i: i + self.batch_size].tolist(), self.image_dir,
-                                  img_dim=self.img_dim, scale=self.scale)
+                                  img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
             i += self.batch_size
             i %= self.train_count
 
-    def dev_generator(self):
+    def dev_generator(self, verbosity=0):
         i = 0
         while True:
             yield batch_generator(self.dev["Image Index"].iloc[i:i + self.batch_size],
                                   self.dev["One_Hot_Labels"].iloc[i:i + self.batch_size].tolist(), self.image_dir,
-                                  img_dim=self.img_dim, scale=self.scale)
+                                  img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
             i += self.batch_size
             i %= self.dev_count
 
-    def test_generator(self):
+    def test_generator(self, verbosity=0):
         i = 0
         while True:
             yield batch_generator(self.test["Image Index"].iloc[i:i + self.batch_size],
                                   self.test["One_Hot_Labels"].iloc[i:i + self.batch_size].tolist(), self.image_dir,
-                                  img_dim=self.img_dim, scale=self.scale)
+                                  img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
 
             i += self.batch_size
             i %= self.test_count

@@ -14,7 +14,7 @@ def pos_count(subset_series, class_names):
 
 
 def batch_generator(image_filenames, labels, image_dir, img_dim=256, scale=1. / 255, colormode='grayscale',
-                    verbosity=2):
+                    verbosity=0):
     if colormode == 'grayscale':
         inputs = np.array(
             image_filenames.apply(lambda x: load_image(x, image_dir, img_dim=img_dim, scale=scale)).tolist())[:, :, :,
@@ -29,7 +29,7 @@ def batch_generator(image_filenames, labels, image_dir, img_dim=256, scale=1. / 
     return inputs, targets
 
 
-def load_image(image_name, image_dir, img_dim=256, scale=1. / 255, colormode='grayscale', verbosity=2):
+def load_image(image_name, image_dir, img_dim=256, scale=1. / 255, colormode='grayscale', verbosity=0):
     image_file = image_dir + "/" + image_name;
     if not os.path.isfile(image_file):
         raise Exception(f"{image_file} not found")

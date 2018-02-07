@@ -13,7 +13,6 @@ from keras.utils import multi_gpu_model
 
 from callback import MultipleClassAUROC, MultiGPUModelCheckpoint, SaveBaseModel
 from models.densenet121 import get_model
-from utility import create_symlink
 from weights import get_class_weights
 
 
@@ -160,10 +159,9 @@ def main(config_file):
         if show_model_summary:
             print(model.summary())
 
-
         print("** create image generators **")
-        train_generator = dataset0.train_generator()
-        dev_generator = dataset0.dev_generator()
+        train_generator = dataset0.train_generator(verbosity=verbosity)
+        dev_generator = dataset0.dev_generator(verbosity=verbosity)
 
         output_weights_path = os.path.join(output_dir, output_weights_name)
         print(f"** set output weights path to: {output_weights_path} **")
