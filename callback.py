@@ -22,10 +22,10 @@ def load_generator_data(generator, steps, class_num, cam=False):
         batches_y_classes.append([])
     for i in range(steps):
         if cam:
-            batch_x, batch_y, batch_x_orig = next(generator)
+            batch_x, batch_y, batch_x_orig = generator.__getitem__(i)
             batches_x_orig.append(batch_x_orig)
         else:
-            batch_x, batch_y = next(generator)
+            batch_x, batch_y = generator.__getitem__(i)
         batches_x.append(batch_x)
         for c, batch_y_class in enumerate(batch_y):
             batches_y_classes[c].append(batch_y_class)
