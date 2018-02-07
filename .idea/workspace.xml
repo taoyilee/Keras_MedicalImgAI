@@ -3,8 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="974d2909-fdd6-435c-9414-fae7fbd813bf" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/datasets/chexnet.py" afterPath="$PROJECT_DIR$/datasets/chexnet.py" />
-      <change beforePath="$PROJECT_DIR$/datasets/dataset_utility.py" afterPath="$PROJECT_DIR$/datasets/dataset_utility.py" />
+      <change beforePath="$PROJECT_DIR$/train.py" afterPath="$PROJECT_DIR$/train.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -15,12 +14,14 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="train.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="train.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/train.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2961">
-              <caret line="10" column="6" lean-forward="false" selection-start-line="10" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
-              <folding />
+            <state relative-caret-position="309">
+              <caret line="201" column="8" lean-forward="false" selection-start-line="201" selection-start-column="8" selection-end-line="201" selection-end-column="8" />
+              <folding>
+                <element signature="e#0#15#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -35,10 +36,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="chexnet.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="chexnet.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/datasets/chexnet.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="503">
+            <state relative-caret-position="638">
               <caret line="74" column="75" lean-forward="false" selection-start-line="74" selection-start-column="75" selection-end-line="74" selection-end-column="75" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
@@ -115,9 +116,9 @@
         <option value="$PROJECT_DIR$/weights.py" />
         <option value="$PROJECT_DIR$/chexnet_config.ini" />
         <option value="$PROJECT_DIR$/callback.py" />
-        <option value="$PROJECT_DIR$/train.py" />
         <option value="$PROJECT_DIR$/datasets/dataset_utility.py" />
         <option value="$PROJECT_DIR$/datasets/chexnet.py" />
+        <option value="$PROJECT_DIR$/train.py" />
       </list>
     </option>
   </component>
@@ -404,7 +405,14 @@
       <option name="project" value="LOCAL" />
       <updated>1518033151171</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="print useful information from generator">
+      <created>1518033259222</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1518033259222</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -452,7 +460,8 @@
     <MESSAGE value="bug fix in common_generator" />
     <MESSAGE value="bug fix in common generator" />
     <MESSAGE value="use utils.sequence to ensure thread safe (no redundant data in one epoch)" />
-    <option name="LAST_COMMIT_MESSAGE" value="use utils.sequence to ensure thread safe (no redundant data in one epoch)" />
+    <MESSAGE value="print useful information from generator" />
+    <option name="LAST_COMMIT_MESSAGE" value="print useful information from generator" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -465,7 +474,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -511,7 +522,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1815">
           <caret line="136" column="34" lean-forward="false" selection-start-line="136" selection-start-column="34" selection-end-line="136" selection-end-column="34" />
-          <folding />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -564,7 +577,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="285">
           <caret line="19" column="19" lean-forward="true" selection-start-line="19" selection-start-column="19" selection-end-line="19" selection-end-column="19" />
-          <folding />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -614,7 +629,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -721,14 +738,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/train.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2961">
-          <caret line="10" column="6" lean-forward="false" selection-start-line="10" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/datasets/dataset_utility.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="405">
@@ -741,10 +750,20 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/datasets/chexnet.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="503">
+        <state relative-caret-position="638">
           <caret line="74" column="75" lean-forward="false" selection-start-line="74" selection-start-column="75" selection-end-line="74" selection-end-column="75" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/train.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="309">
+          <caret line="201" column="8" lean-forward="false" selection-start-line="201" selection-start-column="8" selection-end-line="201" selection-end-column="8" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
           </folding>
         </state>
       </provider>
