@@ -40,8 +40,8 @@
       <file leaf-file-name="chexnet.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/datasets/chexnet.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="436">
-              <caret line="68" column="0" lean-forward="false" selection-start-line="68" selection-start-column="0" selection-end-line="68" selection-end-column="0" />
+            <state relative-caret-position="556">
+              <caret line="79" column="0" lean-forward="false" selection-start-line="79" selection-start-column="0" selection-end-line="79" selection-end-column="0" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -53,7 +53,7 @@
         <entry file="file://$PROJECT_DIR$/datasets/dataset_utility.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="30">
-              <caret line="5" column="20" lean-forward="false" selection-start-line="5" selection-start-column="4" selection-end-line="5" selection-end-column="20" />
+              <caret line="5" column="37" lean-forward="false" selection-start-line="5" selection-start-column="28" selection-end-line="5" selection-end-column="37" />
               <folding />
             </state>
           </provider>
@@ -386,7 +386,14 @@
       <option name="project" value="LOCAL" />
       <updated>1518030414568</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="clean up generator code">
+      <created>1518030867287</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1518030867287</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -430,7 +437,8 @@
     <MESSAGE value="modify dataset split" />
     <MESSAGE value="save base model weight every epoch" />
     <MESSAGE value="modify generator to enable multi-worker" />
-    <option name="LAST_COMMIT_MESSAGE" value="modify generator to enable multi-worker" />
+    <MESSAGE value="clean up generator code" />
+    <option name="LAST_COMMIT_MESSAGE" value="clean up generator code" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -716,15 +724,15 @@
     <entry file="file://$PROJECT_DIR$/datasets/dataset_utility.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="30">
-          <caret line="5" column="20" lean-forward="false" selection-start-line="5" selection-start-column="4" selection-end-line="5" selection-end-column="20" />
+          <caret line="5" column="37" lean-forward="false" selection-start-line="5" selection-start-column="28" selection-end-line="5" selection-end-column="37" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/datasets/chexnet.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="436">
-          <caret line="68" column="0" lean-forward="false" selection-start-line="68" selection-start-column="0" selection-end-line="68" selection-end-column="0" />
+        <state relative-caret-position="556">
+          <caret line="79" column="0" lean-forward="false" selection-start-line="79" selection-start-column="0" selection-end-line="79" selection-end-column="0" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
