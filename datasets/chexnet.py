@@ -64,7 +64,7 @@ class DataSet:
         i = 0
         while True:
             if verbosity > 0:
-                print(f"now yielding traing batch {i}")
+                print(f'** now yielding traing batch {i//self.batch_size}')
             yield batch_generator(self.train["Image Index"].iloc[i:i + self.batch_size],
                                   self.train["One_Hot_Labels"].iloc[i: i + self.batch_size].tolist(), self.image_dir,
                                   img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
@@ -75,7 +75,7 @@ class DataSet:
         i = 0
         while True:
             if verbosity > 0:
-                print(f"now yielding dev batch {i}")
+                print(f'** Now yielding dev batch {i//self.batch_size}')
             yield batch_generator(self.dev["Image Index"].iloc[i:i + self.batch_size],
                                   self.dev["One_Hot_Labels"].iloc[i:i + self.batch_size].tolist(), self.image_dir,
                                   img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
@@ -86,7 +86,7 @@ class DataSet:
         i = 0
         while True:
             if verbosity > 0:
-                print(f"now yielding test batch {i}")
+                print(f'** now yielding test batch {i//self.batch_size}')
             yield batch_generator(self.test["Image Index"].iloc[i:i + self.batch_size],
                                   self.test["One_Hot_Labels"].iloc[i:i + self.batch_size].tolist(), self.image_dir,
                                   img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
