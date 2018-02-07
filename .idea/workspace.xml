@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="974d2909-fdd6-435c-9414-fae7fbd813bf" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/chexnet_config.ini" afterPath="$PROJECT_DIR$/chexnet_config.ini" />
       <change beforePath="$PROJECT_DIR$/train.py" afterPath="$PROJECT_DIR$/train.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -17,8 +18,8 @@
       <file leaf-file-name="train.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/train.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="309">
-              <caret line="201" column="8" lean-forward="false" selection-start-line="201" selection-start-column="8" selection-end-line="201" selection-end-column="8" />
+            <state relative-caret-position="324">
+              <caret line="208" column="38" lean-forward="false" selection-start-line="208" selection-start-column="38" selection-end-line="208" selection-end-column="38" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
               </folding>
@@ -29,8 +30,8 @@
       <file leaf-file-name="chexnet_config.ini" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/chexnet_config.ini">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="11" column="22" lean-forward="false" selection-start-line="11" selection-start-column="22" selection-end-line="11" selection-end-column="22" />
+            <state relative-caret-position="75">
+              <caret line="5" column="18" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="18" />
               <folding />
             </state>
           </provider>
@@ -114,10 +115,10 @@
         <option value="$PROJECT_DIR$/datasets/utility.py" />
         <option value="$PROJECT_DIR$/utility.py" />
         <option value="$PROJECT_DIR$/weights.py" />
-        <option value="$PROJECT_DIR$/chexnet_config.ini" />
         <option value="$PROJECT_DIR$/callback.py" />
         <option value="$PROJECT_DIR$/datasets/dataset_utility.py" />
         <option value="$PROJECT_DIR$/datasets/chexnet.py" />
+        <option value="$PROJECT_DIR$/chexnet_config.ini" />
         <option value="$PROJECT_DIR$/train.py" />
       </list>
     </option>
@@ -412,7 +413,14 @@
       <option name="project" value="LOCAL" />
       <updated>1518033259222</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="do not print class weights twice">
+      <created>1518033330252</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1518033330252</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -461,7 +469,8 @@
     <MESSAGE value="bug fix in common generator" />
     <MESSAGE value="use utils.sequence to ensure thread safe (no redundant data in one epoch)" />
     <MESSAGE value="print useful information from generator" />
-    <option name="LAST_COMMIT_MESSAGE" value="print useful information from generator" />
+    <MESSAGE value="do not print class weights twice" />
+    <option name="LAST_COMMIT_MESSAGE" value="do not print class weights twice" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -712,14 +721,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/chexnet_config.ini">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="11" column="22" lean-forward="false" selection-start-line="11" selection-start-column="22" selection-end-line="11" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/datasets/chexnet_ds/image_data_entry.csv">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -758,10 +759,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/chexnet_config.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" column="18" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="18" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/train.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="309">
-          <caret line="201" column="8" lean-forward="false" selection-start-line="201" selection-start-column="8" selection-end-line="201" selection-end-column="8" />
+        <state relative-caret-position="324">
+          <caret line="208" column="38" lean-forward="false" selection-start-line="208" selection-start-column="38" selection-end-line="208" selection-end-column="38" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
           </folding>

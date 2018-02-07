@@ -40,6 +40,8 @@ def main(config_file):
     class_names = cp["DEFAULT"].get("class_names").split(",")
     image_dimension = cp["DEFAULT"].getint("image_dimension")
     verbosity = cp["DEFAULT"].getint("verbosity")
+    progress_verbosity = cp["DEFAULT"].getint("progress_verbosity")
+
     color_mode = cp["DEFAULT"].get("color_mode")
 
     # train config
@@ -204,7 +206,7 @@ def main(config_file):
             generator=train_generator,
             steps_per_epoch=train_steps,
             epochs=epochs,
-            verbose=verbosity,
+            verbose=progress_verbosity,
             validation_data=dev_generator,
             validation_steps=validation_steps,
             callbacks=callbacks,
