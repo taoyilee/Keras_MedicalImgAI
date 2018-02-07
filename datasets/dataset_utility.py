@@ -13,7 +13,8 @@ def pos_count(subset_series, class_names):
     return ret_dict
 
 
-def batch_generator(image_filenames, labels, image_dir, img_dim=256, scale=1. / 255, colormode='grayscale'):
+def batch_generator(image_filenames, labels, image_dir, img_dim=256, scale=1. / 255, colormode='grayscale',
+                    verbosity=2):
     if colormode == 'grayscale':
         inputs = np.array(
             image_filenames.apply(lambda x: load_image(x, image_dir, img_dim=img_dim, scale=scale)).tolist())[:, :, :,
@@ -21,17 +22,23 @@ def batch_generator(image_filenames, labels, image_dir, img_dim=256, scale=1. / 
     else:
         inputs = np.array(
             image_filenames.apply(lambda x: load_image(x, image_dir, img_dim=img_dim, scale=scale)).tolist())
-    targets = np.array(labels)
-    return (inputs, targets)
+    targets = np.swapaxes(labels, 0, 1)
+    targets = [np.array(targets[i, :]) for i in range(np.shape(targets)[0])]
+    if verbosity > 1:
+        print(f"targets = {targets}")
+    return inputs, targets
 
 
-def load_image(image_name, image_dir, img_dim=256, scale=1. / 255, colormode='grayscale', verbose=2):
+def load_image(image_name, image_dir, img_dim=256, scale=1. / 255, colormode='grayscale', verbosity=2):
     image_file = image_dir + "/" + image_name;
     if not os.path.isfile(image_file):
         raise Exception(f"{image_file} not found")
-    if verbose > 1:
+    if verbosity > 1:
         print(f"Load image from {image_file}")
-    image = cv2.imread(image_file, 0)[:, :, np.newaxis]
+    if colormode == 'grayscale':
+        image = cv2.imread(image_file, 0)[:, :, np.newaxis]
+    else:
+        image = cv2.imread(image_file, 1)
     image = cv2.resize(image, (img_dim, img_dim))
     return image * scale
 

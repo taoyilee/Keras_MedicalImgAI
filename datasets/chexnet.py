@@ -64,7 +64,7 @@ class DataSet:
         i = 0
         while True:
             yield batch_generator(self.train["Image Index"].iloc[i:i + self.batch_size],
-                                  self.train["One_Hot_Labels"].tolist()[i: i + self.batch_size], self.image_dir,
+                                  self.train["One_Hot_Labels"].iloc[i: i + self.batch_size].tolist(), self.image_dir,
                                   img_dim=self.img_dim, scale=self.scale)
             i += self.batch_size
             i %= self.train_count
@@ -72,8 +72,8 @@ class DataSet:
     def dev_generator(self):
         i = 0
         while True:
-            yield batch_generator(self.dev["Image Index"].iloc[i:i + batch_size],
-                                  self.dev["One_Hot_Labels"].tolist()[i:i + batch_size], self.image_dir,
+            yield batch_generator(self.dev["Image Index"].iloc[i:i + self.batch_size],
+                                  self.dev["One_Hot_Labels"].iloc[i:i + self.batch_size].tolist(), self.image_dir,
                                   img_dim=self.img_dim, scale=self.scale)
             i += self.batch_size
             i %= self.dev_count
@@ -82,7 +82,7 @@ class DataSet:
         i = 0
         while True:
             yield batch_generator(self.test["Image Index"].iloc[i:i + self.batch_size],
-                                  self.test["One_Hot_Labels"].tolist()[i:i + self.batch_size], self.image_dir,
+                                  self.test["One_Hot_Labels"].iloc[i:i + self.batch_size].tolist(), self.image_dir,
                                   img_dim=self.img_dim, scale=self.scale)
 
             i += self.batch_size
