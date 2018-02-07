@@ -3,7 +3,7 @@ import random
 
 import pandas as pd
 
-from datasets.dataset_utility import label2vec, batch_generator, pos_count
+from datasets.dataset_utility import label2vec, pos_count, common_generator
 
 
 class DataSet:
@@ -62,25 +62,18 @@ class DataSet:
 
     def train_generator(self, verbosity=0):
         while True:
-            self.train.sample(frac=1)  # shuffle
-            if verbosity > 0:
-                print(f'** now yielding traing batch {self.train["Patient ID"].iloc[:self.batch_size].tolist()}')
-            yield batch_generator(self.train["Image Index"].iloc[:self.batch_size],
-                                  self.train["One_Hot_Labels"].iloc[:self.batch_size].tolist(), self.image_dir,
-                                  img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
+            batch = self.train.sample(n=self.batch_size)  # shuffle
+            yield common_generator(batch, image_dir=self.image_dir,
+                                   img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
 
     def dev_generator(self, verbosity=0):
         while True:
-            if verbosity > 0:
-                print(f'** Now yielding dev batch {self.dev["Patient ID"].iloc[:self.batch_size].tolist()}')
-            yield batch_generator(self.dev["Image Index"].iloc[:self.batch_size],
-                                  self.dev["One_Hot_Labels"].iloc[:self.batch_size].tolist(), self.image_dir,
-                                  img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
+            batch = self.train.sample(n=self.batch_size)  # shuffle
+            yield common_generator(batch, image_dir=self.image_dir,
+                                   img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
 
     def test_generator(self, verbosity=0):
         while True:
-            if verbosity > 0:
-                print(f'** now yielding test batch {self.test["Patient ID"].iloc[:self.batch_size].tolist()}')
-            yield batch_generator(self.test["Image Index"].iloc[:self.batch_size],
-                                  self.test["One_Hot_Labels"].iloc[:self.batch_size].tolist(), self.image_dir,
-                                  img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
+            batch = self.train.sample(n=self.batch_size)  # shuffle
+            yield common_generator(batch, image_dir=self.image_dir,
+                                   img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)

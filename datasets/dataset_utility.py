@@ -3,6 +3,12 @@ import os
 import cv2
 import numpy as np
 
+def common_generator(batch, verbosity=0, image_dir, scale, img_dim):
+    if verbosity > 0:
+        print(f'** now yielding traing batch {batch["Patient ID"].tolist()}')
+    return batch_generator(self.test["Image Index"],
+                          self.test["One_Hot_Labels"].tolist(), image_dir,
+                          img_dim=img_dim, scale=scale, verbosity=verbosity)
 
 def pos_count(subset_series, class_names):
     ret_dict = dict()
