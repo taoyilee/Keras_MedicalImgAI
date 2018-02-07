@@ -1,12 +1,33 @@
+import math
 import os
 
 import cv2
 import numpy as np
+from keras.utils import Sequence
+
+
+class DataSequence(Sequence):
+    def __init__(self, batch, image_dir, batch_size=16, verbosity=0, scale=1. / 255, img_dim=256):
+        self.batch_size = batch_size
+        self.batch = batch
+        self.image_dir = image_dir
+        self.verbosity = verbosity
+        self.scale = scale
+        self.img_dim = img_dim
+
+    def __len__(self):
+        return math.ceil(self.batch.shape[0] / self.batch_size)
+
+    def __getitem__(self, idx):
+        return common_generator(self.batch.iloc[idx * self.batch_size:(idx + 1) * self.batch_size],
+                                image_dir=self.image_dir,
+                                verbosity=self.verbosity, scale=self.scale, img_dim=self.img_dim)
 
 
 def common_generator(batch, image_dir, verbosity=0, scale=1. / 255, img_dim=256):
     if verbosity > 0:
-        print(f'** now yielding traing batch {batch["Patient ID"].tolist()}')
+        print(f'** now yielding batch = {batch["Patient ID"].tolist()}\nimages are = {batch["Image Index"].tolist()}')
+
     return batch_generator(batch["Image Index"],
                            batch["One_Hot_Labels"].tolist(), image_dir=image_dir,
                            img_dim=img_dim, scale=scale, verbosity=verbosity)

@@ -3,7 +3,7 @@ import random
 
 import pandas as pd
 
-from datasets.dataset_utility import label2vec, pos_count, common_generator
+from datasets.dataset_utility import label2vec, pos_count, DataSequence
 
 
 class DataSet:
@@ -61,19 +61,16 @@ class DataSet:
         self.test[output_fields].to_csv(os.path.join(output_dir, "test.csv"), index=False)
 
     def train_generator(self, verbosity=0):
-        while True:
-            batch = self.train.sample(n=self.batch_size)  # shuffle
-            yield common_generator(batch, image_dir=self.image_dir,
-                                   img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
+        batch = self.train.sample(frac=1)  # shuffle
+        return DataSequence(batch, image_dir=self.image_dir,
+                            img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
 
     def dev_generator(self, verbosity=0):
-        while True:
-            batch = self.train.sample(n=self.batch_size)  # shuffle
-            yield common_generator(batch, image_dir=self.image_dir,
-                                   img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
+        batch = self.dev.sample(frac=1)  # shuffle
+        return DataSequence(batch, image_dir=self.image_dir,
+                            img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
 
     def test_generator(self, verbosity=0):
-        while True:
-            batch = self.train.sample(n=self.batch_size)  # shuffle
-            yield common_generator(batch, image_dir=self.image_dir,
-                                   img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
+        batch = self.test.sample(frac=1)  # shuffle
+        return DataSequence(batch, image_dir=self.image_dir,
+                            img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
