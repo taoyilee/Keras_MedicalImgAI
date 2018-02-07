@@ -1,8 +1,10 @@
+import argparse
+import importlib
 import json
 import shutil
 import os
 import pickle
-from callback import MultipleClassAUROC, MultiGPUModelCheckpoint, SaveBaseModel
+from callback import MultipleClassAUROC, MultiGPUModelCheckpoint
 from configparser import ConfigParser
 from generator import custom_image_generator
 from keras.callbacks import ModelCheckpoint, TensorBoard, ReduceLROnPlateau
@@ -15,17 +17,21 @@ from weights import get_class_weights
 import numpy as np
 
 
-def main():
+def main(config_file):
     # parser config
-    config_file = "./config.ini"
     cp = ConfigParser()
     cp.read(config_file)
 
     # default config
     output_dir = cp["DEFAULT"].get("output_dir")
     image_source_dir = cp["DEFAULT"].get("image_source_dir")
-    train_patient_count = cp["DEFAULT"].getint("train_patient_count")
-    dev_patient_count = cp["DEFAULT"].getint("dev_patient_count")
+    model_name = cp["DEFAULT"].get("nn_model")
+    dataset_name = cp["DEFAULT"].get("dataset_name")
+
+    dataset_pkg = importlib.import_module(dataset_name)
+
+    train_patient_ratio = cp["DEFAULT"].getint("train_patient_ratio")
+    dev_patient_ratio = cp["DEFAULT"].getint("dev_patient_ratio")
     data_entry_file = cp["DEFAULT"].get("data_entry_file")
     class_names = cp["DEFAULT"].get("class_names").split(",")
     image_dimension = cp["DEFAULT"].getint("image_dimension")
@@ -88,6 +94,9 @@ def main():
                 shutil.copy(f"./data/default_split/{dataset}.csv", output_dir)
         elif not use_skip_split:
             print("** split dataset **")
+            dataset_generator = dataset_pkg.load_data(image_dir=image_source_dir, data_entry=data_entry_file, train_ratio=train_patient_ratio,
+                                  dev_ratio=dev_patient_ratio,
+                                  output_dir=output_dir, img_dim=256, class_names=class_names)
             split_data(
                 data_entry_file,
                 class_names,
@@ -163,19 +172,16 @@ def main():
         print("** create image generators **")
         train_data_path = f"{output_dir}/{symlink_dir_name}/train/"
         train_generator = custom_image_generator(
-            #ImageDataGenerator(horizontal_flip=True, vertical_flip=True, rotation_range=180, width_shift_range=0.01, height_shift_range=0.01, zoom_range=0.1, rescale=1./255),
-            ImageDataGenerator(rescale=1./255),
+            ImageDataGenerator(horizontal_flip=True, rescale=1. / 255),
             train_data_path,
             batch_size=batch_size,
             class_names=class_names,
             target_size=(image_dimension, image_dimension),
             verbose=verbosity
         )
-
         dev_data_path = f"{output_dir}/{symlink_dir_name}/dev/"
         dev_generator = custom_image_generator(
-            #ImageDataGenerator(horizontal_flip=True, rescale=1./255),
-            ImageDataGenerator(rescale=1./255),
+            ImageDataGenerator(horizontal_flip=True, rescale=1. / 255),
             dev_data_path,
             batch_size=batch_size,
             class_names=class_names,
@@ -246,4 +252,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description='Train a specfic dataset')
+    parser.add_argument('config', metavar='config', type=str, help='an integer for the accumulator')
+    args = parser.parse_args()
+
+    main(config_file=args.config)
