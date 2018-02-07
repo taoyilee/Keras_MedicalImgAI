@@ -61,35 +61,26 @@ class DataSet:
         self.test[output_fields].to_csv(os.path.join(output_dir, "test.csv"), index=False)
 
     def train_generator(self, verbosity=0):
-        i = 0
         while True:
+            self.train.sample(frac=1)  # shuffle
             if verbosity > 0:
-                print(f'** now yielding traing batch {i//self.batch_size}')
-            yield batch_generator(self.train["Image Index"].iloc[i:i + self.batch_size],
-                                  self.train["One_Hot_Labels"].iloc[i: i + self.batch_size].tolist(), self.image_dir,
+                print(f'** now yielding traing batch {self.train["Patient ID"].iloc[:self.batch_size].tolist()}')
+            yield batch_generator(self.train["Image Index"].iloc[:self.batch_size],
+                                  self.train["One_Hot_Labels"].iloc[:self.batch_size].tolist(), self.image_dir,
                                   img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
-            i += self.batch_size
-            i %= self.train_count
 
     def dev_generator(self, verbosity=0):
-        i = 0
         while True:
             if verbosity > 0:
-                print(f'** Now yielding dev batch {i//self.batch_size}')
-            yield batch_generator(self.dev["Image Index"].iloc[i:i + self.batch_size],
-                                  self.dev["One_Hot_Labels"].iloc[i:i + self.batch_size].tolist(), self.image_dir,
+                print(f'** Now yielding dev batch {self.dev["Patient ID"].iloc[:self.batch_size].tolist()}')
+            yield batch_generator(self.dev["Image Index"].iloc[:self.batch_size],
+                                  self.dev["One_Hot_Labels"].iloc[:self.batch_size].tolist(), self.image_dir,
                                   img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
-            i += self.batch_size
-            i %= self.dev_count
 
     def test_generator(self, verbosity=0):
-        i = 0
         while True:
             if verbosity > 0:
-                print(f'** now yielding test batch {i//self.batch_size}')
-            yield batch_generator(self.test["Image Index"].iloc[i:i + self.batch_size],
-                                  self.test["One_Hot_Labels"].iloc[i:i + self.batch_size].tolist(), self.image_dir,
+                print(f'** now yielding test batch {self.test["Patient ID"].iloc[:self.batch_size].tolist()}')
+            yield batch_generator(self.test["Image Index"].iloc[:self.batch_size],
+                                  self.test["One_Hot_Labels"].iloc[:self.batch_size].tolist(), self.image_dir,
                                   img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
-
-            i += self.batch_size
-            i %= self.test_count

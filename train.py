@@ -212,7 +212,7 @@ def main(config_file):
             validation_steps=validation_steps,
             callbacks=callbacks,
             class_weight=class_weights,
-            max_queue_size=32, workers=4, use_multiprocessing=True
+            max_queue_size=4, workers=4, use_multiprocessing=True
         )
 
         # dump history
