@@ -63,6 +63,7 @@ class DataSet:
     def train_generator(self, verbosity=0):
         i = 0
         while True:
+            print(f"now yielding batch {i}")
             yield batch_generator(self.train["Image Index"].iloc[i:i + self.batch_size],
                                   self.train["One_Hot_Labels"].iloc[i: i + self.batch_size].tolist(), self.image_dir,
                                   img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
