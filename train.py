@@ -6,7 +6,6 @@ import pickle
 import shutil
 from configparser import ConfigParser
 
-import numpy as np
 from keras.callbacks import ModelCheckpoint, TensorBoard, ReduceLROnPlateau
 from keras.optimizers import Adam
 from keras.utils import multi_gpu_model
@@ -213,6 +212,7 @@ def main(config_file):
             validation_steps=validation_steps,
             callbacks=callbacks,
             class_weight=class_weights,
+            max_queue_size=32, workers=4, use_multiprocessing=True
         )
 
         # dump history
