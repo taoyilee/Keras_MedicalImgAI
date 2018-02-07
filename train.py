@@ -1,30 +1,38 @@
+import argparse
+import importlib
 import json
-import shutil
 import os
 import pickle
-from callback import MultipleClassAUROC, MultiGPUModelCheckpoint
+import shutil
 from configparser import ConfigParser
-from generator import custom_image_generator
+
 from keras.callbacks import ModelCheckpoint, TensorBoard, ReduceLROnPlateau
 from keras.optimizers import Adam
 from keras.preprocessing.image import ImageDataGenerator
 from keras.utils import multi_gpu_model
+
+from callback import MultipleClassAUROC, MultiGPUModelCheckpoint
+from generator import custom_image_generator
 from models.densenet121 import get_model
 from utility import split_data, get_sample_counts, create_symlink
 from weights import get_class_weights
 
 
-def main():
+def main(config_file):
     # parser config
-    config_file = "./config.ini"
     cp = ConfigParser()
     cp.read(config_file)
 
     # default config
     output_dir = cp["DEFAULT"].get("output_dir")
     image_source_dir = cp["DEFAULT"].get("image_source_dir")
-    train_patient_count = cp["DEFAULT"].getint("train_patient_count")
-    dev_patient_count = cp["DEFAULT"].getint("dev_patient_count")
+    model_name = cp["DEFAULT"].get("nn_model")
+    dataset_name = cp["DEFAULT"].get("dataset_name")
+
+    dataset_pkg = importlib.import_module(dataset_name)
+
+    train_patient_ratio = cp["DEFAULT"].getint("train_patient_ratio")
+    dev_patient_ratio = cp["DEFAULT"].getint("dev_patient_ratio")
     data_entry_file = cp["DEFAULT"].get("data_entry_file")
     class_names = cp["DEFAULT"].get("class_names").split(",")
 
@@ -84,6 +92,9 @@ def main():
                 shutil.copy(f"./data/default_split/{dataset}.csv", output_dir)
         elif not use_skip_split:
             print("** split dataset **")
+            dataset_generator = dataset_pkg.load_data(image_dir=image_source_dir, data_entry=data_entry_file, train_ratio=train_patient_ratio,
+                                  dev_ratio=dev_patient_ratio,
+                                  output_dir=output_dir, img_dim=256, class_names=class_names)
             split_data(
                 data_entry_file,
                 class_names,
@@ -157,14 +168,14 @@ def main():
         print("** create image generators **")
         train_data_path = f"{output_dir}/{symlink_dir_name}/train/"
         train_generator = custom_image_generator(
-            ImageDataGenerator(horizontal_flip=True, rescale=1./255),
+            ImageDataGenerator(horizontal_flip=True, rescale=1. / 255),
             train_data_path,
             batch_size=batch_size,
             class_names=class_names,
         )
         dev_data_path = f"{output_dir}/{symlink_dir_name}/dev/"
         dev_generator = custom_image_generator(
-            ImageDataGenerator(horizontal_flip=True, rescale=1./255),
+            ImageDataGenerator(horizontal_flip=True, rescale=1. / 255),
             dev_data_path,
             batch_size=batch_size,
             class_names=class_names,
@@ -230,4 +241,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description='Train a specfic dataset')
+    parser.add_argument('config', metavar='config', type=str, help='an integer for the accumulator')
+    args = parser.parse_args()
+
+    main(config_file=args.config)
