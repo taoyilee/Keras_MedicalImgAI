@@ -60,6 +60,8 @@ def create_symlink_for_sample(src_file, label, dataset, dst_name, image_source_d
 
     """
     src_path = os.path.join(image_source_dir, src_file)
+    #labels = label.split("|")
+    #for l in labels:
     dst_dir = os.path.join(dst_name, dataset, label)
     if not os.path.isdir(dst_dir):
         os.makedirs(dst_dir)

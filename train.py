@@ -29,6 +29,7 @@ def main():
     data_entry_file = cp["DEFAULT"].get("data_entry_file")
     class_names = cp["DEFAULT"].get("class_names").split(",")
     image_dimension = cp["DEFAULT"].getint("image_dimension")
+    verbosity = cp["DEFAULT"].getint("verbosity")
     color_mode = cp["DEFAULT"].get("color_mode")
 
     # train config
@@ -162,17 +163,19 @@ def main():
         print("** create image generators **")
         train_data_path = f"{output_dir}/{symlink_dir_name}/train/"
         train_generator = custom_image_generator(
-            ImageDataGenerator(horizontal_flip=True, vertical_flip=True, rotation_range=180, width_shift_range=0.01, height_shift_range=0.01, zoom_range=0.1, rescale=1./255),
+            #ImageDataGenerator(horizontal_flip=True, vertical_flip=True, rotation_range=180, width_shift_range=0.01, height_shift_range=0.01, zoom_range=0.1, rescale=1./255),
+            ImageDataGenerator(rescale=1./255),
             train_data_path,
             batch_size=batch_size,
             class_names=class_names,
-            target_size=(image_dimension, image_dimension)
+            target_size=(image_dimension, image_dimension),
+            verbose=verbosity
         )
 
         dev_data_path = f"{output_dir}/{symlink_dir_name}/dev/"
         dev_generator = custom_image_generator(
             #ImageDataGenerator(horizontal_flip=True, rescale=1./255),
-            ImageDataGenerator(horizontal_flip=True, vertical_flip=True, rescale=1./255),
+            ImageDataGenerator(rescale=1./255),
             dev_data_path,
             batch_size=batch_size,
             class_names=class_names,
@@ -215,13 +218,14 @@ def main():
         ]
 
         print("** training start **")
+        print(f"** training with: {epochs} epochs @ {train_steps} steps/epoch **")
         for c, w in class_weights.items():
             print(f"  {c}: {w}")
         history = model_train.fit_generator(
             generator=train_generator,
             steps_per_epoch=train_steps,
             epochs=epochs,
-            verbose=2,
+            verbose=verbosity,
             validation_data=dev_generator,
             validation_steps=validation_steps,
             callbacks=callbacks,

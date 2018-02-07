@@ -27,11 +27,12 @@ def get_model(class_names, base_weights_path=None, weights_path=None, image_dime
     if weights_path == "":
         weights_path = None
 
-    base_model = densenet121(reduction=0.5, classes=1000, weights_path=base_weights_path, image_dimension=image_dimension, color_mode=color_mode)
+    base_model = densenet121(reduction=0.5, weights_path=base_weights_path, image_dimension=image_dimension, color_mode=color_mode)
 
     # create our own output
-    x = base_model.get_layer("conv5_blk_scale").output
-    x = GlobalAveragePooling2D()(x)
+    #x = base_model.get_layer("conv5_blk_scale").output
+    x = base_model.output
+    #x = GlobalAveragePooling2D()(x)
 
     # dense layers for different class
     predictions = []
@@ -49,8 +50,8 @@ def get_model(class_names, base_weights_path=None, weights_path=None, image_dime
 "Modify to Keras 2.0 API from https://github.com/flyyufelix/DenseNet-Keras"
 
 
-def densenet121(nb_dense_block=4, growth_rate=32, nb_filter=64, reduction=0.0, dropout_rate=0.0, weight_decay=1e-4,
-                classes=1000, weights_path=None, image_dimension=512, color_mode='grayscale'):
+def densenet121(nb_dense_block=4, growth_rate=16, nb_filter=64, reduction=0.0, dropout_rate=0.0, weight_decay=1e-4, 
+            weights_path=None, image_dimension=512, color_mode='grayscale'):
     """
     Instantiate the DenseNet 121 architecture,
         # Arguments
@@ -113,8 +114,8 @@ def densenet121(nb_dense_block=4, growth_rate=32, nb_filter=64, reduction=0.0, d
     x = Activation('relu', name='relu' + str(final_stage) + '_blk')(x)
     x = GlobalAveragePooling2D(name='pool' + str(final_stage))(x)
 
-    x = Dense(classes, name='fc6')(x)
-    x = Activation('softmax', name='prob')(x)
+    #x = Dense(classes, name='fc6')(x)
+    #x = Activation('softmax', name='prob')(x)
 
     model = Model(img_input, x, name='densenet')
 
