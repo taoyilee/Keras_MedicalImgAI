@@ -2,13 +2,15 @@
 Modify from DenseNet-Keras (https://github.com/flyyufelix/DenseNet-Keras)
 """
 import keras.backend as kb
-from keras.models import Model
+from keras import regularizers
 from keras.layers import Input
-from keras.layers.core import Activation, Dense, Dropout
 from keras.layers.convolutional import Conv2D, ZeroPadding2D
+from keras.layers.core import Activation, Dense, Dropout
 from keras.layers.merge import concatenate
-from keras.layers.pooling import AveragePooling2D, GlobalAveragePooling2D, MaxPooling2D
 from keras.layers.normalization import BatchNormalization
+from keras.layers.pooling import AveragePooling2D, GlobalAveragePooling2D, MaxPooling2D
+from keras.models import Model
+
 from .custom_layers import Scale
 
 
@@ -27,12 +29,13 @@ def get_model(class_names, base_weights_path=None, weights_path=None, image_dime
     if weights_path == "":
         weights_path = None
 
-    base_model = densenet121(reduction=0.5, weights_path=base_weights_path, image_dimension=image_dimension, color_mode=color_mode)
+    base_model = densenet121(reduction=0.5, weights_path=base_weights_path, image_dimension=image_dimension,
+                             color_mode=color_mode)
 
     # create our own output
-    #x = base_model.get_layer("conv5_blk_scale").output
+    # x = base_model.get_layer("conv5_blk_scale").output
     x = base_model.output
-    #x = GlobalAveragePooling2D()(x)
+    # x = GlobalAveragePooling2D()(x)
 
     # dense layers for different class
     predictions = []
@@ -50,8 +53,8 @@ def get_model(class_names, base_weights_path=None, weights_path=None, image_dime
 "Modify to Keras 2.0 API from https://github.com/flyyufelix/DenseNet-Keras"
 
 
-def densenet121(nb_dense_block=4, growth_rate=16, nb_filter=64, reduction=0.0, dropout_rate=0.0, weight_decay=1e-4, 
-            weights_path=None, image_dimension=512, color_mode='grayscale'):
+def densenet121(nb_dense_block=4, growth_rate=16, nb_filter=64, reduction=0.0, dropout_rate=0.0, weight_decay=1e-4,
+                weights_path=None, image_dimension=512, color_mode='grayscale'):
     """
     Instantiate the DenseNet 121 architecture,
         # Arguments
@@ -82,11 +85,11 @@ def densenet121(nb_dense_block=4, growth_rate=16, nb_filter=64, reduction=0.0, d
         img_input = Input(shape=(input_channels[color_mode], image_dimension, image_dimension), name='data')
 
     # From architecture for ImageNet (Table 1 in the paper)
-    nb_filter = 64
     nb_layers = [6, 12, 24, 16]
 
     # Initial convolution
-    x = Conv2D(nb_filter, (7, 7), strides=(2, 2), padding="same", use_bias=False, name="conv1")(img_input)
+    x = Conv2D(nb_filter, (7, 7), strides=(2, 2), padding="same", use_bias=False, name="conv1",
+               kernel_regularizer=regularizers.l2(weight_decay))(img_input)
     x = BatchNormalization(epsilon=eps, axis=concat_axis, name='conv1_bn')(x)
     x = Scale(axis=concat_axis, name='conv1_scale')(x)
     x = Activation('relu', name='relu1')(x)
@@ -114,8 +117,8 @@ def densenet121(nb_dense_block=4, growth_rate=16, nb_filter=64, reduction=0.0, d
     x = Activation('relu', name='relu' + str(final_stage) + '_blk')(x)
     x = GlobalAveragePooling2D(name='pool' + str(final_stage))(x)
 
-    #x = Dense(classes, name='fc6')(x)
-    #x = Activation('softmax', name='prob')(x)
+    # x = Dense(classes, name='fc6')(x)
+    # x = Activation('softmax', name='prob')(x)
 
     model = Model(img_input, x, name='densenet')
 
@@ -144,7 +147,8 @@ def conv_block(x, stage, branch, nb_filter, dropout_rate=None, weight_decay=1e-4
     x = BatchNormalization(epsilon=eps, axis=concat_axis, name=conv_name_base + '_x1_bn')(x)
     x = Scale(axis=concat_axis, name=conv_name_base + '_x1_scale')(x)
     x = Activation('relu', name=relu_name_base + '_x1')(x)
-    x = Conv2D(inter_channel, (1, 1), use_bias=False, name=f"{conv_name_base}_x1")(x)
+    x = Conv2D(inter_channel, (1, 1), use_bias=False, name=f"{conv_name_base}_x1",
+               kernel_regularizer=regularizers.l2(weight_decay))(x)
 
     if dropout_rate:
         x = Dropout(dropout_rate)(x)
@@ -153,7 +157,8 @@ def conv_block(x, stage, branch, nb_filter, dropout_rate=None, weight_decay=1e-4
     x = BatchNormalization(epsilon=eps, axis=concat_axis, name=conv_name_base + '_x2_bn')(x)
     x = Scale(axis=concat_axis, name=conv_name_base + '_x2_scale')(x)
     x = Activation('relu', name=relu_name_base + '_x2')(x)
-    x = Conv2D(nb_filter, (3, 3), padding="same", use_bias=False, name=f"{conv_name_base}_x2")(x)
+    x = Conv2D(nb_filter, (3, 3), padding="same", use_bias=False, name=f"{conv_name_base}_x2",
+               kernel_regularizer=regularizers.l2(weight_decay))(x)
 
     if dropout_rate:
         x = Dropout(dropout_rate)(x)
@@ -180,7 +185,8 @@ def transition_block(x, stage, nb_filter, compression=1.0, dropout_rate=None, we
     x = BatchNormalization(epsilon=eps, axis=concat_axis, name=conv_name_base + '_bn')(x)
     x = Scale(axis=concat_axis, name=conv_name_base + '_scale')(x)
     x = Activation('relu', name=relu_name_base)(x)
-    x = Conv2D(int(nb_filter * compression), (1, 1), use_bias=False, name=conv_name_base)(x)
+    x = Conv2D(int(nb_filter * compression), (1, 1), use_bias=False, name=conv_name_base,
+               kernel_regularizer=regularizers.l2(weight_decay))(x)
 
     if dropout_rate:
         x = Dropout(dropout_rate)(x)

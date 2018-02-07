@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="974d2909-fdd6-435c-9414-fae7fbd813bf" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/callback.py" afterPath="$PROJECT_DIR$/callback.py" />
+      <change beforePath="$PROJECT_DIR$/models/densenet121.py" afterPath="$PROJECT_DIR$/models/densenet121.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -17,8 +17,8 @@
       <file leaf-file-name="train.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/train.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="294">
-              <caret line="203" column="0" lean-forward="true" selection-start-line="203" selection-start-column="0" selection-end-line="203" selection-end-column="0" />
+            <state relative-caret-position="423">
+              <caret line="186" column="34" lean-forward="false" selection-start-line="186" selection-start-column="16" selection-end-line="186" selection-end-column="34" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
               </folding>
@@ -39,10 +39,22 @@
       <file leaf-file-name="chexnet.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/datasets/chexnet.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="638">
+            <state relative-caret-position="503">
               <caret line="74" column="75" lean-forward="false" selection-start-line="74" selection-start-column="75" selection-end-line="74" selection-end-column="75" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="densenet121.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/models/densenet121.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1275">
+              <caret line="91" column="63" lean-forward="false" selection-start-line="91" selection-start-column="63" selection-end-line="91" selection-end-column="63" />
+              <folding>
+                <element signature="e#82#108#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -60,11 +72,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="callback.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="callback.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/callback.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1470">
-              <caret line="104" column="34" lean-forward="false" selection-start-line="104" selection-start-column="15" selection-end-line="104" selection-end-column="34" />
+            <state relative-caret-position="198">
+              <caret line="56" column="24" lean-forward="false" selection-start-line="56" selection-start-column="6" selection-end-line="56" selection-end-column="24" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -95,6 +107,8 @@
       <find>on_epoch_end</find>
       <find>next</find>
       <find>load_generator_data</find>
+      <find>MultipleClassAUROC</find>
+      <find>weight_decay</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -122,6 +136,7 @@
         <option value="$PROJECT_DIR$/chexnet_config.ini" />
         <option value="$PROJECT_DIR$/train.py" />
         <option value="$PROJECT_DIR$/callback.py" />
+        <option value="$PROJECT_DIR$/models/densenet121.py" />
       </list>
     </option>
   </component>
@@ -170,6 +185,11 @@
               <item name="fneckfx_pxr_keras" type="462c0819:PsiDirectoryNode" />
               <item name="datasets" type="462c0819:PsiDirectoryNode" />
               <item name="chexnet_ds" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="fneckfx_pxr_keras" type="b2602c69:ProjectViewProjectNode" />
+              <item name="fneckfx_pxr_keras" type="462c0819:PsiDirectoryNode" />
+              <item name="models" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -429,7 +449,14 @@
       <option name="project" value="LOCAL" />
       <updated>1518033551432</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="modify load_generator_data method such that it becomes compatible with sequencer">
+      <created>1518036143855</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1518036143856</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -480,7 +507,8 @@
     <MESSAGE value="print useful information from generator" />
     <MESSAGE value="do not print class weights twice" />
     <MESSAGE value="separate verbosity and progress verbosity" />
-    <option name="LAST_COMMIT_MESSAGE" value="separate verbosity and progress verbosity" />
+    <MESSAGE value="modify load_generator_data method such that it becomes compatible with sequencer" />
+    <option name="LAST_COMMIT_MESSAGE" value="modify load_generator_data method such that it becomes compatible with sequencer" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -739,21 +767,31 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/datasets/chexnet.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="638">
-          <caret line="74" column="75" lean-forward="false" selection-start-line="74" selection-start-column="75" selection-end-line="74" selection-end-column="75" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/chexnet_config.ini">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="75">
           <caret line="5" column="18" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="18" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/callback.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="198">
+          <caret line="56" column="24" lean-forward="false" selection-start-line="56" selection-start-column="6" selection-end-line="56" selection-end-column="24" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/train.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="423">
+          <caret line="186" column="34" lean-forward="false" selection-start-line="186" selection-start-column="16" selection-end-line="186" selection-end-column="34" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -767,22 +805,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/train.py">
+    <entry file="file://$PROJECT_DIR$/datasets/chexnet.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="294">
-          <caret line="203" column="0" lean-forward="true" selection-start-line="203" selection-start-column="0" selection-end-line="203" selection-end-column="0" />
+        <state relative-caret-position="503">
+          <caret line="74" column="75" lean-forward="false" selection-start-line="74" selection-start-column="75" selection-end-line="74" selection-end-column="75" />
           <folding>
-            <element signature="e#0#15#0" expanded="true" />
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/callback.py">
+    <entry file="file://$PROJECT_DIR$/models/densenet121.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1470">
-          <caret line="104" column="34" lean-forward="false" selection-start-line="104" selection-start-column="15" selection-end-line="104" selection-end-column="34" />
+        <state relative-caret-position="1275">
+          <caret line="91" column="63" lean-forward="false" selection-start-line="91" selection-start-column="63" selection-end-line="91" selection-end-column="63" />
           <folding>
-            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#82#108#0" expanded="true" />
           </folding>
         </state>
       </provider>
