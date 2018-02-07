@@ -202,8 +202,8 @@ def main(config_file):
         print(f"** training with: {epochs} epochs @ {train_steps} steps/epoch **")
         for c, w in class_weights.items():
             print(f"  {c}: {w}")
-        x, y = next(train_generator)
-        print(f" x = {np.shape(x)}, y = {np.shape(y)}")
+        # x, y = next(train_generator)
+        # print(f" x = {np.shape(x)}, y = {np.shape(y)}")
         history = model_train.fit_generator(
             generator=train_generator,
             steps_per_epoch=train_steps,
