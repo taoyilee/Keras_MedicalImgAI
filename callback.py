@@ -108,21 +108,23 @@ class MultipleClassAUROC(Callback):
         step_test = test_generator.__len__()
         y = np.array(test_generator.targets()).squeeze()
         y_hat = np.array(self.model.predict_generator(generator=test_generator, steps=step_test, verbose=1))
-        if self.class_mode == "multibinary":
-            y_hat = y_hat.squeeze().swapaxes(0, 1)
         print(f"*** epoch#{epoch + 1} dev auroc ***")
-        current_auroc = []
         print(f"y = {np.shape(y)}")
         print(f"y_hat = {np.shape(y_hat)}")
-        for i in range(len(self.class_names)):
-            try:
-                score = roc_auc_score(y[i], y_hat[i])
-            except ValueError:
-                score = 0
-            self.aurocs[self.class_names[i]].append(score)
-            current_auroc.append(score)
-            print(f"{i+1}. {self.class_names[i]}: {score}")
-        print("*********************************")
+
+        current_auroc = []
+        if self.class_mode == "multibinary":
+            y_hat = y_hat.squeeze().swapaxes(0, 1)
+            for i in range(len(self.class_names)):
+                try:
+                    score = roc_auc_score(y[i], y_hat[i])
+                except ValueError:
+                    score = 0
+                self.aurocs[self.class_names[i]].append(score)
+                current_auroc.append(score)
+                print(f"{i+1}. {self.class_names[i]}: {score}")
+        elif self.class_mode == "multiclass":
+            current_auroc = roc_auc_score(y, y_hat, average=None)
 
         # customize your multiple class metrics here
         mean_auroc = np.mean(current_auroc)
