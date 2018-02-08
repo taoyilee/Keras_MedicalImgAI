@@ -59,11 +59,12 @@ class MultipleClassAUROC(Callback):
     Monitor mean AUROC and update model
     """
 
-    def __init__(self, generator, steps, class_names, weights_path, stats=None):
+    def __init__(self, generator, steps, class_names, weights_path, class_mode="multiclass", stats=None):
         super(Callback, self).__init__()
         self.generator = generator
         self.steps = steps
         self.class_names = class_names
+        self.class_mode = class_mode
         self.weights_path = weights_path
         self.best_weights_path = os.path.join(
             os.path.split(weights_path)[0],
@@ -107,7 +108,8 @@ class MultipleClassAUROC(Callback):
         step_test = test_generator.__len__()
         y = np.array(test_generator.targets()).squeeze()
         y_hat = np.array(self.model.predict_generator(generator=test_generator, steps=step_test, verbose=1))
-        y_hat = y_hat.squeeze().swapaxes(0, 1)
+        if self.class_mode == "multibinary":
+            y_hat = y_hat.squeeze().swapaxes(0, 1)
         print(f"*** epoch#{epoch + 1} dev auroc ***")
         current_auroc = []
         print(f"y = {np.shape(y)}")

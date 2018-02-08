@@ -169,13 +169,8 @@ def main(config_file):
         print("** compile model with class weights **")
         optimizer = Adam(lr=initial_learning_rate)
         model_train.compile(optimizer=optimizer, loss="binary_crossentropy")
-        auroc = MultipleClassAUROC(
-            generator=dev_generator,
-            steps=validation_steps,
-            class_names=class_names,
-            weights_path=output_weights_path,
-            stats=training_stats,
-        )
+        auroc = MultipleClassAUROC(generator=dev_generator, steps=validation_steps, class_names=class_names,
+                                   class_mode=class_mode, weights_path=output_weights_path, stats=training_stats)
         callbacks = [
             checkpoint,
             TensorBoard(log_dir=os.path.join(output_dir, "logs"), batch_size=batch_size),
