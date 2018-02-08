@@ -1,5 +1,6 @@
 import argparse
 import importlib
+import math
 import os
 from configparser import ConfigParser
 
@@ -48,10 +49,9 @@ def main(config_file):
     dataset0 = dataset_pkg.DataSetTest(image_dir=image_source_dir, data_entry=data_entry_file, batch_size=batch_size,
                                        img_dim=256, class_names=class_names)
 
-    step_test = int(dataset0.test_count / batch_size)
     print("** load test generator **")
     test_generator = dataset0.test_generator(verbosity=verbosity)
-
+    step_test = test_generator.__len__()
     print("** load model **")
     model = get_model(class_names, image_dimension=image_dimension)
     if use_best_weights:
@@ -62,12 +62,14 @@ def main(config_file):
         model.load_weights(weights_path)
 
     print("** make predictions **")
-    y = test_generator.targets()
-    y_hat = model.predict_generator(generator=test_generator, steps=step_test, verbose=progress_verbosity)
-
+    y = np.array(test_generator.targets()).squeeze()
+    y_hat = np.array(model.predict_generator(generator=test_generator, steps=step_test, verbose=progress_verbosity))
+    y_hat = y_hat.squeeze().swapaxes(0, 1)
     test_log_path = os.path.join(output_dir, "test.log")
     print(f"** write log to {test_log_path} **")
     aurocs = []
+    print(f"y = {np.shape(y)}")
+    print(f"y_hat = {np.shape(y_hat)}")
     with open(test_log_path, "w") as f:
         for i in range(len(class_names)):
             try:
@@ -76,9 +78,12 @@ def main(config_file):
             except ValueError:
                 score = 0
             f.write(f"{class_names[i]}: {score}\n")
+            print(f"{class_names[i]}: {score}")
         mean_auroc = np.mean(aurocs)
         f.write("-------------------------\n")
         f.write(f"mean auroc: {mean_auroc}\n")
+        print("-------------------------")
+        print(f"mean auroc: {mean_auroc}")
 
 
 if __name__ == "__main__":
