@@ -60,7 +60,7 @@ def main(config_file):
         if os.path.isfile(training_stats_file):
             training_stats = json.load(open(training_stats_file))
             initial_learning_rate = training_stats["lr"]
-            print("** learning rate is set to previous final {initial_learning_rate} **")
+            print(f"** learning rate is set to previous final {initial_learning_rate} **")
         else:
             print("** trained model weights not found, starting over **")
             use_trained_model_weights = False
