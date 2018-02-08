@@ -93,8 +93,9 @@ class DataSetTest:
 
         # one hot encode
         self.test["One_Hot_Labels"] = self.test["Finding Labels"].apply(lambda x: label2vec(x, self.class_names))
+        pid = list(self.test["Patient ID"].unique())
+        self.test_patient_count = len(pid)
         self.test_count = len(self.test)
-        self.test_pos_count = pos_count(self.test, self.class_names)
 
         print(
             f"Total patients for test = {self.test_patient_count}")
