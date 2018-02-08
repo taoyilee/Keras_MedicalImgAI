@@ -4,13 +4,9 @@ import os
 from configparser import ConfigParser
 
 import numpy as np
-from keras.preprocessing.image import ImageDataGenerator
 from sklearn.metrics import roc_auc_score
 
-from callback import load_generator_data
-from generator import custom_image_generator
 from models.densenet121 import get_model
-from utility import get_sample_counts
 
 
 def main(config_file):
@@ -20,6 +16,8 @@ def main(config_file):
 
     # default config
     output_dir = cp["DEFAULT"].get("output_dir")
+    train_patient_ratio = cp["DEFAULT"].getint("train_patient_ratio")
+    dev_patient_ratio = cp["DEFAULT"].getint("dev_patient_ratio")
     class_names = cp["DEFAULT"].get("class_names").split(",")
     image_dimension = cp["DEFAULT"].getint("image_dimension")
     model_name = cp["DEFAULT"].get("nn_model")
@@ -43,22 +41,15 @@ def main(config_file):
     best_weights_path = os.path.join(output_dir, f"best_{output_weights_name}")
 
     # get test sample count
-    test_counts, _ = get_sample_counts(output_dir, "test", class_names)
+    dataset0 = dataset_pkg.DataSet(image_dir=image_source_dir, data_entry=data_entry_file,
+                                   train_ratio=train_patient_ratio,
+                                   dev_ratio=dev_patient_ratio,
+                                   output_dir=output_dir, img_dim=256, class_names=class_names,
+                                   random_state=split_dataset_random_state)
 
-    symlink_dir_name = "image_links"
-    test_data_path = f"{output_dir}/{symlink_dir_name}/test/"
-
-    step_test = int(test_counts / batch_size)
+    step_test = int(dataset0.test_count / batch_size)
     print("** load test generator **")
-    test_generator = custom_image_generator(
-        ImageDataGenerator(horizontal_flip=True, rescale=1. / 255),
-        test_data_path,
-        batch_size=batch_size,
-        class_names=class_names,
-        target_size=(image_dimension, image_dimension),
-        cam=False
-    )
-    x, y = load_generator_data(test_generator, step_test, len(class_names), cam=False)
+    test_generator = dataset0.test_generator(verbosity=verbosity)
 
     print("** load model **")
     model = get_model(class_names, image_dimension=image_dimension)
@@ -70,7 +61,7 @@ def main(config_file):
         model.load_weights(weights_path)
 
     print("** make prediction **")
-    y_hat = model.predict(x)
+    y_hat = model.predict_generator(generator=test_generator, steps=step_test, verbose=1)
 
     test_log_path = os.path.join(output_dir, "test.log")
     print(f"** write log to {test_log_path} **")
