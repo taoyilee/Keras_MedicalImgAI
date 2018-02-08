@@ -125,6 +125,8 @@ class MultipleClassAUROC(Callback):
                 print(f"{i+1}. {self.class_names[i]}: {score}")
         elif self.class_mode == "multiclass":
             current_auroc = roc_auc_score(y, y_hat, average=None)
+            for i, v in enumerate(self.class_names):
+                print(f" {i+1}. {v} = {current_auroc[i]}")
 
         # customize your multiple class metrics here
         mean_auroc = np.mean(current_auroc)
