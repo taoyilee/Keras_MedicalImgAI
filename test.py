@@ -1,12 +1,16 @@
-import numpy as np
+import argparse
+import importlib
 import os
-from callback import load_generator_data
 from configparser import ConfigParser
+
+import numpy as np
+from keras.preprocessing.image import ImageDataGenerator
+from sklearn.metrics import roc_auc_score
+
+from callback import load_generator_data
 from generator import custom_image_generator
 from models.densenet121 import get_model
 from utility import get_sample_counts
-from keras.preprocessing.image import ImageDataGenerator
-from sklearn.metrics import roc_auc_score
 
 
 def main(config_file):
@@ -18,6 +22,16 @@ def main(config_file):
     output_dir = cp["DEFAULT"].get("output_dir")
     class_names = cp["DEFAULT"].get("class_names").split(",")
     image_dimension = cp["DEFAULT"].getint("image_dimension")
+    model_name = cp["DEFAULT"].get("nn_model")
+    dataset_name = cp["DEFAULT"].get("dataset_name")
+
+    dataset_spec = importlib.util.spec_from_file_location(dataset_name, f"./datasets/{dataset_name}.py")
+    if dataset_spec is None:
+        print(f"can't find the {dataset_name} module")
+    else:
+        # If you chose to perform the actual import ...
+        dataset_pkg = importlib.util.module_from_spec(dataset_spec)
+        dataset_spec.loader.exec_module(dataset_pkg)
 
     # test config
     batch_size = cp["TEST"].getint("batch_size")
@@ -37,7 +51,7 @@ def main(config_file):
     step_test = int(test_counts / batch_size)
     print("** load test generator **")
     test_generator = custom_image_generator(
-        ImageDataGenerator(horizontal_flip=True, rescale=1./255),
+        ImageDataGenerator(horizontal_flip=True, rescale=1. / 255),
         test_data_path,
         batch_size=batch_size,
         class_names=class_names,
