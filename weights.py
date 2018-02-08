@@ -1,7 +1,8 @@
 import numpy as np
+import sklearn as sk
 
 
-def get_class_weights(total_counts, class_positive_counts, multiply, use_class_balancing):
+def get_class_weights(total_counts, class_positive_counts, multiply, use_class_balancing, class_mode="multiclass"):
     """
     Calculate class_weight used in training
 
@@ -17,7 +18,7 @@ def get_class_weights(total_counts, class_positive_counts, multiply, use_class_b
 
     def get_single_class_weight(pos_counts):
         denominator = (total_counts - pos_counts) * multiply + pos_counts
-        #print(f"Total counts = {total_counts}, Positive counts = {pos_counts}")
+        # print(f"Total counts = {total_counts}, Positive counts = {pos_counts}")
         return {
             0: pos_counts / denominator,
             1: (denominator - pos_counts) / denominator,
@@ -44,12 +45,17 @@ def get_class_weights(total_counts, class_positive_counts, multiply, use_class_b
             i += 1
         return balanced
 
-    class_names = list(class_positive_counts.keys())
-    label_counts = np.array(list(class_positive_counts.values()))
-    class_weights = {}
-    for i, class_name in enumerate(class_names):
-        class_weights[class_name] = get_single_class_weight(label_counts[i])
+    if class_mode == "multiclass":
+        class_id = range(len(class_names))
+        class_weights = sk.utils.class_weight.compute_class_weight('balanced')
+        return dict(zip(class_id, class_weights))
+    elif class_mode == "multibinary":
+        class_names = list(class_positive_counts.keys())
+        label_counts = np.array(list(class_positive_counts.values()))
+        class_weights = {}
+        for i, class_name in enumerate(class_names):
+            class_weights[class_name] = get_single_class_weight(label_counts[i])
 
-    if use_class_balancing:
-        class_weights = balancing(class_weights, label_counts)
-    return class_weights
+        if use_class_balancing:
+            class_weights = balancing(class_weights, label_counts)
+        return class_weights

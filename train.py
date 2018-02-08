@@ -1,5 +1,4 @@
 import argparse
-import importlib
 import json
 import os
 import pickle
@@ -11,8 +10,8 @@ from keras.optimizers import Adam
 from keras.utils import multi_gpu_model
 
 from callback import MultipleClassAUROC, MultiGPUModelCheckpoint, SaveBaseModel
+from datasets import dataset_loader as dsload
 from models.densenet121 import get_model
-from weights import get_class_weights
 
 
 def main(config_file):
@@ -24,16 +23,7 @@ def main(config_file):
     output_dir = cp["DEFAULT"].get("output_dir")
     image_source_dir = cp["DEFAULT"].get("image_source_dir")
     model_name = cp["DEFAULT"].get("nn_model")
-    dataset_name = cp["DEFAULT"].get("dataset_name")
-
-    dataset_spec = importlib.util.spec_from_file_location(dataset_name, f"./datasets/{dataset_name}.py")
-    if dataset_spec is None:
-        print(f"can't find the {dataset_name} module")
-    else:
-        # If you chose to perform the actual import ...
-        dataset_pkg = importlib.util.module_from_spec(dataset_spec)
-        dataset_spec.loader.exec_module(dataset_pkg)
-
+    class_mode = cp["DEFAULT"].get("class_mode")
     train_patient_ratio = cp["DEFAULT"].getint("train_patient_ratio")
     dev_patient_ratio = cp["DEFAULT"].getint("dev_patient_ratio")
     data_entry_file = cp["DEFAULT"].get("data_entry_file")
@@ -96,19 +86,23 @@ def main(config_file):
         # split train/dev/test
         if use_default_split:
             datasets = ["train", "dev", "test"]
-            for dataset in datasets:
-                shutil.copy(f"./data/default_split/{dataset}.csv", output_dir)
+            for d in datasets:
+                shutil.copy(f"./data/default_split/{d}.csv", output_dir)
         elif not use_skip_split:
             print("** split dataset **")
-            dataset0 = dataset_pkg.DataSet(image_dir=image_source_dir, data_entry=data_entry_file,
-                                           train_ratio=train_patient_ratio,
-                                           dev_ratio=dev_patient_ratio,
-                                           output_dir=output_dir, img_dim=256, class_names=class_names,
-                                           random_state=split_dataset_random_state)
+            data_set = dsload.DataSet(image_dir=image_source_dir, data_entry=data_entry_file,
+                                      train_ratio=train_patient_ratio,
+                                      dev_ratio=dev_patient_ratio,
+                                      output_dir=output_dir, img_dim=256, class_names=class_names,
+                                      random_state=split_dataset_random_state, class_mode=class_mode,
+                                      use_class_balancing=use_class_balancing)
+        print("** create image generators **")
+        train_generator = data_set.train_generator(verbosity=verbosity)
+        dev_generator = data_set.dev_generator(verbosity=verbosity)
 
         # compute steps
         if train_steps == "auto":
-            train_steps = int(dataset0.train_count / batch_size)
+            train_steps = train_generator.__len__()
         else:
             try:
                 train_steps = int(train_steps)
@@ -120,7 +114,7 @@ def main(config_file):
         print(f"** train_steps: {train_steps} **")
 
         if validation_steps == "auto":
-            validation_steps = int(dataset0.dev_count / batch_size)
+            validation_steps = dev_generator.__len__()
         else:
             try:
                 validation_steps = int(validation_steps)
@@ -133,39 +127,27 @@ def main(config_file):
 
         # compute class weights
         print("** compute class weights from training data **")
-        class_weights = get_class_weights(
-            dataset0.train_count,
-            dataset0.train_pos_count,
-            multiply=positive_weights_multiply,
-            use_class_balancing=use_class_balancing
-        )
-        print("** class_weights **")
-        for c, w in class_weights.items():
-            print(f"  {c}: {w}")
+        class_weights = data_set.class_weights()
 
         print("** load model **")
         if use_base_model_weights:
             base_model_weights_file = cp["TRAIN"].get("base_model_weights_file")
-            print("** loading base model weight from {base_model_weights_file} **")
+            print(f"** loading base model weight from {base_model_weights_file} **")
         else:
             base_model_weights_file = None
         if use_trained_model_weights:
             if use_best_weights:
                 model_weights_file = os.path.join(output_dir, f"best_{output_weights_name}")
-                print("** loading best model weight from {model_weights_file} **")
+                print(f"** loading best model weight from {model_weights_file} **")
             else:
                 model_weights_file = os.path.join(output_dir, output_weights_name)
-                print("** loading final model weight from {model_weights_file} **")
+                print(f"** loading final model weight from {model_weights_file} **")
         else:
             model_weights_file = None
         model = get_model(class_names, base_model_weights_file, model_weights_file, image_dimension=image_dimension,
-                          color_mode=color_mode)
+                          color_mode=color_mode, class_mode=class_mode)
         if show_model_summary:
             print(model.summary())
-
-        print("** create image generators **")
-        train_generator = dataset0.train_generator(verbosity=verbosity)
-        dev_generator = dataset0.dev_generator(verbosity=verbosity)
 
         output_weights_path = os.path.join(output_dir, output_weights_name)
         print(f"** set output weights path to: {output_weights_path} **")

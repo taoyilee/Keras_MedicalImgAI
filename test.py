@@ -1,6 +1,4 @@
 import argparse
-import importlib
-import math
 import os
 from configparser import ConfigParser
 
@@ -8,6 +6,7 @@ import numpy as np
 from sklearn.metrics import roc_auc_score
 
 from models.densenet121 import get_model
+from datasets import dataset_loader as dsload
 
 
 def main(config_file):
@@ -21,18 +20,10 @@ def main(config_file):
     class_names = cp["DEFAULT"].get("class_names").split(",")
     image_dimension = cp["DEFAULT"].getint("image_dimension")
     model_name = cp["DEFAULT"].get("nn_model")
-    dataset_name = cp["DEFAULT"].get("dataset_name")
+    class_mode = cp["DEFAULT"].get("class_mode")
 
     verbosity = cp["DEFAULT"].getint("verbosity")
     progress_verbosity = cp["TEST"].getint("progress_verbosity")
-
-    dataset_spec = importlib.util.spec_from_file_location(dataset_name, f"./datasets/{dataset_name}.py")
-    if dataset_spec is None:
-        print(f"can't find the {dataset_name} module")
-    else:
-        # If you chose to perform the actual import ...
-        dataset_pkg = importlib.util.module_from_spec(dataset_spec)
-        dataset_spec.loader.exec_module(dataset_pkg)
 
     # test config
     batch_size = cp["TEST"].getint("batch_size")
@@ -46,14 +37,14 @@ def main(config_file):
     # get test sample count
     data_entry_file = f"{output_dir}/test.csv"
     print(f"**Reading test set from {data_entry_file}")
-    dataset0 = dataset_pkg.DataSetTest(image_dir=image_source_dir, data_entry=data_entry_file, batch_size=batch_size,
-                                       img_dim=256, class_names=class_names)
+    dataset0 = dsload.DataSetTest(image_dir=image_source_dir, data_entry=data_entry_file, batch_size=batch_size,
+                                  img_dim=256, class_names=class_names, class_mode=class_mode)
 
     print("** load test generator **")
     test_generator = dataset0.test_generator(verbosity=verbosity)
     step_test = test_generator.__len__()
     print("** load model **")
-    model = get_model(class_names, image_dimension=image_dimension)
+    model = get_model(class_names, image_dimension=image_dimension, class_mode=class_mode)
     if use_best_weights:
         print("** use best weights **")
         model.load_weights(best_weights_path)

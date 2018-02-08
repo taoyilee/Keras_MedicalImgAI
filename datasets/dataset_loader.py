@@ -2,13 +2,15 @@ import os
 import random
 
 import pandas as pd
+import sklearn as sk
 
-from datasets.dataset_utility import label2vec, pos_count, DataSequence
+from datasets.dataset_utility import label2vec, pos_count, DataSequence, get_class_weights_multibinary
 
 
 class DataSet:
     def __init__(self, image_dir, data_entry, class_names, output_dir, random_state=0,
-                 train_ratio=70, dev_ratio=10, batch_size=16, img_dim=256, scale=1. / 255):
+                 train_ratio=70, dev_ratio=10, batch_size=16, img_dim=256, scale=1. / 255, class_mode="multiclass",
+                 positive_weights_multiply=1, use_class_balancing=True):
         """Loads Chexnet dataset.
         # Returns
             Tuple of Numpy arrays: `(x_train, y_train), (x_test, y_test)`.
@@ -23,7 +25,11 @@ class DataSet:
         self.batch_size = batch_size
         self.img_dim = img_dim
         self.scale = scale
+        self.class_mode = class_mode
+        self.use_class_balancing = use_class_balancing
+        self.positive_weights_multiply = positive_weights_multiply
 
+        print(f"Splitting dataset for {self.class_mode}")
         os.makedirs(self.output_dir, exist_ok=True)
         e = pd.read_csv(self.data_entry)
 
@@ -60,24 +66,47 @@ class DataSet:
         self.dev[output_fields].to_csv(os.path.join(output_dir, "dev.csv"), index=False)
         self.test[output_fields].to_csv(os.path.join(output_dir, "test.csv"), index=False)
 
+    def class_weights(self):
+        print(f"** {self.class_mode} class_weights **")
+        if self.class_mode == 'multiclass':
+            class_id = range(len(self.class_names))
+            class_weight_sk = sk.utils.class_weight.compute_class_weight('balanced', self.class_names,
+                                                                         self.train["Finding Labels"].tolist())
+            class_weight = dict(zip(class_id, class_weight_sk))
+            for c, w in class_weight.items():
+                print(f"  {c}: {w}")
+            return class_weight
+
+        elif self.class_mode == 'multibinary':
+            class_weight = get_class_weights_multibinary(
+                self.train_count,
+                self.train_pos_count,
+                multiply=self.positive_weights_multiply,
+                use_class_balancing=self.use_class_balancing)
+            for c, w in class_weight.items():
+                print(f"  {c}: {w}")
+
+            return class_weight
+
     def train_generator(self, verbosity=0):
         batch = self.train.sample(frac=1)  # shuffle
         return DataSequence(batch, image_dir=self.image_dir, set_name='train',
-                            img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
+                            img_dim=self.img_dim, scale=self.scale, class_mode=self.class_mode, verbosity=verbosity)
 
     def dev_generator(self, verbosity=0):
         batch = self.dev.sample(frac=1)  # shuffle
         return DataSequence(batch, image_dir=self.image_dir, set_name='dev',
-                            img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
+                            img_dim=self.img_dim, scale=self.scale, class_mode=self.class_mode, verbosity=verbosity)
 
     def test_generator(self, verbosity=0):
         batch = self.test.sample(frac=1)  # shuffle
         return DataSequence(batch, image_dir=self.image_dir, set_name='test',
-                            img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
+                            img_dim=self.img_dim, scale=self.scale, class_mode=self.class_mode, verbosity=verbosity)
 
 
 class DataSetTest:
-    def __init__(self, image_dir, data_entry, class_names, batch_size=16, img_dim=256, scale=1. / 255):
+    def __init__(self, image_dir, data_entry, class_names, batch_size=16, img_dim=256, scale=1. / 255,
+                 class_mode="multiclass"):
         """Loads Chexnet dataset.
         # Returns
             Tuple of Numpy arrays: `(x_train, y_train), (x_test, y_test)`.
@@ -88,6 +117,7 @@ class DataSetTest:
         self.batch_size = batch_size
         self.img_dim = img_dim
         self.scale = scale
+        self.class_mode = class_mode
 
         self.test = pd.read_csv(self.data_entry)
 
@@ -104,4 +134,4 @@ class DataSetTest:
     def test_generator(self, verbosity=0):
         batch = self.test.sample(frac=1)  # shuffle
         return DataSequence(batch, image_dir=self.image_dir, set_name='test',
-                            img_dim=self.img_dim, scale=self.scale, verbosity=verbosity)
+                            img_dim=self.img_dim, scale=self.scale, class_mode=self.class_mode, verbosity=verbosity)

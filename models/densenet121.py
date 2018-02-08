@@ -14,7 +14,8 @@ from keras.models import Model
 from .custom_layers import Scale
 
 
-def get_model(class_names, base_weights_path=None, weights_path=None, image_dimension=512, color_mode='grayscale'):
+def get_model(class_names, base_weights_path=None, weights_path=None, image_dimension=512, color_mode='grayscale',
+              weight_decay=1e-4, class_mode='multiclass'):
     """
     Create model for transfer learning
 
@@ -39,10 +40,17 @@ def get_model(class_names, base_weights_path=None, weights_path=None, image_dime
 
     # dense layers for different class
     predictions = []
-    for i, class_name in enumerate(class_names):
-        prediction = Dense(1024)(x)
-        prediction = Dense(1, activation="sigmoid", name=class_name)(prediction)
-        predictions.append(prediction)
+    if class_mode == 'multiclass':
+        prediction = Dense(4096, kernel_regularizer=regularizers.l2(weight_decay), name="fc_hidden_layer1")(x)
+        predictions = Dense(len(class_names), activation="softmax", name="fc_output_layer",
+                            kernel_regularizer=regularizers.l2(weight_decay))(prediction)
+    elif class_mode == 'multibinary':
+        for i, class_name in enumerate(class_names):
+            prediction = Dense(1024, kernel_regularizer=regularizers.l2(weight_decay))(x)
+            prediction = Dense(1, kernel_regularizer=regularizers.l2(weight_decay), activation="sigmoid",
+                               name=class_name)(prediction)
+            predictions.append(prediction)
+
     model = Model(inputs=base_model.input, outputs=predictions)
     model.base_model = base_model
     if weights_path is not None:
