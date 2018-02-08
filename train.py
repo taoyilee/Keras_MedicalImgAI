@@ -40,7 +40,7 @@ def main(config_file):
     class_names = cp["DEFAULT"].get("class_names").split(",")
     image_dimension = cp["DEFAULT"].getint("image_dimension")
     verbosity = cp["DEFAULT"].getint("verbosity")
-    progress_verbosity = cp["DEFAULT"].getint("progress_verbosity")
+    progress_verbosity = cp["TRAIN"].getint("progress_verbosity")
 
     color_mode = cp["DEFAULT"].get("color_mode")
 
