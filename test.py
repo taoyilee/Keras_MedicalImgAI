@@ -55,7 +55,6 @@ def main(config_file):
     print("** make predictions **")
     y = np.array(test_generator.targets()).squeeze()
     y_hat = np.array(model.predict_generator(generator=test_generator, steps=step_test, verbose=progress_verbosity))
-    y_hat = y_hat.squeeze().swapaxes(0, 1)
     test_log_path = os.path.join(output_dir, "test.log")
     print(f"** write log to {test_log_path} **")
     aurocs = []
@@ -65,9 +64,10 @@ def main(config_file):
     with open(test_log_path, "w") as f:
         if class_mode == "multibinary":
             y = y.squeeze().swapaxes(0, 1)
-        aurocs = roc_auc_score(y, y_hat, average=None)
+
         if len(class_names) != len(aurocs):
             raise Exception(f"Wrong shape in either y or y_hat {len(self.class_names)} != {len(current_auroc)}")
+        aurocs = roc_auc_score(y, y_hat, average=None)
         for i, v in enumerate(class_names):
             print(f" {i+1}. {v} AUC = {np.around(aurocs[i], 2)}")
             f.write(f"{class_names[i]}: {aurocs[i]}\n")
