@@ -61,10 +61,9 @@ def main(config_file):
         print("** use last weights **")
         model.load_weights(weights_path)
 
-    print("** make prediction **")
+    print("** make predictions **")
     y = test_generator.targets()
-    y_hat = model.predict_generator(generator=test_generator, steps=step_test, verbose=progress_verbosity,
-                                    batch_size=batch_size)
+    y_hat = model.predict_generator(generator=test_generator, steps=step_test, verbose=progress_verbosity)
 
     test_log_path = os.path.join(output_dir, "test.log")
     print(f"** write log to {test_log_path} **")
