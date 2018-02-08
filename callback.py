@@ -102,11 +102,16 @@ class MultipleClassAUROC(Callback):
         y_hat shape: (#samples, len(class_names))
         y: [(#samples, 1), (#samples, 1) ... (#samples, 1)]
         """
-        x, y = load_generator_data(self.generator, self.steps, len(self.class_names))
-        y_hat = self.model.predict(x)
 
+        test_generator = self.generator
+        step_test = test_generator.__len__()
+        y = np.array(test_generator.targets()).squeeze()
+        y_hat = np.array(self.model.predict_generator(generator=test_generator, steps=step_test, verbose=1))
+        y_hat = y_hat.squeeze().swapaxes(0, 1)
         print(f"*** epoch#{epoch + 1} dev auroc ***")
         current_auroc = []
+        print(f"y = {np.shape(y)}")
+        print(f"y_hat = {np.shape(y_hat)}")
         for i in range(len(self.class_names)):
             try:
                 score = roc_auc_score(y[i], y_hat[i])
