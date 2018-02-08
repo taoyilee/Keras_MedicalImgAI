@@ -119,11 +119,11 @@ class MultipleClassAUROC(Callback):
         if len(self.class_names) != len(current_auroc):
             raise Exception(f"Wrong shape in either y or y_hat {len(self.class_names)} != {len(current_auroc)}")
         for i, v in enumerate(self.class_names):
-            print(f" {i+1}. {v} = {current_auroc[i]}")
+            print(f" {i+1}. {v} AUC = {np.around(current_auroc[i], 2)}")
 
         # customize your multiple class metrics here
         mean_auroc = np.mean(current_auroc)
-        print(f"mean auroc: {mean_auroc}")
+        print(f"mean auroc: {np.around(mean_auroc, 2)}")
         if mean_auroc > self.stats["best_mean_auroc"]:
             print(f"update best auroc from {self.stats['best_mean_auroc']} to {mean_auroc}")
 
@@ -141,7 +141,6 @@ class MultipleClassAUROC(Callback):
 
             print(f"update model file: {self.weights_path} -> {self.best_weights_path}")
             self.stats["best_mean_auroc"] = mean_auroc
-            print("*********************************")
         return
 
 
