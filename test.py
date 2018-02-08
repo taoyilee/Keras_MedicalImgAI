@@ -96,6 +96,7 @@ def main(config_file):
                 csv_row = [str(i + 1), f"{class_names[predicted_class]}"] + [str(vi.round(3)) for vi in v]
                 csvwriter.writerow(csv_row)
                 x_orig = test_generator.orig_input(i)
+                print(f"x_orig = {np.shape(x_orig)}")
                 x = test_generator.model_input(i)
                 cam, _ = gc.grad_cam(model, x, x_orig, predicted_class, "conv5_blk_scale")
                 font = cv2.FONT_HERSHEY_SIMPLEX

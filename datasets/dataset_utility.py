@@ -26,8 +26,8 @@ class DataSequence(Sequence):
         return self.batch["One_Hot_Labels"].tolist()
 
     def orig_input(self, index):
-        image_generator(image_filenames=self.batch["Image Index"].iloc[[index]], image_dir=self.image_dir,
-                        colormode=self.color_mode)
+        np.uint8(image_generator(image_filenames=self.batch["Image Index"].iloc[[index]], image_dir=self.image_dir,
+                                 colormode=self.color_mode))
 
     def model_input(self, index):
         image_generator(image_filenames=self.batch["Image Index"].iloc[[index]], image_dir=self.image_dir,
