@@ -48,22 +48,21 @@ def main(config_file):
     positive_weights_multiply = cp["TRAIN"].getfloat("positive_weights_multiply")
     use_class_balancing = cp["TRAIN"].getboolean("use_class_balancing")
     use_default_split = cp["TRAIN"].getboolean("use_default_split")
+    force_resplit = cp["TRAIN"].getboolean("force_resplit")
+
     # if previously trained weights is used, never re-split
-    if use_trained_model_weights:
+    training_stats = {}
+    if not force_resplit and use_trained_model_weights:
         # resuming mode
-        print("** use trained model weights, turn on use_skip_split automatically **")
-        use_skip_split = True
+        print("** attempting to use trained model weights **")
         # load training status for resuming
         training_stats_file = os.path.join(output_dir, ".training_stats.json")
         if os.path.isfile(training_stats_file):
             # TODO: add loading previous learning rate?
             training_stats = json.load(open(training_stats_file))
         else:
-            training_stats = {}
-    else:
-        # start over
-        use_skip_split = cp["TRAIN"].getboolean("use_skip_split ")
-        training_stats = {}
+            print("** trained model weights not found, starting over **")
+            use_trained_model_weights = False
 
     split_dataset_random_state = cp["TRAIN"].getint("split_dataset_random_state")
     show_model_summary = cp["TRAIN"].getboolean("show_model_summary")
@@ -78,7 +77,6 @@ def main(config_file):
         raise RuntimeError("A process is running in this directory!!!")
     else:
         open(running_flag_file, "a").close()
-
     try:
         print(f"backup config file to {output_dir}")
         shutil.copy(config_file, os.path.join(output_dir, os.path.split(config_file)[1]))
@@ -88,14 +86,14 @@ def main(config_file):
             datasets = ["train", "dev", "test"]
             for d in datasets:
                 shutil.copy(f"./data/default_split/{d}.csv", output_dir)
-        elif not use_skip_split:
-            print("** split dataset **")
-            data_set = dsload.DataSet(image_dir=image_source_dir, data_entry=data_entry_file,
-                                      train_ratio=train_patient_ratio,
-                                      dev_ratio=dev_patient_ratio,
-                                      output_dir=output_dir, img_dim=256, class_names=class_names,
-                                      random_state=split_dataset_random_state, class_mode=class_mode,
-                                      use_class_balancing=use_class_balancing)
+
+        data_set = dsload.DataSet(image_dir=image_source_dir, data_entry=data_entry_file,
+                                  train_ratio=train_patient_ratio,
+                                  dev_ratio=dev_patient_ratio,
+                                  output_dir=output_dir, img_dim=256, class_names=class_names,
+                                  random_state=split_dataset_random_state, class_mode=class_mode,
+                                  use_class_balancing=use_class_balancing,
+                                  positive_weights_multiply=positive_weights_multiply, force_resplit=force_resplit)
         print("** create image generators **")
         train_generator = data_set.train_generator(verbosity=verbosity)
         dev_generator = data_set.dev_generator(verbosity=verbosity)
