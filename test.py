@@ -5,8 +5,8 @@ from configparser import ConfigParser
 import numpy as np
 from sklearn.metrics import roc_auc_score
 
-from models.densenet121 import get_model
 from datasets import dataset_loader as dsload
+from models.densenet121 import get_model
 
 
 def main(config_file):
@@ -61,20 +61,22 @@ def main(config_file):
     aurocs = []
     print(f"y = {np.shape(y)}")
     print(f"y_hat = {np.shape(y_hat)}")
+
     with open(test_log_path, "w") as f:
-        for i in range(len(class_names)):
-            try:
-                score = roc_auc_score(y[i], y_hat[i])
-                aurocs.append(score)
-            except ValueError:
-                score = 0
-            f.write(f"{class_names[i]}: {score}\n")
-            print(f"{class_names[i]}: {score}")
+        if class_mode == "multibinary":
+            y = y.squeeze().swapaxes(0, 1)
+        aurocs = roc_auc_score(y, y_hat, average=None)
+        if len(class_names) != len(aurocs):
+            raise Exception(f"Wrong shape in either y or y_hat {len(self.class_names)} != {len(current_auroc)}")
+        for i, v in enumerate(class_names):
+            print(f" {i+1}. {v} AUC = {np.around(aurocs[i], 2)}")
+            f.write(f"{class_names[i]}: {aurocs[i]}\n")
+
         mean_auroc = np.mean(aurocs)
         f.write("-------------------------\n")
-        f.write(f"mean auroc: {mean_auroc}\n")
+        f.write(f"mean AUC: {mean_auroc}\n")
         print("-------------------------")
-        print(f"mean auroc: {mean_auroc}")
+        print(f"mean AUC: {mean_auroc}")
 
 
 if __name__ == "__main__":
