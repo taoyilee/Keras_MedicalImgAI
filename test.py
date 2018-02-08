@@ -84,6 +84,7 @@ def main(config_file):
 
     if enable_grad_cam:
         print("** perform grad cam **")
+        os.makedirs("imgdir", exist_ok=True)
         with open('predicted_class.csv', 'w', newline='') as csvfile:
             csvwriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
             csv_header = ['ID', 'Most probable diagnosis']
@@ -92,17 +93,26 @@ def main(config_file):
             csvwriter.writerow(csv_header)
             for i, v in enumerate(y_hat):
                 predicted_class = np.argmax(v)
-                print(f"** y_hat[{i+1}] = {v.round(3)} Prediction: {class_names[predicted_class]}")
+                labeled_class = np.argmax(y[i])
+                print(
+                    f"** y_hat[{i}] = {v.round(3)} Label/Prediction: {class_names[labeled_class]}/{class_names[predicted_class]}")
                 csv_row = [str(i + 1), f"{class_names[predicted_class]}"] + [str(vi.round(3)) for vi in v]
                 csvwriter.writerow(csv_row)
-                x_orig = test_generator.orig_input(i)
-                print(f"x_orig = {np.shape(x_orig)}")
+                x_orig = test_generator.orig_input(i).squeeze()
+                x_orig = cv2.cvtColor(x_orig, cv2.COLOR_GRAY2RGB)
                 x = test_generator.model_input(i)
-                cam, _ = gc.grad_cam(model, x, x_orig, predicted_class, "conv5_blk_scale")
+                cam = gc.grad_cam(model, x, x_orig, predicted_class, "conv5_blk_scale", class_names)
                 font = cv2.FONT_HERSHEY_SIMPLEX
+                cv2.putText(x_orig, f"Labeled as:{class_names[labeled_class]}", (5, 20), font, 1,
+                            (255, 255, 255),
+                            2, cv2.LINE_AA)
+
                 cv2.putText(cam, f"Predicted as:{class_names[predicted_class]}", (5, 20), font, 1,
                             (255, 255, 255),
                             2, cv2.LINE_AA)
+
+                print(f"Writing cam file to imgdir/gradcam_{i}.jpg")
+
                 cv2.imwrite(f"imgdir/gradcam_{i}.jpg", np.concatenate((x_orig, cam), axis=1))
 
 

@@ -95,36 +95,35 @@ def deprocess_image(x):
     return x
 
 
-def grad_cam(input_model, model_x, orig_x, category_index, layer_name):
+def grad_cam(input_model, model_x, orig_x, category_index, layer_name, class_names):
     output = input_model.output
 
-    nb_classes = 2
-    target_layer = lambda x: target_category_loss(x, category_index, nb_classes)
-    final_layer = Lambda(target_layer,
-                         output_shape=target_category_loss_output_shape)
+    final_layer = Lambda(lambda x: target_category_loss(x, category_index, len(class_names)))
     output = final_layer(output)
     model = Model(inputs=input_model.input, outputs=output)
     loss = K.sum(model.layers[-1].output)
     conv_output = model.get_layer(layer_name).output
     grads = normalize(K.gradients(loss, conv_output)[0])
-    print("grads tensor = {}".format(grads))
+    #print("grads tensor = {}".format(grads))
     gradient_function = K.function([model.layers[0].input, K.learning_phase()], [conv_output, grads])
 
     output, grads_val = gradient_function([model_x, 0])
-    print("output = {}, grads_val = {}".format(np.shape(output), np.shape(grads_val)))
+    #print("output = {}, grads_val = {}".format(np.shape(output), np.shape(grads_val)))
     output, grads_val = output[0, :], grads_val[0, :, :, :]
 
     weights = np.mean(grads_val, axis=(0, 1))
-    cam = np.ones(output.shape[0: 2], dtype=np.float32)
+    cam = np.zeros(output.shape[0: 2], dtype=np.float32)
 
     for i, w in enumerate(weights):
         cam += w * output[:, :, i]
 
-    cam = cv2.resize(cam, (np.shape(orig_x)[0], np.shape(orig_x)[0]))
-    cam = np.maximum(cam, 0)
-    heatmap = cam / np.max(cam)
-
-    cam = cv2.applyColorMap(np.uint8(255 * heatmap), cv2.COLORMAP_JET)
-    cam = 255 * cam / np.max(cam)
+    cam = np.maximum(cam, np.zeros(output.shape[0: 2], dtype=np.float32))
+    #print(f"cam shape = {np.shape(cam)}")
+    cam = cam.squeeze()
+    #print(f"cam shape = {np.shape(cam)}")
+    cam = cv2.applyColorMap(np.uint8(255 * cam / np.max(cam)), cv2.COLORMAP_JET)
+    #print(f"cam shape = {np.shape(cam)}")
+    cam = cv2.resize(cam, (np.shape(orig_x)[0], np.shape(orig_x)[1]))
+    #print(f"cam shape = {np.shape(cam)}")
     cam = 0.4 * cam + 0.6 * orig_x
-    return np.uint8(cam), heatmap
+    return np.uint8(cam)

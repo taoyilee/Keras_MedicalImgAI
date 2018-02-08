@@ -26,12 +26,12 @@ class DataSequence(Sequence):
         return self.batch["One_Hot_Labels"].tolist()
 
     def orig_input(self, index):
-        np.uint8(image_generator(image_filenames=self.batch["Image Index"].iloc[[index]], image_dir=self.image_dir,
-                                 colormode=self.color_mode))
+        return image_generator(image_filenames=self.batch["Image Index"].iloc[[index]], image_dir=self.image_dir,
+                               colormode=self.color_mode)
 
     def model_input(self, index):
-        image_generator(image_filenames=self.batch["Image Index"].iloc[[index]], image_dir=self.image_dir,
-                        img_dim=self.img_dim, scale=self.scale, colormode=self.color_mode)
+        return image_generator(image_filenames=self.batch["Image Index"].iloc[[index]], image_dir=self.image_dir,
+                               img_dim=self.img_dim, scale=self.scale, colormode=self.color_mode)
 
     def inputs(self):
         return image_generator(image_filenames=self.batch["Image Index"], image_dir=self.image_dir,
@@ -66,7 +66,7 @@ def pos_count(subset_series, class_names):
     return ret_dict
 
 
-def image_generator(image_filenames, image_dir, img_dim=256, scale=1. / 255, colormode='grayscale'):
+def image_generator(image_filenames, image_dir, img_dim=None, scale=None, colormode='grayscale'):
     if colormode == 'grayscale':
         inputs = np.array(
             image_filenames.apply(lambda x: load_image(x, image_dir, img_dim=img_dim, scale=scale)).tolist())[:, :, :,
@@ -100,7 +100,7 @@ def load_image(image_name, image_dir, img_dim=None, scale=None, colormode='grays
     if verbosity > 1:
         print(f"Load image from {image_file}")
     if colormode == 'grayscale':
-        image = cv2.imread(image_file, 0)[:, :, np.newaxis]
+        image = cv2.imread(image_file, 0)
     else:
         image = cv2.imread(image_file, 1)
 
