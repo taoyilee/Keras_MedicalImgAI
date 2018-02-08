@@ -29,6 +29,10 @@ class DataSequence(Sequence):
         image_generator(image_filenames=self.batch["Image Index"].iloc[[index]], image_dir=self.image_dir,
                         colormode=self.color_mode)
 
+    def model_input(self, index):
+        image_generator(image_filenames=self.batch["Image Index"].iloc[[index]], image_dir=self.image_dir,
+                        img_dim=self.img_dim, scale=self.scale, colormode=self.color_mode)
+
     def inputs(self):
         return image_generator(image_filenames=self.batch["Image Index"], image_dir=self.image_dir,
                                img_dim=self.img_dim, scale=self.scale,

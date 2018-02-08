@@ -7,6 +7,7 @@ import cv2
 import numpy as np
 from sklearn.metrics import roc_auc_score
 
+import grad_cam as gc
 from datasets import dataset_loader as dsload
 from models.densenet121 import get_model
 
@@ -95,15 +96,13 @@ def main(config_file):
                 csv_row = [str(i + 1), f"{class_names[predicted_class]}"] + [str(vi.round(3)) for vi in v]
                 csvwriter.writerow(csv_row)
                 x_orig = test_generator.orig_input(i)
-                cv2.imwrite(f"imgdir/orig_image_{i}.jpg", x_orig)
-                cam, heatmap = gc.grad_cam(model, x[np.newaxis, i, :], predicted_class, "conv5_blk_scale",
-                                           image_dimension=image_dimension)
+                x = test_generator.model_input(i)
+                cam, _ = gc.grad_cam(model, x, x_orig, predicted_class, "conv5_blk_scale")
                 font = cv2.FONT_HERSHEY_SIMPLEX
-                gradcam_img = 0.4 * cam + 0.6 * np.uint8(x_orig)
-                cv2.putText(gradcam_img, f"Predicted as:{class_names[predicted_class]}", (5, 20), font, 1,
+                cv2.putText(cam, f"Predicted as:{class_names[predicted_class]}", (5, 20), font, 1,
                             (255, 255, 255),
                             2, cv2.LINE_AA)
-                cv2.imwrite(f"imgdir/gradcam_{i}.jpg", gradcam_img)
+                cv2.imwrite(f"imgdir/gradcam_{i}.jpg", np.concatenate((x_orig, cam), axis=1))
 
 
 if __name__ == "__main__":
