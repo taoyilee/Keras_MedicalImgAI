@@ -146,13 +146,16 @@ def main(config_file):
         print("** load model **")
         if use_base_model_weights:
             base_model_weights_file = cp["TRAIN"].get("base_model_weights_file")
+            print("** loading base model weight from {base_model_weights_file} **")
         else:
             base_model_weights_file = None
         if use_trained_model_weights:
             if use_best_weights:
                 model_weights_file = os.path.join(output_dir, f"best_{output_weights_name}")
+                print("** loading best model weight from {model_weights_file} **")
             else:
                 model_weights_file = os.path.join(output_dir, output_weights_name)
+                print("** loading final model weight from {model_weights_file} **")
         else:
             model_weights_file = None
         model = get_model(class_names, base_model_weights_file, model_weights_file, image_dimension=image_dimension,

@@ -9,9 +9,8 @@ from keras.preprocessing.image import ImageDataGenerator
 from sklearn.metrics import roc_auc_score
 
 
-def main():
+def main(config_file):
     # parser config
-    config_file = "./config.ini"
     cp = ConfigParser()
     cp.read(config_file)
 
@@ -76,4 +75,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # use argparse to accept command line variables (config.ini)
+    parser = argparse.ArgumentParser(description='Train a specfic dataset')
+    parser.add_argument('config', metavar='config', type=str, help='an integer for the accumulator')
+    args = parser.parse_args()
+
+    main(config_file=args.config)
