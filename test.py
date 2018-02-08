@@ -66,7 +66,7 @@ def main(config_file):
             y = y.squeeze().swapaxes(0, 1)
 
         if len(class_names) != len(aurocs):
-            raise Exception(f"Wrong shape in either y or y_hat {len(self.class_names)} != {len(current_auroc)}")
+            raise Exception(f"Wrong shape in either y or y_hat {len(class_names)} != {len(current_auroc)}")
         aurocs = roc_auc_score(y, y_hat, average=None)
         for i, v in enumerate(class_names):
             print(f" {i+1}. {v} AUC = {np.around(aurocs[i], 2)}")
