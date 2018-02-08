@@ -7,7 +7,8 @@ from keras.utils import Sequence
 
 
 class DataSequence(Sequence):
-    def __init__(self, batch, image_dir, set_name, batch_size=16, verbosity=0, scale=1. / 255, img_dim=256):
+    def __init__(self, batch, image_dir, set_name, batch_size=16, verbosity=0, scale=1. / 255, img_dim=256,
+                 color_mode='grayscale'):
         self.batch_size = batch_size
         self.batch = batch
         self.image_dir = image_dir
@@ -15,9 +16,18 @@ class DataSequence(Sequence):
         self.scale = scale
         self.img_dim = img_dim
         self.set_name = set_name
+        self.color_mode = color_mode
 
     def __len__(self):
         return math.ceil(self.batch.shape[0] / self.batch_size)
+
+    def targets(self):
+        return self.batch["One_Hot_Labels"].tolist()
+
+    def inputs(self, cam=False):
+        return image_generator(image_filenames=self.batch["Image Index"], image_dir=self.image_dir,
+                               img_dim=self.img_dim, scale=self.scale,
+                               colormode=self.color_mode)
 
     def __getitem__(self, idx):
         return common_generator(self.batch.iloc[idx * self.batch_size:(idx + 1) * self.batch_size],
@@ -27,7 +37,8 @@ class DataSequence(Sequence):
 
 def common_generator(batch, image_dir, set_name, verbosity=0, scale=1. / 255, img_dim=256):
     if verbosity > 0:
-        print(f'** now yielding {set_name} batch = {batch["Patient ID"].tolist()}\nimages are = {batch["Image Index"].tolist()}')
+        print(
+            f'** now yielding {set_name} batch = {batch["Patient ID"].tolist()}\nimages are = {batch["Image Index"].tolist()}')
 
     return batch_generator(batch["Image Index"],
                            batch["One_Hot_Labels"].tolist(), image_dir=image_dir,
@@ -43,8 +54,7 @@ def pos_count(subset_series, class_names):
     return ret_dict
 
 
-def batch_generator(image_filenames, labels, image_dir, img_dim=256, scale=1. / 255, colormode='grayscale',
-                    verbosity=0):
+def image_generator(image_filenames, image_dir, img_dim=256, scale=1. / 255, colormode='grayscale'):
     if colormode == 'grayscale':
         inputs = np.array(
             image_filenames.apply(lambda x: load_image(x, image_dir, img_dim=img_dim, scale=scale)).tolist())[:, :, :,
@@ -52,6 +62,13 @@ def batch_generator(image_filenames, labels, image_dir, img_dim=256, scale=1. / 
     else:
         inputs = np.array(
             image_filenames.apply(lambda x: load_image(x, image_dir, img_dim=img_dim, scale=scale)).tolist())
+    return inputs
+
+
+def batch_generator(image_filenames, labels, image_dir, img_dim=256, scale=1. / 255, colormode='grayscale',
+                    verbosity=0):
+    inputs = image_generator(image_filenames=image_filenames, image_dir=image_dir, img_dim=img_dim, scale=scale,
+                             colormode=colormode)
     targets = np.swapaxes(labels, 0, 1)
     targets = [np.array(targets[i, :]) for i in range(np.shape(targets)[0])]
     if verbosity > 1:

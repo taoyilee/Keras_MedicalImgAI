@@ -17,15 +17,13 @@ def main(config_file):
     # default config
     output_dir = cp["DEFAULT"].get("output_dir")
     image_source_dir = cp["DEFAULT"].get("image_source_dir")
-    train_patient_ratio = cp["DEFAULT"].getint("train_patient_ratio")
-    dev_patient_ratio = cp["DEFAULT"].getint("dev_patient_ratio")
     class_names = cp["DEFAULT"].get("class_names").split(",")
     image_dimension = cp["DEFAULT"].getint("image_dimension")
     model_name = cp["DEFAULT"].get("nn_model")
     dataset_name = cp["DEFAULT"].get("dataset_name")
-    data_entry_file = cp["DEFAULT"].get("data_entry_file")
+
     verbosity = cp["DEFAULT"].getint("verbosity")
-    progress_verbosity = cp["DEFAULT"].getint("progress_verbosity")
+    progress_verbosity = cp["TEST"].getint("progress_verbosity")
 
     dataset_spec = importlib.util.spec_from_file_location(dataset_name, f"./datasets/{dataset_name}.py")
     if dataset_spec is None:
@@ -45,11 +43,10 @@ def main(config_file):
     best_weights_path = os.path.join(output_dir, f"best_{output_weights_name}")
 
     # get test sample count
-    dataset0 = dataset_pkg.DataSet(image_dir=image_source_dir, data_entry=data_entry_file,
-                                   train_ratio=train_patient_ratio,
-                                   dev_ratio=dev_patient_ratio,
-                                   output_dir=output_dir, img_dim=256, class_names=class_names,
-                                   random_state=split_dataset_random_state)
+    data_entry_file = f"{output_dir}/test.csv"
+    print(f"**Reading test set from {data_entry_file}")
+    dataset0 = dataset_pkg.DataSetTest(image_dir=image_source_dir, data_entry=data_entry_file, batch_size=batch_size,
+                                       img_dim=256, class_names=class_names)
 
     step_test = int(dataset0.test_count / batch_size)
     print("** load test generator **")
@@ -65,7 +62,9 @@ def main(config_file):
         model.load_weights(weights_path)
 
     print("** make prediction **")
-    y_hat = model.predict_generator(generator=test_generator, steps=step_test, verbose=progress_verbosity)
+    y = test_generator.targets()
+    y_hat = model.predict_generator(generator=test_generator, steps=step_test, verbose=progress_verbosity,
+                                    batch_size=batch_size)
 
     test_log_path = os.path.join(output_dir, "test.log")
     print(f"** write log to {test_log_path} **")
