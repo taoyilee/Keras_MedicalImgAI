@@ -1,7 +1,9 @@
 import argparse
+import csv
 import os
 from configparser import ConfigParser
 
+import cv2
 import numpy as np
 from sklearn.metrics import roc_auc_score
 
@@ -28,7 +30,7 @@ def main(config_file):
     # test config
     batch_size = cp["TEST"].getint("batch_size")
     use_best_weights = cp["TEST"].getboolean("use_best_weights")
-
+    enable_grad_cam = cp["TEST"].getboolean("enable_grad_cam")
     # parse weights file path
     output_weights_name = cp["TRAIN"].get("output_weights_name")
     weights_path = os.path.join(output_dir, output_weights_name)
@@ -65,6 +67,7 @@ def main(config_file):
         if class_mode == "multibinary":
             y = y.squeeze().swapaxes(0, 1)
         aurocs = roc_auc_score(y, y_hat, average=None)
+
         if len(class_names) != len(aurocs):
             raise Exception(f"Wrong shape in either y or y_hat {len(class_names)} != {len(current_auroc)}")
 
@@ -77,6 +80,30 @@ def main(config_file):
         f.write(f"mean AUC: {mean_auroc}\n")
         print("-------------------------")
         print(f"mean AUC: {mean_auroc}")
+
+    if enable_grad_cam:
+        print("** perform grad cam **")
+        with open('predicted_class.csv', 'w', newline='') as csvfile:
+            csvwriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            csv_header = ['ID', 'Most probable diagnosis']
+            for i, v in enumerate(class_names):
+                csv_header.append(f"{v}_Prob")
+            csvwriter.writerow(csv_header)
+            for i, v in enumerate(y_hat):
+                predicted_class = np.argmax(v)
+                print(f"** y_hat[{i+1}] = {v.round(3)} Prediction: {class_names[predicted_class]}")
+                csv_row = [str(i + 1), f"{class_names[predicted_class]}"] + [str(vi.round(3)) for vi in v]
+                csvwriter.writerow(csv_row)
+                x_orig = test_generator.orig_input(i)
+                cv2.imwrite(f"imgdir/orig_image_{i}.jpg", x_orig)
+                cam, heatmap = gc.grad_cam(model, x[np.newaxis, i, :], predicted_class, "conv5_blk_scale",
+                                           image_dimension=image_dimension)
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                gradcam_img = 0.4 * cam + 0.6 * np.uint8(x_orig)
+                cv2.putText(gradcam_img, f"Predicted as:{class_names[predicted_class]}", (5, 20), font, 1,
+                            (255, 255, 255),
+                            2, cv2.LINE_AA)
+                cv2.imwrite(f"imgdir/gradcam_{i}.jpg", gradcam_img)
 
 
 if __name__ == "__main__":

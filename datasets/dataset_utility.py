@@ -25,7 +25,11 @@ class DataSequence(Sequence):
     def targets(self):
         return self.batch["One_Hot_Labels"].tolist()
 
-    def inputs(self, cam=False):
+    def orig_input(self, index):
+        image_generator(image_filenames=self.batch["Image Index"].iloc[[index]], image_dir=self.image_dir,
+                        colormode=self.color_mode)
+
+    def inputs(self):
         return image_generator(image_filenames=self.batch["Image Index"], image_dir=self.image_dir,
                                img_dim=self.img_dim, scale=self.scale,
                                colormode=self.color_mode)
@@ -85,8 +89,8 @@ def batch_generator(image_filenames, labels, image_dir, img_dim=256, scale=1. / 
     return inputs, targets
 
 
-def load_image(image_name, image_dir, img_dim=256, scale=1. / 255, colormode='grayscale', verbosity=0):
-    image_file = image_dir + "/" + image_name;
+def load_image(image_name, image_dir, img_dim=None, scale=None, colormode='grayscale', verbosity=0):
+    image_file = image_dir + "/" + image_name
     if not os.path.isfile(image_file):
         raise Exception(f"{image_file} not found")
     if verbosity > 1:
@@ -95,8 +99,13 @@ def load_image(image_name, image_dir, img_dim=256, scale=1. / 255, colormode='gr
         image = cv2.imread(image_file, 0)[:, :, np.newaxis]
     else:
         image = cv2.imread(image_file, 1)
-    image = cv2.resize(image, (img_dim, img_dim))
-    return image * scale
+
+    if scale is not None:
+        image *= scale
+
+    if img_dim is not None:
+        image = cv2.resize(image, (img_dim, img_dim))
+    return image
 
 
 def label2vec(label, class_names):
