@@ -17,8 +17,8 @@
       <file leaf-file-name="train.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/train.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="309">
-              <caret line="110" column="50" lean-forward="true" selection-start-line="110" selection-start-column="30" selection-end-line="110" selection-end-column="50" />
+            <state relative-caret-position="-117">
+              <caret line="43" column="0" lean-forward="true" selection-start-line="41" selection-start-column="4" selection-end-line="43" selection-end-column="0" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
               </folding>
@@ -29,8 +29,8 @@
       <file leaf-file-name="test.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="188">
-              <caret line="53" column="11" lean-forward="false" selection-start-line="53" selection-start-column="11" selection-end-line="53" selection-end-column="11" />
+            <state relative-caret-position="174">
+              <caret line="67" column="105" lean-forward="false" selection-start-line="67" selection-start-column="105" selection-end-line="67" selection-end-column="105" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
               </folding>
@@ -64,6 +64,8 @@
       <find>MultipleClassAUROC</find>
       <find>weight_decay</find>
       <find>weight</find>
+      <find>image_source</find>
+      <find>image_source_dir</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -433,7 +435,14 @@
       <option name="project" value="LOCAL" />
       <updated>1518106591922</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="use predict_generator to enable batch testing">
+      <created>1518107215511</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1518107215511</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -513,7 +522,8 @@
     <MESSAGE value="modify load_generator_data method such that it becomes compatible with sequencer" />
     <MESSAGE value="Actually implement L2 regularizer (weight decay = 1e-4)" />
     <MESSAGE value="modify test.py to accept a config.ini as command line parameter" />
-    <option name="LAST_COMMIT_MESSAGE" value="modify test.py to accept a config.ini as command line parameter" />
+    <MESSAGE value="use predict_generator to enable batch testing" />
+    <option name="LAST_COMMIT_MESSAGE" value="use predict_generator to enable batch testing" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -822,8 +832,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/train.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="309">
-          <caret line="110" column="50" lean-forward="true" selection-start-line="110" selection-start-column="30" selection-end-line="110" selection-end-column="50" />
+        <state relative-caret-position="-117">
+          <caret line="43" column="0" lean-forward="true" selection-start-line="41" selection-start-column="4" selection-end-line="43" selection-end-column="0" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
           </folding>
@@ -832,8 +842,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="188">
-          <caret line="53" column="11" lean-forward="false" selection-start-line="53" selection-start-column="11" selection-end-line="53" selection-end-column="11" />
+        <state relative-caret-position="174">
+          <caret line="67" column="105" lean-forward="false" selection-start-line="67" selection-start-column="105" selection-end-line="67" selection-end-column="105" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
           </folding>

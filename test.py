@@ -16,12 +16,16 @@ def main(config_file):
 
     # default config
     output_dir = cp["DEFAULT"].get("output_dir")
+    image_source_dir = cp["DEFAULT"].get("image_source_dir")
     train_patient_ratio = cp["DEFAULT"].getint("train_patient_ratio")
     dev_patient_ratio = cp["DEFAULT"].getint("dev_patient_ratio")
     class_names = cp["DEFAULT"].get("class_names").split(",")
     image_dimension = cp["DEFAULT"].getint("image_dimension")
     model_name = cp["DEFAULT"].get("nn_model")
     dataset_name = cp["DEFAULT"].get("dataset_name")
+    data_entry_file = cp["DEFAULT"].get("data_entry_file")
+    verbosity = cp["DEFAULT"].getint("verbosity")
+    progress_verbosity = cp["DEFAULT"].getint("progress_verbosity")
 
     dataset_spec = importlib.util.spec_from_file_location(dataset_name, f"./datasets/{dataset_name}.py")
     if dataset_spec is None:
@@ -61,7 +65,7 @@ def main(config_file):
         model.load_weights(weights_path)
 
     print("** make prediction **")
-    y_hat = model.predict_generator(generator=test_generator, steps=step_test, verbose=1)
+    y_hat = model.predict_generator(generator=test_generator, steps=step_test, verbose=progress_verbosity)
 
     test_log_path = os.path.join(output_dir, "test.log")
     print(f"** write log to {test_log_path} **")
