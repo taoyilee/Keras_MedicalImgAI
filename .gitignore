@@ -4,4 +4,5 @@ venv/
 experiments/
 *.log
 imgdir
-datasets/chexnet_ds/images/
+datasets/chexnet_ds/images
+.idea/workspace.xml
