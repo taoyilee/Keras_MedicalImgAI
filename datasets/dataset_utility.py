@@ -105,7 +105,7 @@ def load_image(image_name, image_dir, img_dim=None, scale=None, colormode='grays
         image = cv2.imread(image_file, 1)
 
     if scale is not None:
-        image *= scale
+        image = image * scale
 
     if img_dim is not None:
         image = cv2.resize(image, (img_dim, img_dim))
