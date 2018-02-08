@@ -58,8 +58,9 @@ def main(config_file):
         # load training status for resuming
         training_stats_file = os.path.join(output_dir, ".training_stats.json")
         if os.path.isfile(training_stats_file):
-            # TODO: add loading previous learning rate?
             training_stats = json.load(open(training_stats_file))
+            initial_learning_rate = training_stats["lr"]
+            print("** learning rate is set to previous final {initial_learning_rate} **")
         else:
             print("** trained model weights not found, starting over **")
             use_trained_model_weights = False
