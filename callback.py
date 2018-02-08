@@ -95,7 +95,6 @@ class MultipleClassAUROC(Callback):
         to this metric.
 
         """
-        print("\n*********************************")
         self.stats["lr"] = float(kb.eval(self.model.optimizer.lr))
         print(f"current learning rate: {self.stats['lr']}")
 
@@ -114,19 +113,13 @@ class MultipleClassAUROC(Callback):
 
         current_auroc = []
         if self.class_mode == "multibinary":
-            y_hat = y_hat.squeeze().swapaxes(0, 1)
-            for i in range(len(self.class_names)):
-                try:
-                    score = roc_auc_score(y[i], y_hat[i])
-                except ValueError:
-                    score = 0
-                self.aurocs[self.class_names[i]].append(score)
-                current_auroc.append(score)
-                print(f"{i+1}. {self.class_names[i]}: {score}")
-        elif self.class_mode == "multiclass":
-            current_auroc = roc_auc_score(y, y_hat, average=None)
-            for i, v in enumerate(self.class_names):
-                print(f" {i+1}. {v} = {current_auroc[i]}")
+            y = y.squeeze().swapaxes(0, 1)
+
+        current_auroc = roc_auc_score(y, y_hat, average=None)
+        if len(self.class_names) != len(current_auroc):
+            raise Exception(f"Wrong shape in either y or y_hat {len(self.class_names)} != {len(current_auroc)}")
+        for i, v in enumerate(self.class_names):
+            print(f" {i+1}. {v} = {current_auroc[i]}")
 
         # customize your multiple class metrics here
         mean_auroc = np.mean(current_auroc)
