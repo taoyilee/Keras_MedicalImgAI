@@ -89,7 +89,6 @@ class DataSetTest:
         self.img_dim = img_dim
         self.scale = scale
 
-        os.makedirs(self.output_dir, exist_ok=True)
         self.test = pd.read_csv(self.data_entry)
 
         # one hot encode
