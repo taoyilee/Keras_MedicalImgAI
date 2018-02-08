@@ -152,12 +152,12 @@ def get_class_weights_multibinary(total_counts, class_positive_counts, multiply,
             i += 1
         return balanced
 
-        class_names = list(class_positive_counts.keys())
-        label_counts = np.array(list(class_positive_counts.values()))
-        class_weights = {}
-        for i, class_name in enumerate(class_names):
-            class_weights[class_name] = get_single_class_weight(label_counts[i])
+    class_names = list(class_positive_counts.keys())
+    label_counts = np.array(list(class_positive_counts.values()))
+    class_weights = {}
+    for i, class_name in enumerate(class_names):
+        class_weights[class_name] = get_single_class_weight(label_counts[i])
 
-        if use_class_balancing:
-            class_weights = balancing(class_weights, label_counts)
-        return class_weights
+    if use_class_balancing:
+        class_weights = balancing(class_weights, label_counts)
+    return class_weights
