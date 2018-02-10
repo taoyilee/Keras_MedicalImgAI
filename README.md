@@ -1,4 +1,4 @@
-# Keras Medical Image Learning Toolbox
+# Keras Medical Image Learning Toolbox (KMILT)
 This project is a tool to build CheXNet-like models, written in Keras.
 
 <img width="450" height="450" src="https://stanfordmlgroup.github.io/projects/chexnet/img/chest-cam.png" alt="CheXNet from Stanford ML Group"/>
@@ -19,23 +19,33 @@ ChexNet is a deep learning algorithm that can detect and localize 14 kinds of di
 3. Create & source a new virtualenv. Python >= **3.6** is required.
 4. Install dependencies by running `pip3 install -r requirements.txt`.
 5. Run `./kmi_train <config_file>.ini` to train a new model. If you want to run the training using multiple GPUs, just prepend `CUDA_VISIBLE_DEVICES=0,1,...` to restrict the GPU devices. `nvidia-smi` command will be helpful if you don't know which device are available.
-6. Run `./kmi_test <config_file>.ini
+6. Run `./kmi_test <config_file>.ini` to test your trained model
 
-## CAM
-Reference: [Grad-CAM](https://arxiv.org/pdf/1610.02391). CAM image is generated as accumumlated weighted activation before last global average pooling (GAP) layer. It is scaled up to 224\*224 to match original image.
+## Class Activation Mapping (CAM)
+Reference: [Grad-CAM](https://arxiv.org/pdf/1610.02391). CAM image is generated as accumumlated weighted activation before last global average pooling (GAP) layer. It is scaled up to dimensions of original image.
+
+To enable this feature during testing, edit config.ini as follows 
+```buildoutcfg
+; ... (lines omitted) ...
+[TEST]
+; ... (lines omitted) ...
+; Save grad-cam outputs
+enable_grad_cam = true
+; ... (lines omitted) ...
 ```
-python test_cam.py
+Execute following command in your shell to initiate model testing
+```commandline
+./kmi_test <config_file_name>.ini
 ```
 CAM images will be generated into $pwd/imgdir, please make sure you've created the target directory before running test_cam.py
 
-Guided back-prop is still an enhancement item.
-## TODO
-1. More baseline models
+Guided back-prop is still a **TODO** item.
 
-## Acknowledgement
-I would like to thank Pranav Rajpurkar (Stanford ML group) and Xinyu Weng (北京大學) for sharing their experiences on this task. Also I would like to thank Felix Yu for providing DenseNet-Keras source code.
 
 ## Configuration file
+Two configuration files are provided as default setup
+1. chexnet_config.ini : Configureation for CXR8 dataset (`used in CheXNet`)
+2. pxr_config.ini (The hip fracture dataset)
 ### Default Parameters 
 
 ```buildoutcfg
@@ -198,6 +208,12 @@ test_generator_random_state = 1
 ; if true, use best_weights.h5, else use weights.h5
 use_best_weights = true
 ```
+## TODO
+1. More baseline models
+
+## Acknowledgement
+I would like to thank Pranav Rajpurkar (Stanford ML group) and Xinyu Weng (北京大學) for sharing their experiences on this task. Also I would like to thank Felix Yu for providing DenseNet-Keras source code.
+
 ## Author
 Bruce Chou (brucechou1983@gmail.com)
 Michael (Tao-Yi)Lee (tylee@ieee.org)
