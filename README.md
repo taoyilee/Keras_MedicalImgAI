@@ -27,6 +27,7 @@ ChexNet is a deep learning algorithm that can detect and localize 14 kinds of di
 Reference: [Grad-CAM](https://arxiv.org/pdf/1610.02391). CAM image is generated as accumumlated weighted activation before last global average pooling (GAP) layer. It is scaled up to dimensions of original image.
 
 To enable this feature during testing, edit config.ini as follows:
+
 ```buildoutcfg
 ; ... (lines omitted) ...
 [TEST]
