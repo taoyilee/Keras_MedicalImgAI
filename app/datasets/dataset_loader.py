@@ -4,7 +4,7 @@ import random
 import pandas as pd
 import sklearn as sk
 
-from datasets.dataset_utility import label2vec, pos_count, DataSequence, get_class_weights_multibinary
+from app.datasets.dataset_utility import label2vec, pos_count, DataSequence, get_class_weights_multibinary
 
 
 class DataSet:

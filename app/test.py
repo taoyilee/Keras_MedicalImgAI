@@ -7,9 +7,9 @@ import cv2
 import numpy as np
 from sklearn.metrics import roc_auc_score
 
-import grad_cam as gc
-from datasets import dataset_loader as dsload
-from models.densenet121 import get_model
+from app import grad_cam as gc
+from app.datasets import dataset_loader as dsload
+from app.models.densenet121 import get_model
 
 
 def main(config_file):

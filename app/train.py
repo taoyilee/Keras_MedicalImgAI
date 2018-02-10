@@ -10,8 +10,8 @@ from keras.optimizers import Adam
 from keras.utils import multi_gpu_model
 
 from callback import MultipleClassAUROC, MultiGPUModelCheckpoint, SaveBaseModel
-from datasets import dataset_loader as dsload
-from models.densenet121 import get_model
+from app.datasets import dataset_loader as dsload
+from app.models.densenet121 import get_model
 
 
 def main(config_file):
