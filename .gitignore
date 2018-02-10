@@ -6,3 +6,4 @@ experiments/
 imgdir
 datasets/chexnet_ds/images
 .idea/
+.python-version
