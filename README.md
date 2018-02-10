@@ -24,7 +24,7 @@ ChexNet is a deep learning algorithm that can detect and localize 14 kinds of di
 ## Class Activation Mapping (CAM)
 Reference: [Grad-CAM](https://arxiv.org/pdf/1610.02391). CAM image is generated as accumumlated weighted activation before last global average pooling (GAP) layer. It is scaled up to dimensions of original image.
 
-To enable this feature during testing, edit config.ini as follows 
+To enable this feature during testing, edit config.ini as follows:
 ```buildoutcfg
 ; ... (lines omitted) ...
 [TEST]
@@ -33,13 +33,16 @@ To enable this feature during testing, edit config.ini as follows
 enable_grad_cam = true
 ; ... (lines omitted) ...
 ```
+Make sure `enable_grad_cam = true` is properly set under section `[TEST]`
+
+
 Execute following command in your shell to initiate model testing
 ```commandline
 ./kmi_test <config_file_name>.ini
 ```
-CAM images will be generated into $pwd/imgdir, please make sure you've created the target directory before running test_cam.py
+CAM images will be generated into $pwd/imgdir.
 
-Guided back-prop is still a **TODO** item.
+Note: Guided back-prop is still a **TODO** item.
 
 
 ## Configuration file
