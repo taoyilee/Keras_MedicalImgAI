@@ -18,8 +18,8 @@ ChexNet is a deep learning algorithm that can detect and localize 14 kinds of di
 2. Download DenseNet-121 ImageNet tensorflow pretrained weights from [DenseNet-Keras](https://drive.google.com/open?id=0Byy2AcGyEVxfSTA4SHJVOHNuTXc). Specify the file path in `config.ini` (field: `base_model_weights_file`)
 3. Create & source a new virtualenv. Python >= **3.6** is required.
 4. Install dependencies by running `pip3 install -r requirements.txt`.
-5. Run `python train.py` to train a new model. If you want to run the training using multiple GPUs, just prepend `CUDA_VISIBLE_DEVICES=0,1,...` to restrict the GPU devices. `nvidia-smi` command will be helpful if you don't know which device are available.
-6. Run `python test.py` to test the model.
+5. Run `./kmi_train <config_file>.ini` to train a new model. If you want to run the training using multiple GPUs, just prepend `CUDA_VISIBLE_DEVICES=0,1,...` to restrict the GPU devices. `nvidia-smi` command will be helpful if you don't know which device are available.
+6. Run `./kmi_test <config_file>.ini
 
 ## CAM
 Reference: [Grad-CAM](https://arxiv.org/pdf/1610.02391). CAM image is generated as accumumlated weighted activation before last global average pooling (GAP) layer. It is scaled up to 224\*224 to match original image.
@@ -35,8 +35,11 @@ Guided back-prop is still an enhancement item.
 ## Acknowledgement
 I would like to thank Pranav Rajpurkar (Stanford ML group) and Xinyu Weng (北京大學) for sharing their experiences on this task. Also I would like to thank Felix Yu for providing DenseNet-Keras source code.
 
+## Configuration file
+
 ## Author
 Bruce Chou (brucechou1983@gmail.com)
+Michael (Tao-Yi)Lee (tylee@ieee.org)
 
 ## License
 MIT
