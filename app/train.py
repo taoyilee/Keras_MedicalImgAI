@@ -5,11 +5,11 @@ import pickle
 import shutil
 from configparser import ConfigParser
 
+from app.callback import MultipleClassAUROC, MultiGPUModelCheckpoint, SaveBaseModel
 from keras.callbacks import ModelCheckpoint, TensorBoard, ReduceLROnPlateau
 from keras.optimizers import Adam
 from keras.utils import multi_gpu_model
 
-from callback import MultipleClassAUROC, MultiGPUModelCheckpoint, SaveBaseModel
 from app.datasets import dataset_loader as dsload
 from app.models.densenet121 import get_model
 
