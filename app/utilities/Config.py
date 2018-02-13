@@ -17,6 +17,7 @@ class Config(ConfigBase):
     _train_steps = "auto"
     _validation_steps = "auto"
     _patience_reduce_lr = 1
+
     def __init__(self, cp, config_file=None):
         """
 
@@ -68,10 +69,6 @@ class Config(ConfigBase):
     @property
     def epochs(self):
         return assignIfNotNull(self.cp["TRAIN"].getint("epochs"), self._epochs)
-
-    @property
-    def batch_size(self):
-        return assignIfNotNull(self.cp["TRAIN"].getint("batch_size"), self._batch_size)
 
     @property
     def train_steps(self):

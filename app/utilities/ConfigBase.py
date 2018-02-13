@@ -1,9 +1,10 @@
 import configparser
 
-from app.utilities.util_config import returnPropertIfNotNull
+from app.utilities.util_config import returnPropertIfNotNull, assignIfNotNull
 
 
 class ConfigBase:
+    _batch_size = 32
 
     def __init__(self, cp):
         """
@@ -26,3 +27,7 @@ class ConfigBase:
     @property
     def class_mode(self):
         return returnPropertIfNotNull(self.cp["DATASET"].get("class_mode"))
+
+    @property
+    def batch_size(self):
+        return assignIfNotNull(self.cp["TRAIN"].getint("batch_size"), self._batch_size)

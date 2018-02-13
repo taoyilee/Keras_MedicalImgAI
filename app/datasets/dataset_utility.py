@@ -5,56 +5,47 @@ import cv2
 import numpy as np
 from keras.utils import Sequence
 
+from app.imagetoolbox.ImageConfig import ImageConfig
+from app.datasets.image_normalizer import ImageNormalizer
 
 class DataSequence(Sequence):
-    def __init__(self, batch, image_dir, set_name, batch_size=16, verbosity=0, scale=1. / 255, img_dim=256,
-                 color_mode='grayscale', class_mode='multiclass'):
-        self.batch_size = batch_size
-        self.batch = batch
-        self.image_dir = image_dir
+    def __init__(self, batch, image_config, set_name="train", verbosity=0):
+        """
+
+        :param batch:
+        :param image_config:
+        :type image_config: ImageConfig
+        :param set_name:
+        :param verbosity:
+        """
         self.verbosity = verbosity
-        self.scale = scale
-        self.img_dim = img_dim
         self.set_name = set_name
-        self.color_mode = color_mode
-        self.class_mode = class_mode
+        self.batch = batch
+        self.image_config = image_config
 
     def __len__(self):
-        return math.ceil(self.batch.shape[0] / self.batch_size)
+        return math.ceil(self.batch.shape[0] / self.image_config.batch_size)
 
     def targets(self):
         return self.batch["One_Hot_Labels"].tolist()
 
     def orig_input(self, index):
-        return image_generator(image_filenames=self.batch["Image Index"].iloc[[index]], image_dir=self.image_dir,
-                               colormode=self.color_mode)
+        return image_generator(self.batch["Image Index"].iloc[[index]], self.image_config, raw=True, verbosity=self.verbosity)
 
     def model_input(self, index):
-        return image_generator(image_filenames=self.batch["Image Index"].iloc[[index]], image_dir=self.image_dir,
-                               img_dim=self.img_dim, scale=self.scale, colormode=self.color_mode)
+        return image_generator(self.batch["Image Index"].iloc[[index]], self.image_config, verbosity=self.verbosity)
 
     def inputs(self):
-        return image_generator(image_filenames=self.batch["Image Index"], image_dir=self.image_dir,
-                               img_dim=self.img_dim, scale=self.scale,
-                               colormode=self.color_mode)
+        return image_generator(self.batch["Image Index"], self.image_config, verbosity=self.verbosity)
 
     def __getitem__(self, idx):
-        return common_generator(self.batch.iloc[idx * self.batch_size:(idx + 1) * self.batch_size],
-                                image_dir=self.image_dir, set_name=self.set_name,
-                                verbosity=self.verbosity, scale=self.scale, img_dim=self.img_dim,
-                                class_mode=self.class_mode)
+        if self.verbosity > 0:
+            print(f'** now yielding {self.set_name} batch = {self.batch["Patient ID"].tolist()}')
+            print(f'** images are = {self.batch["Image Index"].tolist()}')
 
-
-def common_generator(batch, image_dir, set_name, verbosity=0, scale=1. / 255, img_dim=256,
-                     class_mode='multiclass'):
-    if verbosity > 0:
-        print(
-            f'** now yielding {set_name} batch = {batch["Patient ID"].tolist()}\nimages are = {batch["Image Index"].tolist()}')
-
-    return batch_generator(batch["Image Index"],
-                           batch["One_Hot_Labels"].tolist(), image_dir=image_dir,
-                           class_mode=class_mode,
-                           img_dim=img_dim, scale=scale, verbosity=verbosity)
+        return batch_generator(self.batch["Image Index"],
+                               self.batch["One_Hot_Labels"].tolist(), image_config=self.image_config,
+                               verbosity=self.verbosity)
 
 
 def pos_count(subset_series, class_names):
@@ -66,25 +57,40 @@ def pos_count(subset_series, class_names):
     return ret_dict
 
 
-def image_generator(image_filenames, image_dir, img_dim=None, scale=None, colormode='grayscale'):
-    if colormode == 'grayscale':
+def image_generator(image_filenames, image_config, verbosity=0):
+    """
+
+    :param image_filenames:
+    :param image_config:
+    :type image_config: ImageConfig
+    :param verbosity:
+    :return:
+    """
+    if image_config.color_mode == 'grayscale':
         inputs = np.array(
-            image_filenames.apply(lambda x: load_image(x, image_dir, img_dim=img_dim, scale=scale)).tolist())[:, :, :,
-                 np.newaxis]
+            image_filenames.apply(
+                lambda x: load_image(x, image_config, verbosity=verbosity)).tolist())[:, :, :, np.newaxis]
     else:
         inputs = np.array(
-            image_filenames.apply(lambda x: load_image(x, image_dir, img_dim=img_dim, scale=scale)).tolist())
+            image_filenames.apply(
+                lambda x: load_image(x, image_config, verbosity=verbosity)).tolist())
     return inputs
 
 
-def batch_generator(image_filenames, labels, image_dir, img_dim=256, scale=1. / 255, colormode='grayscale',
-                    class_mode='multiclass', verbosity=0):
-    inputs = image_generator(image_filenames=image_filenames, image_dir=image_dir, img_dim=img_dim, scale=scale,
-                             colormode=colormode)
+def batch_generator(image_filenames, labels, image_config, verbosity=0):
+    """
+    :param image_filenames:
+    :param labels:
+    :param image_config:
+    :type image_config: ImageConfig
+    :param verbosity:
+    :return:
+    """
+    inputs = image_generator(image_filenames=image_filenames, image_config=image_config, verbosity=verbosity)
 
-    if class_mode == 'multiclass':
+    if image_config.class_mode == 'multiclass':
         targets = np.array(labels)
-    elif class_mode == 'multibinary':
+    elif image_config.class_mode == 'multibinary':
         targets = np.swapaxes(labels, 0, 1)
         targets = [np.array(targets[i, :]) for i in range(np.shape(targets)[0])]
 
@@ -93,22 +99,34 @@ def batch_generator(image_filenames, labels, image_dir, img_dim=256, scale=1. / 
     return inputs, targets
 
 
-def load_image(image_name, image_dir, img_dim=None, scale=None, colormode='grayscale', verbosity=0):
-    image_file = image_dir + "/" + image_name
+def load_image(image_name, image_config, verbosity=0, raw=False):
+    """
+
+    :param image_name:
+    :param image_config:
+    :type image_config: ImageConfig
+    :param verbosity:
+    :return:
+    """
+    image_file = image_config.image_dir + "/" + image_name
     if not os.path.isfile(image_file):
         raise Exception(f"{image_file} not found")
     if verbosity > 1:
         print(f"Load image from {image_file}")
-    if colormode == 'grayscale':
-        image = cv2.imread(image_file, 0)
+    if image_config.color_mode == 'grayscale':
+        image = cv2.imread(image_file, cv2.IMREAD_GRAYSCALE)
     else:
-        image = cv2.imread(image_file, 1)
+        image = cv2.imread(image_file, cv2.IMREAD_COLOR)
 
-    if scale is not None:
-        image = image * scale
+    if image_config.scale is not None:
+        image = image * image_config.scale
 
-    if img_dim is not None:
-        image = cv2.resize(image, (img_dim, img_dim))
+    if image_config.img_dim is not None:
+        image = cv2.resize(image, (image_config.img_dim, image_config.img_dim))
+
+    if not raw:
+        normalizer = ImageNormalizer(image_config.NormalizeConfig)
+        normalizer.normalize(image)
     return image
 
 

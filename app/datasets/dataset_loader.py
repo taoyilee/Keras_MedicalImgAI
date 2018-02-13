@@ -131,15 +131,12 @@ class DataSet:
 
     def train_generator(self, verbosity=0):
         batch = self.train.sample(frac=1)  # shuffle
-        return DataSequence(batch, image_dir=self.dsconfig.ImageConfig.image_dir, set_name='train',
-                            img_dim=self.dsconfig.ImageConfig.img_dim, scale=self.dsconfig.ImageConfig.scale,
-                            class_mode=self.dsconfig.class_mode, verbosity=verbosity)
+        return DataSequence(batch, image_config=self.dsconfig.ImageConfig, set_name='train',
+                            verbosity=verbosity)
 
     def dev_generator(self, verbosity=0):
         batch = self.dev.sample(frac=1)  # shuffle
-        return DataSequence(batch, image_dir=self.dsconfig.ImageConfig.image_dir, set_name='dev',
-                            img_dim=self.dsconfig.ImageConfig.img_dim,
-                            scale=self.dsconfig.ImageConfig.scale, class_mode=self.dsconfig.class_mode,
+        return DataSequence(batch, image_config=self.dsconfig.ImageConfig, set_name='dev',
                             verbosity=verbosity)
 
 

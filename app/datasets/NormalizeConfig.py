@@ -1,14 +1,12 @@
 import numpy as np
 
-from app.imagetoolbox.ImageConfig import ImageConfig
+from app.imagetoolbox.ImageConfigBase import ImageConfigBase
 from app.utilities.util_config import returnPropertIfNotNull, assignIfNotNull
 
 
-class NormalizeConfig(ImageConfig):
+class NormalizeConfig(ImageConfigBase):
     SECTION = "IMAGE-PREPROCESSING"
-    _img_dim = 256
-    _scale = 1. / 255
-    _color_mode = "grayscale"
+
     _normalize_mean = np.array([0.485, 0.456, 0.406])
     _normalize_stdev = np.array([0.229, 0.224, 0.225])
     _normalize_samplewise = False

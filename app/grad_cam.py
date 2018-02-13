@@ -118,12 +118,8 @@ def grad_cam(input_model, model_x, orig_x, category_index, layer_name, class_nam
         cam += w * output[:, :, i]
 
     cam = np.maximum(cam, np.zeros(output.shape[0: 2], dtype=np.float32))
-    #print(f"cam shape = {np.shape(cam)}")
     cam = cam.squeeze()
-    #print(f"cam shape = {np.shape(cam)}")
     cam = cv2.applyColorMap(np.uint8(255 * cam / np.max(cam)), cv2.COLORMAP_JET)
-    #print(f"cam shape = {np.shape(cam)}")
     cam = cv2.resize(cam, (np.shape(orig_x)[0], np.shape(orig_x)[1]))
-    #print(f"cam shape = {np.shape(cam)}")
     cam = 0.4 * cam + 0.6 * orig_x
     return np.uint8(cam)
