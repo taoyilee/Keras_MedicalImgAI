@@ -5,8 +5,9 @@ import cv2
 import numpy as np
 from keras.utils import Sequence
 
-from app.imagetoolbox.ImageConfig import ImageConfig
 from app.datasets.image_normalizer import ImageNormalizer
+from app.imagetoolbox.ImageConfig import ImageConfig
+
 
 class DataSequence(Sequence):
     def __init__(self, batch, image_config, set_name="train", verbosity=0):
@@ -29,14 +30,9 @@ class DataSequence(Sequence):
     def targets(self):
         return self.batch["One_Hot_Labels"].tolist()
 
-    def orig_input(self, index):
-        return image_generator(self.batch["Image Index"].iloc[[index]], self.image_config, raw=True, verbosity=self.verbosity)
-
-    def model_input(self, index):
-        return image_generator(self.batch["Image Index"].iloc[[index]], self.image_config, verbosity=self.verbosity)
-
-    def inputs(self):
-        return image_generator(self.batch["Image Index"], self.image_config, verbosity=self.verbosity)
+    def inputs(self, index, mode="train"):
+        return image_generator(self.batch["Image Index"].iloc[[index]], self.image_config, mode=mode,
+                               verbosity=self.verbosity)
 
     def __getitem__(self, idx):
         if self.verbosity > 0:
@@ -44,7 +40,8 @@ class DataSequence(Sequence):
             print(f'** images are = {self.batch["Image Index"].tolist()}')
 
         return batch_generator(self.batch["Image Index"],
-                               self.batch["One_Hot_Labels"].tolist(), image_config=self.image_config,
+                               self.batch["One_Hot_Labels"].tolist(), mode=self.set_name,
+                               image_config=self.image_config,
                                verbosity=self.verbosity)
 
 
@@ -57,27 +54,28 @@ def pos_count(subset_series, class_names):
     return ret_dict
 
 
-def image_generator(image_filenames, image_config, verbosity=0):
+def image_generator(image_filenames, image_config, mode="train", verbosity=0):
     """
 
     :param image_filenames:
     :param image_config:
     :type image_config: ImageConfig
     :param verbosity:
+    :param mode:
     :return:
     """
     if image_config.color_mode == 'grayscale':
         inputs = np.array(
             image_filenames.apply(
-                lambda x: load_image(x, image_config, verbosity=verbosity)).tolist())[:, :, :, np.newaxis]
+                lambda x: load_image(x, image_config, mode=mode, verbosity=verbosity)).tolist())[:, :, :, np.newaxis]
     else:
         inputs = np.array(
             image_filenames.apply(
-                lambda x: load_image(x, image_config, verbosity=verbosity)).tolist())
+                lambda x: load_image(x, image_config, mode=mode, verbosity=verbosity)).tolist())
     return inputs
 
 
-def batch_generator(image_filenames, labels, image_config, verbosity=0):
+def batch_generator(image_filenames, labels, image_config, mode="train", verbosity=0):
     """
     :param image_filenames:
     :param labels:
@@ -86,11 +84,11 @@ def batch_generator(image_filenames, labels, image_config, verbosity=0):
     :param verbosity:
     :return:
     """
-    inputs = image_generator(image_filenames=image_filenames, image_config=image_config, verbosity=verbosity)
+    inputs = image_generator(image_filenames=image_filenames, image_config=image_config, mode=mode, verbosity=verbosity)
 
-    if image_config.class_mode == 'multiclass':
-        targets = np.array(labels)
-    elif image_config.class_mode == 'multibinary':
+    targets = np.array(labels)
+
+    if image_config.class_mode == 'multibinary':
         targets = np.swapaxes(labels, 0, 1)
         targets = [np.array(targets[i, :]) for i in range(np.shape(targets)[0])]
 
@@ -99,13 +97,14 @@ def batch_generator(image_filenames, labels, image_config, verbosity=0):
     return inputs, targets
 
 
-def load_image(image_name, image_config, verbosity=0, raw=False):
+def load_image(image_name, image_config, verbosity=0, mode="train"):
     """
 
     :param image_name:
     :param image_config:
     :type image_config: ImageConfig
     :param verbosity:
+    :param mode: Generating mode: train, dev, test and raw
     :return:
     """
     image_file = image_config.image_dir + "/" + image_name
@@ -118,15 +117,14 @@ def load_image(image_name, image_config, verbosity=0, raw=False):
     else:
         image = cv2.imread(image_file, cv2.IMREAD_COLOR)
 
-    if image_config.scale is not None:
-        image = image * image_config.scale
-
-    if image_config.img_dim is not None:
-        image = cv2.resize(image, (image_config.img_dim, image_config.img_dim))
-
-    if not raw:
+    if mode != "raw":
+        if image_config.img_dim is not None:
+            image = cv2.resize(image, (image_config.img_dim, image_config.img_dim))
+        if image_config.scale is not None:
+            image = image * image_config.scale
         normalizer = ImageNormalizer(image_config.NormalizeConfig)
         normalizer.normalize(image)
+
     return image
 
 

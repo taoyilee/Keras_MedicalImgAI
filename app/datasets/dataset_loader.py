@@ -141,24 +141,18 @@ class DataSet:
 
 
 class DataSetTest:
-    def __init__(self, image_dir, data_entry, class_names, batch_size=16, img_dim=256, scale=1. / 255,
-                 class_mode="multiclass"):
-        """Loads Chexnet dataset.
-        # Returns
-            Tuple of Numpy arrays: `(x_train, y_train), (x_test, y_test)`.
+    def __init__(self, dsconfig):
         """
-        self.image_dir = image_dir
-        self.data_entry = data_entry
-        self.class_names = class_names
-        self.batch_size = batch_size
-        self.img_dim = img_dim
-        self.scale = scale
-        self.class_mode = class_mode
 
-        self.test = pd.read_csv(self.data_entry)
+        :param dsconfig:
+        :type dsconfig: DatasetConfig
+        """
+        self.dsconfig = dsconfig
+        self.test = pd.read_csv(self.dsconfig.data_entry)
 
         # one hot encode
-        self.test["One_Hot_Labels"] = self.test["Finding Labels"].apply(lambda x: label2vec(x, self.class_names))
+        self.test["One_Hot_Labels"] = self.test["Finding Labels"].apply(
+            lambda x: label2vec(x, self.dsconfig.class_names))
         pid = list(self.test["Patient ID"].unique())
         self.test_patient_count = len(pid)
         self.test_count = len(self.test)
@@ -169,5 +163,4 @@ class DataSetTest:
 
     def test_generator(self, verbosity=0):
         batch = self.test.sample(frac=1)  # shuffle
-        return DataSequence(batch, image_dir=self.image_dir, set_name='test',
-                            img_dim=self.img_dim, scale=self.scale, class_mode=self.class_mode, verbosity=verbosity)
+        return DataSequence(batch, image_config=self.dsconfig.ImageConfig, verbosity=verbosity)
