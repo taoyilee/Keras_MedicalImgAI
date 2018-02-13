@@ -1,5 +1,6 @@
 from app.utilities.ConfigBase import ConfigBase
 from app.utilities.util_config import assignIfNotNull, returnPropertIfNotNull
+from app.datasets.NormalizeConfig import NormalizeConfig
 
 
 class ImageConfig(ConfigBase):
@@ -22,3 +23,7 @@ class ImageConfig(ConfigBase):
     @property
     def scale(self):
         return assignIfNotNull(self.cp["IMAGE"].getfloat("scale"), self._scale)
+
+    @property
+    def NormalizeConfig(self):
+        return NormalizeConfig(self.cp)
