@@ -108,17 +108,17 @@ class DataSet:
         self.test = e[e["Patient ID"].isin(pid[train_patient_count + dev_patient_count:])]
 
     def class_weights(self):
-        print(f"** {self.class_mode} class_weights **")
-        if self.class_mode == 'multiclass':
-            class_id = range(len(self.class_names))
-            class_weight_sk = sk.utils.class_weight.compute_class_weight('balanced', self.class_names,
+        print(f"** {self.dsconfig.class_mode} class_weights **")
+        if self.dsconfig.class_mode == 'multiclass':
+            class_id = range(len(self.dsconfig.class_names))
+            class_weight_sk = sk.utils.class_weight.compute_class_weight('balanced', self.dsconfig.class_names,
                                                                          self.train["Finding Labels"].tolist())
             class_weight = dict(zip(class_id, class_weight_sk))
             for c, w in class_weight.items():
-                print(f"  {c}: {w}")
+                print(f"  {c} [{self.dsconfig.class_names[c]}]: {w}")
             return class_weight
 
-        elif self.class_mode == 'multibinary':
+        elif self.dsconfig.class_mode == 'multibinary':
             class_weight = get_class_weights_multibinary(
                 self.img_count(subdataset="train"),
                 self.img_pos_count(subdataset="train"),
@@ -131,13 +131,14 @@ class DataSet:
 
     def train_generator(self, verbosity=0):
         batch = self.train.sample(frac=1)  # shuffle
-        return DataSequence(batch, image_dir=self.dsconfig.image_dir, set_name='train',
+        return DataSequence(batch, image_dir=self.dsconfig.ImageConfig.image_dir, set_name='train',
                             img_dim=self.dsconfig.ImageConfig.img_dim, scale=self.dsconfig.ImageConfig.scale,
                             class_mode=self.dsconfig.class_mode, verbosity=verbosity)
 
     def dev_generator(self, verbosity=0):
         batch = self.dev.sample(frac=1)  # shuffle
-        return DataSequence(batch, image_dir=self.image_dir, set_name='dev', img_dim=self.dsconfig.ImageConfig.img_dim,
+        return DataSequence(batch, image_dir=self.dsconfig.ImageConfig.image_dir, set_name='dev',
+                            img_dim=self.dsconfig.ImageConfig.img_dim,
                             scale=self.dsconfig.ImageConfig.scale, class_mode=self.dsconfig.class_mode,
                             verbosity=verbosity)
 

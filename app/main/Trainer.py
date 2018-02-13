@@ -15,9 +15,9 @@ from app.utilities.Config import Config
 
 
 class Trainer:
-    _DSConfig = None
-    _IMConfig = None
-    _MDConfig = None
+    DSConfig = None
+    IMConfig = None
+    MDConfig = None
 
     # Runtime stuffs
     history = None
@@ -25,7 +25,10 @@ class Trainer:
     model = None
     model_train = None
     checkpoint = None
-
+    output_weights_path = None
+    train_generator = None
+    dev_generator = None
+    training_stats = []
     conf = None
 
     def __init__(self, config_file):
@@ -37,7 +40,7 @@ class Trainer:
         self.config_file = config_file
         self.conf = Config(cp=cp)
         self.fitter_kwargs = {"verbose": self.conf.progress_verbosity, "max_queue_size": 4, "workers": 4,
-                              "use_multiprocessing": True}
+                              "epochs": self.conf.epochs, "use_multiprocessing": True}
         self.parse_config()
         self.running_flag_file = os.path.join(self.conf.output_dir, ".training.lock")
         self.check_training_lock()
@@ -80,8 +83,8 @@ class Trainer:
             print("** attempting to use trained model weights **")
             # load training status for resuming
             if os.path.isfile(self.conf.train_stats_file):
-                training_stats = json.load(open(self.conf.train_stats_file))
-                self.conf.initial_learning_rate = training_stats["lr"]
+                self.training_stats = json.load(open(self.conf.train_stats_file))
+                self.conf.initial_learning_rate = self.training_stats["lr"]
                 print(f"** learning rate is set to previous final {self.conf.initial_learning_rate} **")
             else:
                 print("** trained model weights not found, starting over **")
@@ -93,55 +96,59 @@ class Trainer:
         data_set = dsload.DataSet(self.conf.DatasetConfig)
 
         print("** create image generators **")
-        train_generator = data_set.train_generator(verbosity=self.conf.verbosity)
-        dev_generator = data_set.dev_generator(verbosity=self.conf.verbosity)
+        self.train_generator = data_set.train_generator(verbosity=self.conf.verbosity)
+        self.dev_generator = data_set.dev_generator(verbosity=self.conf.verbosity)
 
         if self.conf.train_steps == "auto":
-            self.conf.train_steps = train_generator.__len__()
+            self.conf.train_steps = self.train_generator.__len__()
         print(f"** train_steps: {self.conf.train_steps} **")
 
+        self.fitter_kwargs["generator"] = self.train_generator
+        self.fitter_kwargs["steps_per_epoch"] = self.conf.train_steps
+        self.fitter_kwargs["validation_steps"] = self.conf.validation_steps
+        self.fitter_kwargs["validation_data"] = self.dev_generator
+
         if self.conf.validation_steps == "auto":
-            self.conf.validation_steps = dev_generator.__len__()
+            self.conf.validation_steps = self.dev_generator.__len__()
         print(f"** validation_steps: {self.conf.validation_steps} **")
 
         # compute class weights
         print("** compute class weights from training data **")
-        self.conf.class_weights = data_set.class_weights()
+        self.fitter_kwargs["class_weight"] = data_set.class_weights()
 
     def prepare_model(self):
         print("** load model **")
-        if not self.use_base_model_weights:
-            self.base_model_weights_file = None
-            print(f"** retrain without base model weight **")
+        if self.MDConfig.base_model_weights_file is not None:
+            print(f"** loading base model weight from {self.MDConfig.base_model_weights_file} **")
         else:
-            print(f"** loading base model weight from {base_model_weights_file} **")
+            print(f"** retrain without base model weight **")
 
-        if self.use_trained_model_weights:
-            if self.use_best_weights:
-                model_weights_file = os.path.join(self.output_dir, f"best_{output_weights_name}")
+        if self.MDConfig.use_trained_model_weights:
+            if self.MDConfig.use_best_weights:
+                model_weights_file = os.path.join(self.conf.output_dir, f"best_{self.MDConfig.output_weights_name}")
                 print(f"** loading best model weight from {model_weights_file} **")
             else:
-                model_weights_file = os.path.join(self.output_dir, self.output_weights_name)
+                model_weights_file = os.path.join(self.conf.output_dir, self.MDConfig.output_weights_name)
                 print(f"** loading final model weight from {model_weights_file} **")
         else:
             model_weights_file = None
 
-        self.model = get_model(self.class_names, self.base_model_weights_file, model_weights_file,
-                               image_dimension=self.image_dimension, color_mode=self.color_mode,
-                               class_mode=self.class_mode)
-        if self.show_model_summary:
+        self.model = get_model(self.DSConfig.class_names, self.MDConfig.base_model_weights_file, model_weights_file,
+                               image_dimension=self.IMConfig.img_dim, color_mode=self.IMConfig.color_mode,
+                               class_mode=self.DSConfig.class_mode)
+        if self.MDConfig.show_model_summary:
             print(self.model.summary())
 
-        output_weights_path = os.path.join(self.output_dir, self.output_weights_name)
-        print(f"** set output weights path to: {output_weights_path} **")
+        self.output_weights_path = os.path.join(self.conf.output_dir, self.MDConfig.output_weights_name)
+        print(f"** set output weights path to: {self.output_weights_path} **")
         self.check_gpu_availability()
 
         print("** compile model with class weights **")
-        optimizer = Adam(lr=self.initial_learning_rate)
+        optimizer = Adam(lr=self.conf.initial_learning_rate)
         self.model_train.compile(optimizer=optimizer, loss="binary_crossentropy")
-        self.auroc = MultipleClassAUROC(generator=self.dev_generator, steps=self.validation_steps,
-                                        class_names=self.class_names,
-                                        class_mode=self.class_mode, weights_path=output_weights_path,
+        self.auroc = MultipleClassAUROC(generator=self.dev_generator, steps=self.conf.validation_steps,
+                                        class_names=self.DSConfig.class_names,
+                                        class_mode=self.DSConfig.class_mode, weights_path=self.output_weights_path,
                                         stats=self.training_stats)
 
     def train(self):
@@ -151,15 +158,16 @@ class Trainer:
 
             callbacks = [
                 self.checkpoint,
-                TensorBoard(log_dir=os.path.join(self.output_dir, "logs"), batch_size=self.conf.batch_size),
-                ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=self.patience_reduce_lr, verbose=1),
+                TensorBoard(log_dir=os.path.join(self.conf.output_dir, "logs"), batch_size=self.conf.batch_size),
+                ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=self.conf.patience_reduce_lr, verbose=1),
                 self.auroc,
-                SaveBaseModel(filepath=self.base_model_weights_file, save_weights_only=False)
+                SaveBaseModel(filepath=self.MDConfig.base_model_weights_file, save_weights_only=False)
             ]
             self.fitter_kwargs["callbacks"] = callbacks
 
-            print("** training start **")
-            print(f"** training with: {epochs} epochs @ {train_steps} steps/epoch **")
+            print("** training start with parameters: **")
+            for k, v in self.fitter_kwargs.items():
+                print(f"\t{k}: {v}")
             self.history = self.model_train.fit_generator(**self.fitter_kwargs)
             self.dump_history()
         finally:

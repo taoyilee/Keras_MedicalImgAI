@@ -16,7 +16,7 @@ class Config(ConfigBase):
     _initial_learning_rate = 0.0001
     _train_steps = "auto"
     _validation_steps = "auto"
-
+    _patience_reduce_lr = 1
     def __init__(self, cp, config_file=None):
         """
 
@@ -58,6 +58,10 @@ class Config(ConfigBase):
         return ModelConfig(self.cp)
 
     @property
+    def patience_reduce_lr(self):
+        return assignIfNotNull(self.cp["TRAIN"].getint("patience_reduce_lr"), self._patience_reduce_lr)
+
+    @property
     def verbosity(self):
         return assignIfNotNull(self.cp["DEFAULT"].getint("verbosity"), self._verbosity)
 
@@ -71,11 +75,13 @@ class Config(ConfigBase):
 
     @property
     def train_steps(self):
-        if self.cp["TRAIN"].get("train_steps") is not "auto":
+        train_steps = assignIfNotNull(self.cp["TRAIN"].get("train_steps"), self._train_steps)
+        if train_steps != "auto":
             try:
                 train_steps = int(self.cp["TRAIN"].get("train_steps"))
             except ValueError:
-                raise ValueError(f"** train_steps: {train_steps} is invalid,please use 'auto' or integer.")
+                raise ValueError("** train_steps: {} is invalid,please use 'auto' or integer.".format(
+                    self.cp["TRAIN"].get("train_steps")))
 
             self._train_steps = assignIfNotNull(train_steps, self._train_steps)
         return self._train_steps
@@ -86,11 +92,13 @@ class Config(ConfigBase):
 
     @property
     def validation_steps(self):
-        if self.cp["TRAIN"].get("validation_steps") is not "auto":
+        validation_steps = assignIfNotNull(self.cp["TRAIN"].get("validation_steps"), self._validation_steps)
+        if validation_steps != "auto":
             try:
                 validation_steps = int(self.cp["TRAIN"].get("validation_steps"))
             except ValueError:
-                raise ValueError(f"** validation_steps: {validation_steps} is invalid,please use 'auto' or integer.")
+                raise ValueError("** validation_steps: {} is invalid,please use 'auto' or integer.".format(
+                    self.cp["TRAIN"].get("validation_steps")))
 
             self._validation_steps = assignIfNotNull(validation_steps, self._validation_steps)
         return self._validation_steps

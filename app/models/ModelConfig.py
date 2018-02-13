@@ -26,6 +26,13 @@ class ModelConfig(ConfigBase):
                                self._use_trained_model_weights)
 
     @property
+    def base_model_weights_file(self):
+        if self.use_base_model_weights:
+            return returnPropertIfNotNull(self.cp[self.SECTION].get("base_model_weights_file"))
+        else:
+            return None
+
+    @property
     def use_best_weights(self):
         return assignIfNotNull(self.cp[self.SECTION].getboolean("use_best_weights"), self._use_trained_model_weights)
 
@@ -35,4 +42,4 @@ class ModelConfig(ConfigBase):
 
     @property
     def show_model_summary(self):
-        return assignIfNotNull(self.cp[self.SECTION].getboolean("model_name"), self._show_model_summary)
+        return assignIfNotNull(self.cp[self.SECTION].get("show_model_summary"), self._show_model_summary)

@@ -23,10 +23,6 @@ class DatasetConfig(ConfigBase):
         return assignIfNotNull(self.cp["DATASET"].getboolean("force_resplit"), self._force_resplit)
 
     @property
-    def image_dir(self):
-        return returnPropertIfNotNull(self.cp["IMAGE"].get("image_dir"))
-
-    @property
     def data_entry(self):
         return returnPropertIfNotNull(self.cp["DATASET"].get("data_entry"))
 
@@ -36,7 +32,7 @@ class DatasetConfig(ConfigBase):
 
     @property
     def class_names(self):
-        return returnPropertIfNotNull(self.cp["DATASET"].get("class_names"))
+        return returnPropertIfNotNull(self.cp["DATASET"].get("class_names").split(","))
 
     @property
     def positive_weights_multiply(self):
@@ -53,7 +49,7 @@ class DatasetConfig(ConfigBase):
 
     @property
     def class_mode(self):
-        return returnPropertIfNotNull(self.cp["DATASET"].getfloat("class_mode"))
+        return returnPropertIfNotNull(self.cp["DATASET"].get("class_mode"))
 
     @property
     def use_class_balancing(self):
