@@ -1,58 +1,66 @@
 from app.imagetoolbox.ImageConfig import ImageConfig
-from app.utilities.util_config import cond_assign
+from app.utilities.ConfigBase import ConfigBase
+from app.utilities.util_config import assignIfNotNull, returnPropertIfNotNull
+import os
 
+class DatasetConfig(ConfigBase):
+    _random_state = 0
+    _train_ratio = 70
+    _dev_ratio = 10
+    _use_class_balancing = True
+    _use_default_split = True
+    _positive_weights_multiply = 1
+    _force_resplit = False
 
-class DatasetConfig:
-    image_dir = ""
-    data_entry = ""
-    class_names = ""
-    output_dir = ""
-    random_state = 0
-    train_ratio = 70
-    dev_ratio = 10
-    batch_size = 32
-    img_dim = 256
-    scale = 1. / 255
-    class_mode = "multiclass"
-    use_class_balancing = True
-    positive_weights_multiply = 1
-    force_resplit = False
-
-    def __init__(self, cp):
-        """
-
-        :param cp: Config Parser Section
-        :type cp: configparser.ConfigParser
-        """
-        self.cp = cp
-        self.parse_config()
 
     @property
     def ImageConfig(self):
         return ImageConfig(self.cp)
 
-    def parse_config(self):
-        # required configs
-        self.image_dir = self.cp["IMAGE"].get("image_dir")
-        self.data_entry = self.cp["DATASET"].get("data_entry")
-        self.class_names = self.cp["DATASET"].get("class_names")
-        self.output_dir = self.cp["DATASET"].get("output_dir")
+    @property
+    def force_resplit(self):
+        return assignIfNotNull(self.cp["DATASET"].getboolean("force_resplit"), self._force_resplit)
 
-        # optional configs
-        positive_weights_multiply = self.cp["DATASET"].getfloat("positive_weights_multiply")
-        force_resplit = self.cp["DATASET"].getboolean("force_resplit")
-        use_class_balancing = self.cp["DATASET"].getboolean("use_class_balancing")
-        train_ratio = self.cp["DATASET"].getfloat("train_ratio")
-        dev_ratio = self.cp["DATASET"].getfloat("dev_ratio")
-        batch_size = self.cp["DATASET"].getint("batch_size")
-        class_mode = self.cp["DATASET"].get("class_mode")
-        random_state = self.cp["DATASET"].getint("random_state")
+    @property
+    def image_dir(self):
+        return returnPropertIfNotNull(self.cp["IMAGE"].get("image_dir"))
 
-        self.random_state = cond_assign(random_state, self.random_state)
-        self.train_ratio = cond_assign(train_ratio, self.train_ratio)
-        self.dev_ratio = cond_assign(dev_ratio, self.dev_ratio)
-        self.batch_size = cond_assign(batch_size, self.batch_size)
-        self.class_mode = cond_assign(class_mode, self.class_mode)
-        self.positive_weights_multiply = cond_assign(positive_weights_multiply, self.positive_weights_multiply)
-        self.use_class_balancing = cond_assign(use_class_balancing, self.use_class_balancing)
-        self.force_resplit = cond_assign(force_resplit, self.force_resplit)
+    @property
+    def data_entry(self):
+        self.data_entry = returnPropertIfNotNull(self.cp["DATASET"].get("data_entry"))
+
+    @property
+    def data_entry_dir(self):
+        os.path.dirname(self.data_entry)
+
+    @property
+    def class_names(self):
+        self.class_names = returnPropertIfNotNull(self.cp["DATASET"].get("class_names"))
+
+    @property
+    def output_dir(self):
+        self.output_dir = returnPropertIfNotNull(self.cp["DATASET"].get("output_dir"))
+
+    @property
+    def positive_weights_multiply(self):
+        return assignIfNotNull(self.cp["DATASET"].getfloat("positive_weights_multiply"), self._positive_weights_multiply)
+
+    @property
+    def train_ratio(self):
+        return assignIfNotNull(self.cp["DATASET"].getfloat("train_ratio"), self._train_ratio)
+
+    @property
+    def dev_ratio(self):
+        return assignIfNotNull(self.cp["DATASET"].getfloat("dev_ratio"), self._dev_ratio)
+
+    @property
+    def class_mode(self):
+        return returnPropertIfNotNull(self.cp["DATASET"].getfloat("class_mode"))
+
+    @property
+    def use_class_balancing(self):
+        return assignIfNotNull(self.cp["DATASET"].getboolean("use_class_balancing"), self._use_class_balancing)
+
+    @property
+    def use_default_split(self):
+        return assignIfNotNull(self.cp["DATASET"].getboolean("use_default_split"), self._use_default_split)
