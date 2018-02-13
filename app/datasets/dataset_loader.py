@@ -44,16 +44,18 @@ class DataSet:
         self.train_pos_count = pos_count(self.train, self.class_names)
         self.dev_pos_count = pos_count(self.dev, self.class_names)
         self.test_pos_count = pos_count(self.test, self.class_names)
+        self.print_summary()
+        # export csv
+        output_fields = ["Image Index", "Patient ID", "Finding Labels"]
+        self.train[output_fields].to_csv(self.train_csv, index=False)
+        self.dev[output_fields].to_csv(self.dev_csv, index=False)
+        self.test[output_fields].to_csv(self.test_csv, index=False)
 
+    def print_summary(self):
         print(
             f"Total patients = {self.total_patients} in train/dev/test {train_patient_count}/{dev_patient_count}/{test_patient_count}")
         print(
             f"Total images = {self.total_images} in train/dev/test {self.train_count}/{self.dev_count}/{self.test_count}")
-        # export csv
-        output_fields = ["Image Index", "Patient ID", "Finding Labels"]
-        self.train[output_fields].to_csv(train_csv, index=False)
-        self.dev[output_fields].to_csv(dev_csv, index=False)
-        self.test[output_fields].to_csv(test_csv, index=False)
 
     def reload_dataset(self):
         print(f"Reloading splitted datasets from {self.train_csv}")
