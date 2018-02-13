@@ -10,7 +10,7 @@ from sklearn.metrics import roc_auc_score
 
 from app import grad_cam as gc
 from app.datasets import dataset_loader as dsload
-from app.models.densenet121 import get_model
+from app.models.model_factory import get_model
 
 
 def main(config_file):

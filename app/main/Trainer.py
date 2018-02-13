@@ -10,7 +10,7 @@ from keras.utils import multi_gpu_model
 
 from app.callback import MultipleClassAUROC, MultiGPUModelCheckpoint, SaveBaseModel
 from app.datasets import dataset_loader as dsload
-from app.models.densenet121 import get_model
+from app.models.model_factory import get_model
 from app.utilities.Config import Config
 
 
@@ -121,7 +121,7 @@ class Trainer:
         if self.MDConfig.base_model_weights_file is not None:
             print(f"** loading base model weight from {self.MDConfig.base_model_weights_file} **")
         else:
-            print(f"** retrain without base model weight **")
+            print(f"** retrain without external base model weight **")
 
         if self.MDConfig.use_trained_model_weights:
             if self.MDConfig.use_best_weights:
@@ -135,7 +135,8 @@ class Trainer:
 
         self.model = get_model(self.DSConfig.class_names, self.MDConfig.base_model_weights_file, model_weights_file,
                                image_dimension=self.IMConfig.img_dim, color_mode=self.IMConfig.color_mode,
-                               class_mode=self.DSConfig.class_mode)
+                               class_mode=self.DSConfig.class_mode,
+                               use_base_model_weights=self.MDConfig.use_base_model_weights)
         if self.MDConfig.show_model_summary:
             print(self.model.summary())
 

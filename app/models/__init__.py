@@ -1,1 +1,1 @@
-from . import densenet121
+from . import model_factory

@@ -7,6 +7,7 @@ class ModelConfig(ConfigBase):
 
     _model_name = "densenet121"
     _use_base_model_weights = True
+    _use_ext_base_model_weights = False
     _use_trained_model_weights = True
     _output_weights_name = ""
     _show_model_summary = False
@@ -15,6 +16,10 @@ class ModelConfig(ConfigBase):
     @property
     def model_name(self):
         return assignIfNotNull(self.cp[self.SECTION].get("model_name"), self._model_name)
+
+    @property
+    def use_ext_base_model_weights(self):
+        return assignIfNotNull(self.cp[self.SECTION].getboolean("use_ext_base_model_weights"), self._use_ext_base_model_weights)
 
     @property
     def use_base_model_weights(self):
@@ -27,7 +32,7 @@ class ModelConfig(ConfigBase):
 
     @property
     def base_model_weights_file(self):
-        if self.use_base_model_weights:
+        if self.use_ext_base_model_weights:
             return returnPropertIfNotNull(self.cp[self.SECTION].get("base_model_weights_file"))
         else:
             return None
