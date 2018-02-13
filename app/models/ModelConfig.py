@@ -9,7 +9,7 @@ class ModelConfig(ConfigBase):
     _use_base_model_weights = True
     _use_trained_model_weights = True
     _output_weights_name = ""
-    _show_model_summary = True
+    _show_model_summary = False
     _use_best_weights = False
 
     @property
@@ -42,4 +42,4 @@ class ModelConfig(ConfigBase):
 
     @property
     def show_model_summary(self):
-        return assignIfNotNull(self.cp[self.SECTION].get("show_model_summary"), self._show_model_summary)
+        return assignIfNotNull(self.cp[self.SECTION].getboolean("show_model_summary"), self._show_model_summary)
