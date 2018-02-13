@@ -22,3 +22,7 @@ class ConfigBase:
         if isinstance(self, other.__class__):
             return self.__dict__ == other.__dict__
         return False
+
+    @property
+    def class_mode(self):
+        return returnPropertIfNotNull(self.cp["DATASET"].get("class_mode"))

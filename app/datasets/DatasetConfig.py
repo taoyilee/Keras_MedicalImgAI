@@ -48,10 +48,6 @@ class DatasetConfig(ConfigBase):
         return assignIfNotNull(self.cp["DATASET"].getfloat("dev_ratio"), self._dev_ratio)
 
     @property
-    def class_mode(self):
-        return returnPropertIfNotNull(self.cp["DATASET"].get("class_mode"))
-
-    @property
     def use_class_balancing(self):
         return assignIfNotNull(self.cp["DATASET"].getboolean("use_class_balancing"), self._use_class_balancing)
 
