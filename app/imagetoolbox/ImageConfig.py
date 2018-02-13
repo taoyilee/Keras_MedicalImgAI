@@ -9,16 +9,16 @@ class ImageConfig(ConfigBase):
 
     @property
     def image_dir(self):
-        return returnPropertIfNotNull(self.cp["IMAGE"].get("image_dir"))
+        return returnPropertIfNotNull(self.cp["IMAGE"].get("image_source_dir"))
 
     @property
     def color_mode(self):
-        return assignIfNotNull(self.cp["IMAGE"].get("image_dir"), self._color_mode)
+        return assignIfNotNull(self.cp["IMAGE"].get("color_mode"), self._color_mode)
 
     @property
     def img_dim(self):
-        return assignIfNotNull(self.cp["IMAGE"].getint("image_dir"), self.img_dim)
+        return assignIfNotNull(self.cp["IMAGE"].getint("image_dimension"), self._img_dim)
 
     @property
     def scale(self):
-        return assignIfNotNull(self.cp["IMAGE"].getfloat("scale"), self.scale)
+        return assignIfNotNull(self.cp["IMAGE"].getfloat("scale"), self._scale)

@@ -90,50 +90,23 @@ class Trainer:
         print(f"backup config file to {self.conf.output_dir}")
         shutil.copy(self.config_file, os.path.join(self.conf.output_dir, os.path.split(self.config_file)[1]))
 
-
-
         data_set = dsload.DataSet(self.conf.DatasetConfig)
-        # image_dir = image_source_dir, data_entry = data_entry_file,
-        # train_ratio = train_patient_ratio,
-        # dev_ratio = dev_patient_ratio,
-        # output_dir = output_dir, img_dim = 256, class_names = class_names,
-        # random_state = split_dataset_random_state, class_mode = class_mode,
-        # use_class_balancing = use_class_balancing,
-        # positive_weights_multiply = positive_weights_multiply,
-        # force_resplit = force_resplit
 
         print("** create image generators **")
-        train_generator = data_set.train_generator(verbosity=self.verbosity)
-        dev_generator = data_set.dev_generator(verbosity=self.verbosity)
+        train_generator = data_set.train_generator(verbosity=self.conf.verbosity)
+        dev_generator = data_set.dev_generator(verbosity=self.conf.verbosity)
 
-        # compute steps
-        if self.train_steps == "auto":
-            train_steps = train_generator.__len__()
-        else:
-            try:
-                train_steps = int(self.train_steps)
-            except ValueError:
-                raise ValueError(f"""
-                  train_steps: {train_steps} is invalid,
-                  please use 'auto' or integer.
-                  """)
-        print(f"** train_steps: {train_steps} **")
+        if self.conf.train_steps == "auto":
+            self.conf.train_steps = train_generator.__len__()
+        print(f"** train_steps: {self.conf.train_steps} **")
 
-        if self.validation_steps == "auto":
-            validation_steps = dev_generator.__len__()
-        else:
-            try:
-                validation_steps = int(self.validation_steps)
-            except ValueError:
-                raise ValueError(f"""
-                  validation_steps: {validation_steps} is invalid,
-                  please use 'auto' or integer.
-                  """)
-        print(f"** validation_steps: {validation_steps} **")
+        if self.conf.validation_steps == "auto":
+            self.conf.validation_steps = dev_generator.__len__()
+        print(f"** validation_steps: {self.conf.validation_steps} **")
 
         # compute class weights
         print("** compute class weights from training data **")
-        self.class_weights = data_set.class_weights()
+        self.conf.class_weights = data_set.class_weights()
 
     def prepare_model(self):
         print("** load model **")

@@ -1,7 +1,9 @@
+import os
+
 from app.imagetoolbox.ImageConfig import ImageConfig
 from app.utilities.ConfigBase import ConfigBase
 from app.utilities.util_config import assignIfNotNull, returnPropertIfNotNull
-import os
+
 
 class DatasetConfig(ConfigBase):
     _random_state = 0
@@ -11,7 +13,6 @@ class DatasetConfig(ConfigBase):
     _use_default_split = True
     _positive_weights_multiply = 1
     _force_resplit = False
-
 
     @property
     def ImageConfig(self):
@@ -27,23 +28,20 @@ class DatasetConfig(ConfigBase):
 
     @property
     def data_entry(self):
-        self.data_entry = returnPropertIfNotNull(self.cp["DATASET"].get("data_entry"))
+        return returnPropertIfNotNull(self.cp["DATASET"].get("data_entry"))
 
     @property
     def data_entry_dir(self):
-        os.path.dirname(self.data_entry)
+        return os.path.dirname(self.data_entry)
 
     @property
     def class_names(self):
-        self.class_names = returnPropertIfNotNull(self.cp["DATASET"].get("class_names"))
-
-    @property
-    def output_dir(self):
-        self.output_dir = returnPropertIfNotNull(self.cp["DATASET"].get("output_dir"))
+        return returnPropertIfNotNull(self.cp["DATASET"].get("class_names"))
 
     @property
     def positive_weights_multiply(self):
-        return assignIfNotNull(self.cp["DATASET"].getfloat("positive_weights_multiply"), self._positive_weights_multiply)
+        return assignIfNotNull(self.cp["DATASET"].getfloat("positive_weights_multiply"),
+                               self._positive_weights_multiply)
 
     @property
     def train_ratio(self):

@@ -30,7 +30,7 @@ class DataSet:
             for d in datasets:
                 shutil.copy(f"{self.DSConfig.data_entry_dir}/{d}.csv", self.conf.output_dir)
 
-        if self.force_resplit or not os.path.isfile(self.train_csv) or not os.path.isfile(
+        if self.dsconfig.force_resplit or not os.path.isfile(self.train_csv) or not os.path.isfile(
                 self.dev_csv) or not os.path.isfile(self.test_csv):
             self.split_dataset()
         else:
@@ -42,38 +42,36 @@ class DataSet:
         self.test[output_fields].to_csv(self.test_csv, index=False)
         self.print_summary()
 
-    @property
     def img_count(self, subdataset="all"):
         return_dict = {"train": len(self.train), "dev": len(self.dev),
                        "test": len(self.test),
-                       "all": self.img_count("train") + self.img_count("dev") + self.img_count("test")}
+                       "all": len(self.train) + len(self.dev) + len(self.test)}
         return return_dict[subdataset.lower()]
 
-    @property
     def img_pos_count(self, subdataset="train"):
         return_dict = {"train": pos_count(self.train, self.class_names), "dev": pos_count(self.train, self.class_names),
                        "test": pos_count(self.train, self.class_names)}
         return return_dict[subdataset.lower()]
 
-    @property
     def pat_count(self, subdataset="all"):
         return_dict = {"train": len(list(self.train["Patient ID"].unique())),
                        "dev": len(list(self.dev["Patient ID"].unique())),
                        "test": len(list(self.test["Patient ID"].unique())),
-                       "all": self.pat_count("train") + self.pat_count("dev") + self.pat_count("test")}
+                       "all": len(list(self.train["Patient ID"].unique())) + len(
+                           list(self.dev["Patient ID"].unique())) + len(list(self.test["Patient ID"].unique()))}
         return return_dict[subdataset.lower()]
 
     def print_summary(self):
-        print(f'Total patients = {self.pat_count(subdataset="all")} ', end="")
+        print("Total patients = {} ".format(self.pat_count(subdataset="all")), end="")
         print('in train/dev/test ', end="")
-        print(f'{self.pat_count(subdataset="train")}/', end="")
-        print(f'{self.pat_count(subdataset="dev")}/', end="")
-        print(f'{self.pat_count(subdataset="test")}')
-        print(f'Total images = {self.img_count(subdataset="all")}', end="")
-        print(f' in train/dev/test ', end="")
-        print(f'{self.img_count(subdataset="train")}/', end="")
-        print(f'{self.img_count(subdataset="dev")}/', end="")
-        print(f'{self.img_count(subdataset="test")}')
+        print("{}/".format(self.pat_count(subdataset="train")), end="")
+        print("{}/".format(self.pat_count(subdataset="dev")), end="")
+        print("{}".format(self.pat_count(subdataset="test")))
+        print("Total images = {} ".format(self.img_count(subdataset="all")), end="")
+        print("in train/dev/test ", end="")
+        print("{}/".format(self.img_count(subdataset="train")), end="")
+        print("{}/".format(self.img_count(subdataset="dev")), end="")
+        print("{}".format(self.img_count(subdataset="test")))
 
     def reload_dataset(self):
         print(f"Reloading splitted datasets from {self.train_csv}")
@@ -82,9 +80,11 @@ class DataSet:
         self.dev = pd.read_csv(self.dev_csv)
         print(f"Reloading splitted datasets from {self.test_csv}")
         self.test = pd.read_csv(self.test_csv)
-        self.train["One_Hot_Labels"] = self.train["Finding Labels"].apply(lambda x: label2vec(x, self.class_names))
-        self.dev["One_Hot_Labels"] = self.dev["Finding Labels"].apply(lambda x: label2vec(x, self.class_names))
-        self.test["One_Hot_Labels"] = self.test["Finding Labels"].apply(lambda x: label2vec(x, self.class_names))
+        self.train["One_Hot_Labels"] = self.train["Finding Labels"].apply(
+            lambda x: label2vec(x, self.dsconfig.class_names))
+        self.dev["One_Hot_Labels"] = self.dev["Finding Labels"].apply(lambda x: label2vec(x, self.dsconfig.class_names))
+        self.test["One_Hot_Labels"] = self.test["Finding Labels"].apply(
+            lambda x: label2vec(x, self.dsconfig.class_names))
 
     def split_dataset(self):
         print(f"Splitting dataset for {self.class_mode}")

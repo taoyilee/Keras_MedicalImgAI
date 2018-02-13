@@ -3,6 +3,6 @@ def assignIfNotNull(config, default): return config if config is not None else d
 
 def returnPropertIfNotNull(config):
     if config is None or config == "":
-        raise ValueError
+        raise ValueError()
     else:
         return config

@@ -14,6 +14,8 @@ class Config(ConfigBase):
     _progress_verbosity = 1
     _batch_size = 32
     _initial_learning_rate = 0.0001
+    _train_steps = "auto"
+    _validation_steps = "auto"
 
     def __init__(self, cp, config_file=None):
         """
@@ -55,7 +57,6 @@ class Config(ConfigBase):
     def ModelConfig(self):
         return ModelConfig(self.cp)
 
-
     @property
     def verbosity(self):
         return assignIfNotNull(self.cp["DEFAULT"].getint("verbosity"), self._verbosity)
@@ -67,6 +68,36 @@ class Config(ConfigBase):
     @property
     def batch_size(self):
         return assignIfNotNull(self.cp["TRAIN"].getint("batch_size"), self._batch_size)
+
+    @property
+    def train_steps(self):
+        if self.cp["TRAIN"].get("train_steps") is not "auto":
+            try:
+                train_steps = int(self.cp["TRAIN"].get("train_steps"))
+            except ValueError:
+                raise ValueError(f"** train_steps: {train_steps} is invalid,please use 'auto' or integer.")
+
+            self._train_steps = assignIfNotNull(train_steps, self._train_steps)
+        return self._train_steps
+
+    @train_steps.setter
+    def train_steps(self, value):
+        self._train_steps = value
+
+    @property
+    def validation_steps(self):
+        if self.cp["TRAIN"].get("validation_steps") is not "auto":
+            try:
+                validation_steps = int(self.cp["TRAIN"].get("validation_steps"))
+            except ValueError:
+                raise ValueError(f"** validation_steps: {validation_steps} is invalid,please use 'auto' or integer.")
+
+            self._validation_steps = assignIfNotNull(validation_steps, self._validation_steps)
+        return self._validation_steps
+
+    @validation_steps.setter
+    def validation_steps(self, value):
+        self._validation_steps = value
 
     @property
     def progress_verbosity(self, phase="train"):
