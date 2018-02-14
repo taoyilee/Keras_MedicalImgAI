@@ -109,7 +109,7 @@ class MultipleClassAUROC(Callback):
         y_hat = np.array(self.model.predict_generator(generator=test_generator, steps=step_test, verbose=1)).squeeze()
 
         if self.class_mode == "multibinary":
-            y = y.squeeze().swapaxes(0, 1)
+            y_hat = y_hat.swapaxes(0, 1)
         print(f"*** epoch#{epoch + 1} dev auroc ***")
         print(f"y = {np.shape(y)}")
         print(f"y_hat = {np.shape(y_hat)}")
