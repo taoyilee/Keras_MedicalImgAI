@@ -157,13 +157,13 @@ class Trainer:
         try:
             self.prepare_datasets()
             self.prepare_model()
-
+            trained_base_weight = os.path.join(self.conf.output_dir, "trained_base_model_weight.h5")
             callbacks = [
                 self.checkpoint,
                 TensorBoard(log_dir=os.path.join(self.conf.output_dir, "logs"), batch_size=self.conf.batch_size),
                 ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=self.conf.patience_reduce_lr, verbose=1),
                 self.auroc,
-                SaveBaseModel(filepath=self.MDConfig.base_model_weights_file, save_weights_only=False)
+                SaveBaseModel(filepath=trained_base_weight, save_weights_only=False)
             ]
             self.fitter_kwargs["callbacks"] = callbacks
 
