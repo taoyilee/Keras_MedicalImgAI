@@ -43,8 +43,8 @@ class DataSequence(Sequence):
             print(f'** now yielding {self.set_name} batch = {batchi["Patient ID"].tolist()}')
             print(f'** images are = {batchi["Image Index"].tolist()}')
 
-        return batch_generator(self.batchi["Image Index"],
-                               self.batchi["One_Hot_Labels"].tolist(), mode=self.set_name,
+        return batch_generator(batchi["Image Index"],
+                               batchi["One_Hot_Labels"].tolist(), mode=self.set_name,
                                image_config=self.image_config,
                                verbosity=self.verbosity)
 
