@@ -40,7 +40,8 @@ class DataSequence(Sequence):
         slice1 = (idx + 1) * self.batch_size
         batchi = self.batch.iloc[slice0:slice1]
         if self.verbosity > 0:
-            print(f'** now yielding {self.set_name} batch = {batchi["Patient ID"].tolist()}')
+            print(f'** now yielding {self.set_name} batch = {batchi["Patient ID"].tolist()[5]} ... ')
+        if self.verbosity > 1:
             print(f'** images are = {batchi["Image Index"].tolist()}')
 
         return batch_generator(batchi["Image Index"],
@@ -96,7 +97,7 @@ def batch_generator(image_filenames, labels, image_config, mode="train", verbosi
         targets = np.swapaxes(labels, 0, 1)
         targets = [np.array(targets[i, :]) for i in range(np.shape(targets)[0])]
 
-    if verbosity > 0:
+    if verbosity > 1:
         print(f"(input, targets) = ({np.shape(inputs)}, {np.shape(targets)})")
         print(f"targets = {targets}")
 

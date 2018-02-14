@@ -39,7 +39,7 @@ class Trainer:
         cp.read(config_file)
         self.config_file = config_file
         self.conf = Config(cp=cp)
-        self.fitter_kwargs = {"verbose": self.conf.progress_verbosity, "max_queue_size": 4, "workers": 4,
+        self.fitter_kwargs = {"verbose": self.conf.progress_verbosity, "max_queue_size": 16, "workers": 16,
                               "epochs": self.conf.epochs, "use_multiprocessing": True}
         self.parse_config()
         self.running_flag_file = os.path.join(self.conf.output_dir, ".training.lock")
