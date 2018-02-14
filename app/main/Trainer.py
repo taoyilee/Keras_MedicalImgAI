@@ -40,7 +40,7 @@ class Trainer:
         self.config_file = config_file
         self.conf = Config(cp=cp)
         self.fitter_kwargs = {"verbose": self.conf.progress_verbosity, "max_queue_size": 16, "workers": 16,
-                              "epochs": self.conf.epochs, "use_multiprocessing": True}
+                              "epochs": self.conf.epochs, "use_multiprocessing": False}
         self.parse_config()
         self.running_flag_file = os.path.join(self.conf.output_dir, ".training.lock")
         os.makedirs(self.conf.output_dir, exist_ok=True)  # check output_dir, create it if not exists
