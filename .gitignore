@@ -6,6 +6,7 @@ experiments/
 *.log
 imgdir
 datasets/chexnet_ds/images
+datasets/chexnet_ds/images_out
 .idea/
 .python-version
 datasets/chexnet_ds/images_1024
