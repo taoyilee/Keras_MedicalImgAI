@@ -23,6 +23,7 @@ class DataSequence(Sequence):
         self.set_name = set_name
         self.batch = batch
         self.image_config = image_config
+        self.batch_size = image_config.batch_size
 
     def __len__(self):
         return math.ceil(self.batch.shape[0] / self.image_config.batch_size)
@@ -35,12 +36,13 @@ class DataSequence(Sequence):
                                verbosity=self.verbosity)
 
     def __getitem__(self, idx):
-        #if self.verbosity > 0:
-        print(f'** now yielding {self.set_name} batch = {self.batch["Patient ID"].tolist()}')
-        print(f'** images are = {self.batch["Image Index"].tolist()}')
-
-        return batch_generator(self.batch["Image Index"],
-                               self.batch["One_Hot_Labels"].tolist(), mode=self.set_name,
+        if self.verbosity > 0:
+            print(f'** now yielding {self.set_name} batch = {self.batch["Patient ID"].tolist()}')
+            print(f'** images are = {self.batch["Image Index"].tolist()}')
+        slice0 = idx * self.batch_size
+        slice1 = (idx + 1) * self.batch_size
+        return batch_generator(self.batch["Image Index"].iloc[slice0:slice1],
+                               self.batch["One_Hot_Labels"].iloc[slice0:slice1].tolist(), mode=self.set_name,
                                image_config=self.image_config,
                                verbosity=self.verbosity)
 
