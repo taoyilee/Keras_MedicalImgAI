@@ -39,9 +39,9 @@ class Trainer:
         cp.read(config_file)
         self.config_file = config_file
         self.conf = Config(cp=cp)
-        if self.conf.gpu == 1:
-            print(f"** Use single gpu only")
-            os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+        if self.conf.gpu != 0:
+            print(f"** Use assigned numbers of gpu ({self.conf.gpu}) only")
+            os.environ["CUDA_VISIBLE_DEVICES"] = f"{self.conf.gpu}"
 
         self.fitter_kwargs = {"verbose": self.conf.progress_verbosity, "max_queue_size": 32, "workers": 32,
                               "epochs": self.conf.epochs, "use_multiprocessing": True}
