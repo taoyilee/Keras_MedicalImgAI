@@ -13,8 +13,8 @@ class ModelConfig(ConfigBase):
     _show_model_summary = False
     _use_best_weights = False
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, cp):
+        super().__init__(cp)
         self._use_trained_model_weights = assignIfNotNull(self.cp[self.SECTION].getboolean("use_trained_model_weights"),
                                                           self._use_trained_model_weights)
 

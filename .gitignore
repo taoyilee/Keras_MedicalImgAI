@@ -8,3 +8,4 @@ imgdir
 datasets/chexnet_ds/images
 .idea/
 .python-version
+datasets/chexnet_ds/images_1024

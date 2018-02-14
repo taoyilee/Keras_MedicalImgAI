@@ -2,6 +2,7 @@ import os
 import random
 import shutil
 
+import numpy as np
 import pandas as pd
 import sklearn as sk
 
@@ -49,8 +50,9 @@ class DataSet:
         return return_dict[subdataset.lower()]
 
     def img_pos_count(self, subdataset="train"):
-        return_dict = {"train": pos_count(self.train, self.class_names), "dev": pos_count(self.train, self.class_names),
-                       "test": pos_count(self.train, self.class_names)}
+        return_dict = {"train": pos_count(self.train, self.dsconfig.class_names),
+                       "dev": pos_count(self.dev, self.dsconfig.class_names),
+                       "test": pos_count(self.test, self.dsconfig.class_names)}
         return return_dict[subdataset.lower()]
 
     def pat_count(self, subdataset="all"):
@@ -87,7 +89,7 @@ class DataSet:
             lambda x: label2vec(x, self.dsconfig.class_names))
 
     def split_dataset(self):
-        print(f"Splitting dataset for {self.class_mode}")
+        print(f"Splitting dataset for {self.dsconfig.class_mode}")
         os.makedirs(self.dsconfig.output_dir, exist_ok=True)
         e = pd.read_csv(self.dsconfig.data_entry)
 
@@ -116,8 +118,6 @@ class DataSet:
             class_weight = dict(zip(class_id, class_weight_sk))
             for c, w in class_weight.items():
                 print(f"  {c} [{self.dsconfig.class_names[c]}]: {w}")
-            return class_weight
-
         elif self.dsconfig.class_mode == 'multibinary':
             class_weight = get_class_weights_multibinary(
                 self.img_count(subdataset="train"),
@@ -125,9 +125,12 @@ class DataSet:
                 multiply=self.dsconfig.positive_weights_multiply,
                 use_class_balancing=self.dsconfig.use_class_balancing)
             for c, w in class_weight.items():
-                print(f"  {c}: {w}")
+                print(f"  {c}: ", end="")
+                for wk, wv in w.items():
+                    print(f"  {wk}: {np.round(wv,2)} ", end="")
+                print("")
 
-            return class_weight
+        return class_weight
 
     def train_generator(self, verbosity=0):
         batch = self.train.sample(frac=1)  # shuffle

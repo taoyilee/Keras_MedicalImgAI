@@ -24,7 +24,7 @@ class DatasetConfig(ConfigBase):
 
     @property
     def data_entry(self):
-        return returnPropertIfNotNull(self.cp["DATASET"].get("data_entry"))
+        return returnPropertIfNotNull(self.cp["DATASET"].get("data_entry_file"))
 
     @property
     def data_entry_dir(self):
@@ -54,3 +54,7 @@ class DatasetConfig(ConfigBase):
     @property
     def use_default_split(self):
         return assignIfNotNull(self.cp["DATASET"].getboolean("use_default_split"), self._use_default_split)
+
+    @property
+    def random_state(self):
+        return assignIfNotNull(self.cp["DATASET"].getint("split_dataset_random_state"), self._random_state)
