@@ -43,8 +43,8 @@ class Trainer:
             print(f"** Use single gpu only")
             os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
-        self.fitter_kwargs = {"verbose": self.conf.progress_verbosity, "max_queue_size": 10, "workers": 1,
-                              "epochs": self.conf.epochs, "use_multiprocessing": False}
+        self.fitter_kwargs = {"verbose": self.conf.progress_verbosity, "max_queue_size": 32, "workers": 32,
+                              "epochs": self.conf.epochs, "use_multiprocessing": True}
         self.parse_config()
         self.running_flag_file = os.path.join(self.conf.output_dir, ".training.lock")
         os.makedirs(self.conf.output_dir, exist_ok=True)  # check output_dir, create it if not exists

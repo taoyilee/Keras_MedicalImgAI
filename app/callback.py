@@ -106,14 +106,13 @@ class MultipleClassAUROC(Callback):
         test_generator = self.generator
         step_test = test_generator.__len__()
         y = np.array(test_generator.targets()).squeeze()
-        y_hat = np.array(self.model.predict_generator(generator=test_generator, steps=step_test, verbose=1))
+        y_hat = np.array(self.model.predict_generator(generator=test_generator, steps=step_test, verbose=1)).squeeze()
+
+        if self.class_mode == "multibinary":
+            y = y.squeeze().swapaxes(0, 1)
         print(f"*** epoch#{epoch + 1} dev auroc ***")
         print(f"y = {np.shape(y)}")
         print(f"y_hat = {np.shape(y_hat)}")
-
-        current_auroc = []
-        if self.class_mode == "multibinary":
-            y = y.squeeze().swapaxes(0, 1)
 
         current_auroc = roc_auc_score(y, y_hat, average=None)
         if len(self.class_names) != len(current_auroc):
