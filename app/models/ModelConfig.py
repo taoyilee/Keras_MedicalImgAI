@@ -13,13 +13,19 @@ class ModelConfig(ConfigBase):
     _show_model_summary = False
     _use_best_weights = False
 
+    def __init__(self):
+        super().__init__()
+        self._use_trained_model_weights = assignIfNotNull(self.cp[self.SECTION].getboolean("use_trained_model_weights"),
+                                                          self._use_trained_model_weights)
+
     @property
     def model_name(self):
         return assignIfNotNull(self.cp[self.SECTION].get("model_name"), self._model_name)
 
     @property
     def use_ext_base_model_weights(self):
-        return assignIfNotNull(self.cp[self.SECTION].getboolean("use_ext_base_model_weights"), self._use_ext_base_model_weights)
+        return assignIfNotNull(self.cp[self.SECTION].getboolean("use_ext_base_model_weights"),
+                               self._use_ext_base_model_weights)
 
     @property
     def use_base_model_weights(self):
@@ -27,8 +33,11 @@ class ModelConfig(ConfigBase):
 
     @property
     def use_trained_model_weights(self):
-        return assignIfNotNull(self.cp[self.SECTION].getboolean("use_trained_model_weights"),
-                               self._use_trained_model_weights)
+        return self._use_trained_model_weights
+
+    @use_trained_model_weights.setter
+    def use_trained_model_weights(self, value):
+        self._use_trained_model_weights = value
 
     @property
     def base_model_weights_file(self):
