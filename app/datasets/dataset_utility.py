@@ -35,9 +35,9 @@ class DataSequence(Sequence):
                                verbosity=self.verbosity)
 
     def __getitem__(self, idx):
-        if self.verbosity > 0:
-            print(f'** now yielding {self.set_name} batch = {self.batch["Patient ID"].tolist()}')
-            print(f'** images are = {self.batch["Image Index"].tolist()}')
+        #if self.verbosity > 0:
+        print(f'** now yielding {self.set_name} batch = {self.batch["Patient ID"].tolist()}')
+        print(f'** images are = {self.batch["Image Index"].tolist()}')
 
         return batch_generator(self.batch["Image Index"],
                                self.batch["One_Hot_Labels"].tolist(), mode=self.set_name,
