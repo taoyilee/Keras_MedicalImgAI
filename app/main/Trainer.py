@@ -103,21 +103,18 @@ class Trainer:
         self.train_generator = data_set.train_generator(verbosity=self.conf.verbosity)
         self.dev_generator = data_set.dev_generator(verbosity=self.conf.verbosity)
 
-        if self.conf.train_steps == "auto":
-            self.conf.train_steps = self.train_generator.__len__()
-        print(f"** train_steps: {self.conf.train_steps} **")
+        if self.conf.train_steps != "auto":
+            print(f"** overriding train_steps: {self.conf.train_steps} **")
+            self.fitter_kwargs["steps_per_epoch"] = self.conf.train_steps
 
-        if self.conf.validation_steps == "auto":
-            self.conf.validation_steps = self.dev_generator.__len__()
-        print(f"** validation_steps: {self.conf.validation_steps} **")
+        if self.conf.validation_steps != "auto":
+            print(f"** overriding validation_steps: {self.conf.validation_steps} **")
+            self.fitter_kwargs["validation_steps"] = self.conf.validation_steps
 
-        # compute class weights
         print("** compute class weights from training data **")
         self.fitter_kwargs["class_weight"] = data_set.class_weights()
 
         self.fitter_kwargs["generator"] = self.train_generator
-        self.fitter_kwargs["steps_per_epoch"] = self.conf.train_steps
-        self.fitter_kwargs["validation_steps"] = self.conf.validation_steps
         self.fitter_kwargs["validation_data"] = self.dev_generator
 
     def prepare_model(self):
