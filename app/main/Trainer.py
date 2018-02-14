@@ -43,7 +43,7 @@ class Trainer:
             print(f"** Use assigned numbers of gpu ({self.conf.gpu}) only")
             os.environ["CUDA_VISIBLE_DEVICES"] = f"{self.conf.gpu}"
 
-        self.fitter_kwargs = {"verbose": self.conf.progress_verbosity, "max_queue_size": 32, "workers": 32,
+        self.fitter_kwargs = {"verbose": self.conf.progress_train_verbosity, "max_queue_size": 32, "workers": 32,
                               "epochs": self.conf.epochs, "use_multiprocessing": True}
         self.parse_config()
         self.running_flag_file = os.path.join(self.conf.output_dir, ".training.lock")

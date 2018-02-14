@@ -41,11 +41,11 @@ class DatasetConfig(ConfigBase):
 
     @property
     def train_ratio(self):
-        return assignIfNotNull(self.cp["DATASET"].getfloat("train_ratio"), self._train_ratio)
+        return assignIfNotNull(self.cp["DATASET"].getfloat("train_patient_ratio"), self._train_ratio)
 
     @property
     def dev_ratio(self):
-        return assignIfNotNull(self.cp["DATASET"].getfloat("dev_ratio"), self._dev_ratio)
+        return assignIfNotNull(self.cp["DATASET"].getfloat("dev_patient_ratio"), self._dev_ratio)
 
     @property
     def use_class_balancing(self):

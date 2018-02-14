@@ -109,13 +109,9 @@ class Config(ConfigBase):
         self._validation_steps = value
 
     @property
-    def progress_verbosity(self, phase="train"):
-        """
+    def progress_train_verbosity(self):
+        return assignIfNotNull(self.cp["TRAIN"].getint("progress_verbosity"), self._progress_verbosity)
 
-        :param phase:
-        :type phase: str
-        :return:
-        """
-        return_dict = {"train": assignIfNotNull(self.cp["TRAIN"].get("progress_verbosity"), self._progress_verbosity),
-                       "test": assignIfNotNull(self.cp["TEST"].get("progress_verbosity"), self._progress_verbosity)}
-        return return_dict[phase.lower()]
+    @property
+    def progress_test_verbosity(self):
+        return assignIfNotNull(self.cp["TEST"].getint("progress_verbosity"), self._progress_verbosity)
