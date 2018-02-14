@@ -86,6 +86,7 @@ class Trainer:
         if gpus > 1:
             print(f"** multi_gpu_model is used! gpus={gpus} **")
             self.model_train = multi_gpu_model(self.model, gpus)
+            self.model_train.base_model = self.model.base_model
             # FIXME: currently (Keras 2.1.2) checkpoint doesn't work with multi_gpu_model
             self.checkpoint = MultiGPUModelCheckpoint(
                 filepath=self.output_weights_path,

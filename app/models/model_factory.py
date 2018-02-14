@@ -42,7 +42,7 @@ def get_model(class_names, base_weights_path=None, weights_path=None, image_dime
             predictions.append(prediction)
 
     model = Model(inputs=base_model.input, outputs=predictions)
-    model.base_model = base_model
     if weights_path is not None:
         model.load_weights(weights_path)
+    model.base_model = base_model
     return model
