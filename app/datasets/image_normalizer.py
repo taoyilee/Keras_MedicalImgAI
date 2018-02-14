@@ -12,7 +12,6 @@ class ImageNormalizer:
 
     def normalize(self, image):
         if self.nrm_config.normalize_by_mean_var:
-            print(f"Normalizing with {self.nrm_config.norm_mean}/{self.nrm_config.norm_stdev}")
             image_n = image - self.nrm_config.norm_mean
             image_n = image_n / self.nrm_config.norm_stdev
 
