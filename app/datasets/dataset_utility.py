@@ -98,6 +98,7 @@ def batch_generator(image_filenames, labels, image_config, mode="train", verbosi
 
     if verbosity > 0:
         print(f"(input, targets) = ({np.shape(inputs)}, {np.shape(targets)})")
+        print(f"targets = {targets}")
 
     return inputs, targets
 

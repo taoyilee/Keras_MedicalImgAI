@@ -3,6 +3,7 @@ Modify from DenseNet-Keras (https://github.com/flyyufelix/DenseNet-Keras)
 """
 from keras import regularizers
 from keras.applications.densenet import DenseNet121
+from keras.layers import GlobalAveragePooling2D
 from keras.layers.core import Dense
 from keras.models import Model
 
@@ -23,8 +24,9 @@ def get_model(class_names, base_weights_path=None, weights_path=None, image_dime
     if weights_path == "":
         weights_path = None
 
-    base_model = DenseNet121(include_top=False, weights=base_weights[use_base_model_weights], pooling="avg")
+    base_model = DenseNet121(include_top=False, weights=base_weights[use_base_model_weights], pooling="None")
     x = base_model.output
+    x = GlobalAveragePooling2D()(x)
 
     # dense layers for different class
     predictions = []
