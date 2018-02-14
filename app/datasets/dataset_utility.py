@@ -125,7 +125,8 @@ def load_image(image_name, image_config, verbosity=0, mode="train"):
         image = cv2.imread(image_file, cv2.IMREAD_COLOR)
 
     if mode != "raw":
-        if image_config.img_dim is not None:
+        if image_config.img_dim is not None and (
+                np.shape(image)[0] != image_config.img_dim or np.shape(image)[1] != image_config.img_dim):
             image = cv2.resize(image, (image_config.img_dim, image_config.img_dim))
         if image_config.scale is not None:
             image = image * image_config.scale
