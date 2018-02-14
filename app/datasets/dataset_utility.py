@@ -97,7 +97,7 @@ def batch_generator(image_filenames, labels, image_config, mode="train", verbosi
         targets = np.swapaxes(labels, 0, 1)
         targets = [np.array(targets[i, :]) for i in range(np.shape(targets)[0])]
 
-    if verbosity > 1:
+    if verbosity > 2:
         print(f"(input, targets) = ({np.shape(inputs)}, {np.shape(targets)})")
         print(f"targets = {targets}")
 
