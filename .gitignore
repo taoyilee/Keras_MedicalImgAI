@@ -1,4 +1,5 @@
 *.png
+datasets/pxr_ds/intertrocfx
 __pycache__
 venv/
 experiments/
