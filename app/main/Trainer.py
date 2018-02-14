@@ -103,11 +103,6 @@ class Trainer:
             self.conf.train_steps = self.train_generator.__len__()
         print(f"** train_steps: {self.conf.train_steps} **")
 
-        self.fitter_kwargs["generator"] = self.train_generator
-        self.fitter_kwargs["steps_per_epoch"] = self.conf.train_steps
-        self.fitter_kwargs["validation_steps"] = self.conf.validation_steps
-        self.fitter_kwargs["validation_data"] = self.dev_generator
-
         if self.conf.validation_steps == "auto":
             self.conf.validation_steps = self.dev_generator.__len__()
         print(f"** validation_steps: {self.conf.validation_steps} **")
@@ -115,6 +110,11 @@ class Trainer:
         # compute class weights
         print("** compute class weights from training data **")
         self.fitter_kwargs["class_weight"] = data_set.class_weights()
+
+        self.fitter_kwargs["generator"] = self.train_generator
+        self.fitter_kwargs["steps_per_epoch"] = self.conf.train_steps
+        self.fitter_kwargs["validation_steps"] = self.conf.validation_steps
+        self.fitter_kwargs["validation_data"] = self.dev_generator
 
     def prepare_model(self):
         print("** load model **")

@@ -125,9 +125,9 @@ class DataSet:
                 multiply=self.dsconfig.positive_weights_multiply,
                 use_class_balancing=self.dsconfig.use_class_balancing)
             for c, w in class_weight.items():
-                print(f"  {c}: ", end="")
+                print(f" {c}: ", end="")
                 for wk, wv in w.items():
-                    print(f"  {wk}: {np.round(wv,2)} ", end="")
+                    print(f"{wk}: {np.round(wv,2)} ", end="")
                 print("")
 
         return class_weight
