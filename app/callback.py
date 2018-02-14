@@ -8,7 +8,6 @@ import numpy as np
 from keras.callbacks import Callback
 from sklearn.metrics import roc_auc_score
 
-
 def load_generator_data(generator, steps, class_num, cam=False):
     """
     Return some data collected from a generator, use this to ensure all images

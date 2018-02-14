@@ -7,11 +7,17 @@ from configparser import ConfigParser
 from keras.callbacks import ModelCheckpoint, TensorBoard, ReduceLROnPlateau
 from keras.optimizers import Adam
 from keras.utils import multi_gpu_model
+from tensorflow.python.client import device_lib
 
 from app.callback import MultipleClassAUROC, MultiGPUModelCheckpoint, SaveBaseModel
 from app.datasets import dataset_loader as dsload
 from app.models.model_factory import get_model
 from app.utilities.Config import Config
+
+
+def get_available_gpus():
+    local_device_protos = device_lib.list_local_devices()
+    return [x.name for x in local_device_protos if x.device_type == 'GPU']
 
 
 class Trainer:
@@ -41,7 +47,11 @@ class Trainer:
         self.conf = Config(cp=cp)
         if self.conf.gpu != 0:
             print(f"** Use assigned numbers of gpu ({self.conf.gpu}) only")
-            os.environ["CUDA_VISIBLE_DEVICES"] = f"{self.conf.gpu}"
+            CUDA_VISIBLE_DEVICES = ",".join([str(i) for i in range(self.conf.gpu)])
+        else:
+            print(f"** Use all gpus = ({len(get_available_gpus())})")
+            CUDA_VISIBLE_DEVICES = ",".join([str(i) for i in range(len(get_available_gpus()))])
+        os.environ["CUDA_VISIBLE_DEVICES"] = f"{CUDA_VISIBLE_DEVICES}"
 
         self.fitter_kwargs = {"verbose": self.conf.progress_train_verbosity, "max_queue_size": 32, "workers": 32,
                               "epochs": self.conf.epochs, "use_multiprocessing": True}
