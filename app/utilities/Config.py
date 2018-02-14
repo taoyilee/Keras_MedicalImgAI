@@ -12,11 +12,11 @@ class Config(ConfigBase):
     _epochs = 20
     _verbosity = 0
     _progress_verbosity = 1
-    _batch_size = 32
     _initial_learning_rate = 0.0001
     _train_steps = "auto"
     _validation_steps = "auto"
     _patience_reduce_lr = 1
+    _gpu = 1
 
     def __init__(self, cp, config_file=None):
         """
@@ -61,6 +61,10 @@ class Config(ConfigBase):
     @property
     def patience_reduce_lr(self):
         return assignIfNotNull(self.cp["TRAIN"].getint("patience_reduce_lr"), self._patience_reduce_lr)
+
+    @property
+    def gpu(self):
+        return assignIfNotNull(self.cp["TRAIN"].getint("gpu"), self._gpu)
 
     @property
     def verbosity(self):
