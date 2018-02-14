@@ -20,11 +20,11 @@ def main(config_file):
 
     # default config
     output_dir = cp["DEFAULT"].get("output_dir")
-    image_source_dir = cp["DEFAULT"].get("image_source_dir")
-    class_names = cp["DEFAULT"].get("class_names").split(",")
-    image_dimension = cp["DEFAULT"].getint("image_dimension")
+    image_source_dir = cp["IMAGE"].get("image_source_dir")
+    class_names = cp["DATASET"].get("class_names").split(",")
+    image_dimension = cp["IMAGE"].getint("image_dimension")
     model_name = cp["DEFAULT"].get("nn_model")
-    class_mode = cp["DEFAULT"].get("class_mode")
+    class_mode = cp["DATASET"].get("class_mode")
 
     verbosity = cp["DEFAULT"].getint("verbosity")
     progress_verbosity = cp["TEST"].getint("progress_verbosity")

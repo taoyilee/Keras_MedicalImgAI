@@ -13,7 +13,9 @@ ChexNet is a deep learning algorithm that can detect and localize 14 kinds of di
 4. Every time you do a new experiment, make sure you modify `output_dir` in `config.ini` otherwise previous training results might be overwritten. For more options check the parameter description in `config.ini`.
 
 ## Quickstart
+
 **Note that currently this project can only be executed in Linux and macOS. You might run into some issues in Windows.**
+
 1. Download **all tar files** and **Data_Entry_2017.csv** of ChestX-ray14 dataset from [NIH dropbox](https://nihcc.app.box.com/v/ChestXray-NIHCC). Put them under `./data` folder and untar all tar files.
 2. Download DenseNet-121 ImageNet tensorflow pretrained weights from [DenseNet-Keras](https://drive.google.com/open?id=0Byy2AcGyEVxfSTA4SHJVOHNuTXc). Specify the file path in `config.ini` (field: `base_model_weights_file`)
 3. Create & source a new virtualenv. Python >= **3.6** is required.
@@ -25,6 +27,7 @@ ChexNet is a deep learning algorithm that can detect and localize 14 kinds of di
 Reference: [Grad-CAM](https://arxiv.org/pdf/1610.02391). CAM image is generated as accumumlated weighted activation before last global average pooling (GAP) layer. It is scaled up to dimensions of original image.
 
 To enable this feature during testing, edit config.ini as follows:
+
 ```buildoutcfg
 ; ... (lines omitted) ...
 [TEST]
@@ -219,7 +222,13 @@ I would like to thank Pranav Rajpurkar (Stanford ML group) and Xinyu Weng (åŒ—äº
 
 ## Author
 Bruce Chou (brucechou1983@gmail.com)
-Michael (Tao-Yi)Lee (tylee@ieee.org)
+Michael (Tao-Yi) Lee (tylee@ieee.org)
 
 ## License
-MIT
+Copyright 2018 (C) Bruce Chou, Michael (Tao-Yi) Lee
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
