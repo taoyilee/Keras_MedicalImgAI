@@ -43,8 +43,8 @@ class Trainer:
                               "epochs": self.conf.epochs, "use_multiprocessing": True}
         self.parse_config()
         self.running_flag_file = os.path.join(self.conf.output_dir, ".training.lock")
-        self.check_training_lock()
         os.makedirs(self.conf.output_dir, exist_ok=True)  # check output_dir, create it if not exists
+        self.check_training_lock()
 
     def parse_config(self):
         self.DSConfig = self.conf.DatasetConfig
