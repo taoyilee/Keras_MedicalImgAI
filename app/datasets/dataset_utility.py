@@ -40,7 +40,7 @@ class DataSequence(Sequence):
         slice1 = (idx + 1) * self.batch_size
         batchi = self.batch.iloc[slice0:slice1]
         if self.verbosity > 0:
-            print(f'** now yielding {self.set_name} batch = {batchi["Patient ID"].tolist()[5]} ... ')
+            print(f'** now yielding {self.set_name} batch = {batchi["Patient ID"].tolist()[0:5]} ... ')
         if self.verbosity > 1:
             print(f'** images are = {batchi["Image Index"].tolist()}')
 
