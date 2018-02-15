@@ -74,7 +74,7 @@ class Trainer:
     def dump_history(self):
         # dump history
         print("** dump history **")
-        with open(os.path.join(self.output_dir, "history.pkl"), "wb") as f:
+        with open(os.path.join(self.conf.output_dir, "history.pkl"), "wb") as f:
             pickle.dump({"history": self.history.history, "auroc": self.auroc.aurocs, }, f)
         print("** done! **")
 
