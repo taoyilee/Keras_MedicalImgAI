@@ -8,6 +8,7 @@ import numpy as np
 from keras.callbacks import Callback
 from sklearn.metrics import roc_auc_score
 
+
 def load_generator_data(generator, steps, class_num, cam=False):
     """
     Return some data collected from a generator, use this to ensure all images
@@ -39,6 +40,9 @@ class SaveBaseModel(Callback):
     def __init__(self, filepath, save_weights_only=False):
         self.filepath = filepath
         self.save_weights_only = save_weights_only
+
+    def on_train_begin(self, logs={}):
+        print(f"** SaveBaseModel callback is ready")
 
     def on_epoch_end(self, epoch, logs={}):
         if self.save_weights_only:
@@ -87,6 +91,9 @@ class MultipleClassAUROC(Callback):
         self.aurocs = {}
         for c in self.class_names:
             self.aurocs[c] = []
+
+    def on_train_begin(self, logs={}):
+        print(f"** MultipleClassAUROC callback is ready")
 
     def on_epoch_end(self, epoch, logs={}):
         """

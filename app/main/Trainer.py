@@ -53,7 +53,7 @@ class Trainer:
             CUDA_VISIBLE_DEVICES = ",".join([str(i) for i in range(len(get_available_gpus()))])
         os.environ["CUDA_VISIBLE_DEVICES"] = f"{CUDA_VISIBLE_DEVICES}"
 
-        self.fitter_kwargs = {"verbose": self.conf.progress_train_verbosity, "max_queue_size": 32, "workers": 32,
+        self.fitter_kwargs = {"verbose": int(self.conf.progress_train_verbosity), "max_queue_size": 32, "workers": 32,
                               "epochs": self.conf.epochs, "use_multiprocessing": True}
         self.parse_config()
         self.running_flag_file = os.path.join(self.conf.output_dir, ".training.lock")
@@ -176,22 +176,22 @@ class Trainer:
             self.prepare_model()
             trained_base_weight = os.path.join(self.conf.output_dir, "trained_base_model_weight.h5")
 
-            callbacks = [
-                self.checkpoint,
-                TensorBoard(
-                    log_dir=os.path.join(self.conf.output_dir, "logs", "run{}".format(self.training_stats["run"])),
-                    batch_size=self.conf.batch_size, histogram_freq=0, write_graph=False,
-                    write_grads=False, write_images=False, embeddings_freq=0),
-                ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=self.conf.patience_reduce_lr, verbose=1),
-                self.auroc,
-                SaveBaseModel(filepath=trained_base_weight, save_weights_only=False)
-            ]
-            self.fitter_kwargs["callbacks"] = callbacks
+            self.fitter_kwargs["callbacks"] = []
+            self.fitter_kwargs["callbacks"] += self.checkpoint
+            self.fitter_kwargs["callbacks"] += TensorBoard(
+                log_dir=os.path.join(self.conf.output_dir, "logs", "run{}".format(self.training_stats["run"])),
+                batch_size=self.conf.batch_size, histogram_freq=0, write_graph=False,
+                write_grads=False, write_images=False, embeddings_freq=0)
+            self.fitter_kwargs["callbacks"] += ReduceLROnPlateau(monitor='val_loss', factor=0.1,
+                                                                 patience=self.conf.patience_reduce_lr, verbose=1)
+            self.fitter_kwargs["callbacks"] += self.auroc
+            self.fitter_kwargs["callbacks"] += SaveBaseModel(filepath=trained_base_weight, save_weights_only=False)
 
             print("** training start with parameters: **")
             for k, v in self.fitter_kwargs.items():
                 print(f"\t{k}: {v}")
             self.history = self.model_train.fit_generator(**self.fitter_kwargs)
             self.dump_history()
+
         finally:
-            os.remove(self.running_flag_file)
+        os.remove(self.running_flag_file)
