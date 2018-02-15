@@ -35,6 +35,7 @@ class Trainer:
     train_generator = None
     dev_generator = None
     training_stats = []
+    nrun = 0
     conf = None
 
     def __init__(self, config_file):
@@ -76,6 +77,8 @@ class Trainer:
         print("** dump history **")
         with open(os.path.join(self.conf.output_dir, "history.pkl"), "wb") as f:
             pickle.dump({"history": self.history.history, "auroc": self.auroc.aurocs, }, f)
+        with open(self.conf.train_stats_file, 'w') as f:
+            json.dump(self.training_stats, f)
         print("** done! **")
 
     def check_gpu_availability(self):
@@ -100,10 +103,12 @@ class Trainer:
             if os.path.isfile(self.conf.train_stats_file):
                 self.training_stats = json.load(open(self.conf.train_stats_file))
                 self.conf.initial_learning_rate = self.training_stats["lr"]
+                self.nrun = self.training_stats["nrun"] + 1
                 print(f"** learning rate is set to previous final {self.conf.initial_learning_rate} **")
             else:
                 print("** trained model weights not found, starting over **")
                 self.MDConfig.use_trained_model_weights = False
+                self.nrun = 0
 
         print(f"backup config file to {self.conf.output_dir}")
         shutil.copy(self.config_file, os.path.join(self.conf.output_dir, os.path.split(self.config_file)[1]))
@@ -165,13 +170,16 @@ class Trainer:
                                         stats=self.training_stats)
 
     def train(self):
+
         try:
             self.prepare_datasets()
             self.prepare_model()
             trained_base_weight = os.path.join(self.conf.output_dir, "trained_base_model_weight.h5")
+
             callbacks = [
                 self.checkpoint,
-                TensorBoard(log_dir=os.path.join(self.conf.output_dir, "logs"), batch_size=self.conf.batch_size),
+                TensorBoard(log_dir=os.path.join(self.conf.output_dir, "logs", f"run{self.nrun}"),
+                            batch_size=self.conf.batch_size),
                 ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=self.conf.patience_reduce_lr, verbose=1),
                 self.auroc,
                 SaveBaseModel(filepath=trained_base_weight, save_weights_only=False)
