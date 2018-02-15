@@ -108,7 +108,7 @@ class Trainer:
             else:
                 print("** trained model weights not found, starting over **")
                 self.MDConfig.use_trained_model_weights = False
-                self.run = 0
+                self.training_stats["run"] = self.run
 
         print(f"backup config file to {self.conf.output_dir}")
         shutil.copy(self.config_file, os.path.join(self.conf.output_dir, os.path.split(self.config_file)[1]))
