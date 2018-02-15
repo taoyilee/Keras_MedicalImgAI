@@ -177,15 +177,15 @@ class Trainer:
             trained_base_weight = os.path.join(self.conf.output_dir, "trained_base_model_weight.h5")
 
             self.fitter_kwargs["callbacks"] = []
-            self.fitter_kwargs["callbacks"] += self.checkpoint
-            self.fitter_kwargs["callbacks"] += TensorBoard(
+            self.fitter_kwargs["callbacks"].append(self.checkpoint)
+            self.fitter_kwargs["callbacks"].append(TensorBoard(
                 log_dir=os.path.join(self.conf.output_dir, "logs", "run{}".format(self.training_stats["run"])),
                 batch_size=self.conf.batch_size, histogram_freq=0, write_graph=False,
-                write_grads=False, write_images=False, embeddings_freq=0)
-            self.fitter_kwargs["callbacks"] += ReduceLROnPlateau(monitor='val_loss', factor=0.1,
-                                                                 patience=self.conf.patience_reduce_lr, verbose=1)
-            self.fitter_kwargs["callbacks"] += self.auroc
-            self.fitter_kwargs["callbacks"] += SaveBaseModel(filepath=trained_base_weight, save_weights_only=False)
+                write_grads=False, write_images=False, embeddings_freq=0))
+            self.fitter_kwargs["callbacks"].append(ReduceLROnPlateau(monitor='val_loss', factor=0.1,
+                                                                     patience=self.conf.patience_reduce_lr, verbose=1))
+            self.fitter_kwargs["callbacks"].append(self.auroc)
+            self.fitter_kwargs["callbacks"].append(SaveBaseModel(filepath=trained_base_weight, save_weights_only=False))
 
             print("** training start with parameters: **")
             for k, v in self.fitter_kwargs.items():
