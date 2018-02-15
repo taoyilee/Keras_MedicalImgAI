@@ -179,7 +179,8 @@ class Trainer:
             callbacks = [
                 self.checkpoint,
                 TensorBoard(log_dir=os.path.join(self.conf.output_dir, "logs", f"run{self.nrun}"),
-                            batch_size=self.conf.batch_size),
+                            batch_size=self.conf.batch_size, histogram_freq=0, write_graph=True,
+                            write_grads=True, write_images=True, embeddings_freq=1),
                 ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=self.conf.patience_reduce_lr, verbose=1),
                 self.auroc,
                 SaveBaseModel(filepath=trained_base_weight, save_weights_only=False)
