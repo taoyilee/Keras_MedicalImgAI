@@ -180,8 +180,8 @@ class Trainer:
                 self.checkpoint,
                 TensorBoard(
                     log_dir=os.path.join(self.conf.output_dir, "logs", "run{}".format(self.training_stats["run"])),
-                    batch_size=self.conf.batch_size, histogram_freq=1, write_graph=False,
-                    write_grads=True, write_images=False, embeddings_freq=0),
+                    batch_size=self.conf.batch_size, histogram_freq=0, write_graph=False,
+                    write_grads=False, write_images=False, embeddings_freq=0),
                 ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=self.conf.patience_reduce_lr, verbose=1),
                 self.auroc,
                 SaveBaseModel(filepath=trained_base_weight, save_weights_only=False)
