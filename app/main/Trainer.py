@@ -35,7 +35,6 @@ class Trainer:
     train_generator = None
     dev_generator = None
     training_stats = []
-    run = 0
     conf = None
 
     def __init__(self, config_file):
@@ -103,13 +102,13 @@ class Trainer:
             if os.path.isfile(self.conf.train_stats_file):
                 self.training_stats = json.load(open(self.conf.train_stats_file))
                 self.conf.initial_learning_rate = self.training_stats["lr"]
-                self.run = self.training_stats["run"] + 1
-                print(f"** Run #{self.run} - learning rate is set to previous final", end="")
+                self.training_stats["run"] += 1
+                print("** Run #{} - learning rate is set to previous final".format(self.training_stats["run"]), end="")
                 print(f" {self.conf.initial_learning_rate} **")
             else:
                 print("** Run #{self.run} - trained model weights not found, starting over **")
                 self.MDConfig.use_trained_model_weights = False
-                self.training_stats["run"] = self.run
+                self.training_stats["run"] = 0
 
         print(f"backup config file to {self.conf.output_dir}")
         shutil.copy(self.config_file, os.path.join(self.conf.output_dir, os.path.split(self.config_file)[1]))
@@ -179,9 +178,10 @@ class Trainer:
 
             callbacks = [
                 self.checkpoint,
-                TensorBoard(log_dir=os.path.join(self.conf.output_dir, "logs", f"run{self.nrun}"),
-                            batch_size=self.conf.batch_size, histogram_freq=0, write_graph=True,
-                            write_grads=True, write_images=True, embeddings_freq=1),
+                TensorBoard(
+                    log_dir=os.path.join(self.conf.output_dir, "logs", "run{}".format(self.training_stats["run"])),
+                    batch_size=self.conf.batch_size, histogram_freq=0, write_graph=True,
+                    write_grads=True, write_images=True, embeddings_freq=1),
                 ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=self.conf.patience_reduce_lr, verbose=1),
                 self.auroc,
                 SaveBaseModel(filepath=trained_base_weight, save_weights_only=False)
