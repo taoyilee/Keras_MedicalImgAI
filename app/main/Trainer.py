@@ -194,4 +194,4 @@ class Trainer:
             self.dump_history()
 
         finally:
-        os.remove(self.running_flag_file)
+            os.remove(self.running_flag_file)
