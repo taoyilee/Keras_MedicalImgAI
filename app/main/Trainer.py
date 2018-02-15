@@ -104,9 +104,10 @@ class Trainer:
                 self.training_stats = json.load(open(self.conf.train_stats_file))
                 self.conf.initial_learning_rate = self.training_stats["lr"]
                 self.run = self.training_stats["run"] + 1
-                print(f"** learning rate is set to previous final {self.conf.initial_learning_rate} **")
+                print(f"** Run #{self.run} - learning rate is set to previous final", end="")
+                print(f" {self.conf.initial_learning_rate} **")
             else:
-                print("** trained model weights not found, starting over **")
+                print("** Run #{self.run} - trained model weights not found, starting over **")
                 self.MDConfig.use_trained_model_weights = False
                 self.training_stats["run"] = self.run
 
