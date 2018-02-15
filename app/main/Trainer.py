@@ -35,7 +35,7 @@ class Trainer:
     train_generator = None
     dev_generator = None
     training_stats = []
-    nrun = 0
+    run = 0
     conf = None
 
     def __init__(self, config_file):
@@ -103,12 +103,12 @@ class Trainer:
             if os.path.isfile(self.conf.train_stats_file):
                 self.training_stats = json.load(open(self.conf.train_stats_file))
                 self.conf.initial_learning_rate = self.training_stats["lr"]
-                self.nrun = self.training_stats["nrun"] + 1
+                self.run = self.training_stats["run"] + 1
                 print(f"** learning rate is set to previous final {self.conf.initial_learning_rate} **")
             else:
                 print("** trained model weights not found, starting over **")
                 self.MDConfig.use_trained_model_weights = False
-                self.nrun = 0
+                self.run = 0
 
         print(f"backup config file to {self.conf.output_dir}")
         shutil.copy(self.config_file, os.path.join(self.conf.output_dir, os.path.split(self.config_file)[1]))
