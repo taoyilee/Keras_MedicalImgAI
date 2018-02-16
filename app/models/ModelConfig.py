@@ -38,16 +38,19 @@ class ModelConfig(ConfigBase):
         return self._use_trained_model_weights
 
     @property
+    def is_resume_mode(self):
+        return not self.force_resplit and self.use_trained_model_weights
+
+    @property
     def trained_model_weights(self):
         trained_model = None
-        if self.isResumeMode and os.path.isfile(self.train_stats_file):
+        if self.is_resume_mode and os.path.isfile(self.train_stats_file):
             if self.use_best_weights:
-                print(f"** loading best model weight from {model_weights_file} **")
-                trained_model = os.path.join(self.output_dir, f"best_{self.output_weights_name}")
-
+                model_weights_file = f"best_{self.output_weights_name}"
             else:
-                print(f"** loading final model weight from {model_weights_file} **")
-                trained_model = os.path.join(self.output_dir, self.output_weights_name)
+                model_weights_file = f"{self.output_weights_name}"
+            print(f"** loading final model weight from {model_weights_file} **")
+            trained_model = os.path.join(self.output_dir, model_weights_file)
         return trained_model
 
     @property

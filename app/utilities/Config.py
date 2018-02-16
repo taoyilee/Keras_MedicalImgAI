@@ -1,4 +1,6 @@
+from app.datasets import DatasetConfig
 from app.imagetoolbox.ImageConfig import ImageConfig
+from app.models.ModelConfig import ModelConfig
 from app.utilities.ConfigBase import ConfigBase
 from app.utilities.util_config import assignIfNotNull
 
@@ -82,3 +84,12 @@ class Config(ConfigBase):
     @property
     def progress_test_verbosity(self):
         return assignIfNotNull(self.cp["TEST"].getint("progress_verbosity"), self._progress_verbosity)
+
+    @property
+    def DatasetConfig(self):
+        return DatasetConfig(self.cp)
+
+    @property
+    def ModelConfig(self):
+        return ModelConfig(self.cp)
+

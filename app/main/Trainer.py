@@ -96,7 +96,7 @@ class Trainer:
             )
 
     def prepare_datasets(self):
-        if self.conf.isResumeMode and os.path.isfile(self.conf.train_stats_file):
+        if self.MDConfig.is_resume_mode and os.path.isfile(self.conf.train_stats_file):
             print("** attempting to use trained model weights **")
             self.training_stats = json.load(open(self.conf.train_stats_file))
             self.conf.initial_learning_rate = self.training_stats["lr"]
@@ -134,7 +134,7 @@ class Trainer:
         if self.MDConfig.base_model_weights_file is not None:
             print(f"** loading base model weight from {self.MDConfig.base_model_weights_file} **")
         else:
-            print(f"** Retrain with ImageNet weights **")
+            print(f"** Retrain with {self.MDConfig.base_model_weights_file} **")
 
         self.model = get_model(self.DSConfig.class_names, self.MDConfig.base_model_weights_file,
                                self.MDConfig.trained_model_weights,

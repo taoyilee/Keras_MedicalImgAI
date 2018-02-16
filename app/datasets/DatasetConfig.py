@@ -12,15 +12,12 @@ class DatasetConfig(ConfigBase):
     _use_class_balancing = True
     _use_default_split = True
     _positive_weights_multiply = 1
-    _force_resplit = False
 
     @property
     def ImageConfig(self):
         return ImageConfig(self.cp)
 
-    @property
-    def force_resplit(self):
-        return assignIfNotNull(self.cp["DATASET"].getboolean("force_resplit"), self._force_resplit)
+
 
     @property
     def data_entry(self):
