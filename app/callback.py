@@ -8,6 +8,8 @@ import numpy as np
 from keras.callbacks import Callback
 from sklearn.metrics import roc_auc_score
 
+from app.datasets.dataset_utility import DataSequence
+
 
 def load_generator_data(generator, steps, class_num, cam=False):
     """
@@ -36,8 +38,23 @@ def load_generator_data(generator, steps, class_num, cam=False):
         return np.concatenate(batches_x, axis=0), [np.concatenate(c, axis=0) for c in batches_y_classes]
 
 
+class ClearGeneratorCache(Callback):
+    def __init__(self, train_generator: DataSequence, dev_generator: DataSequence):
+        super(Callback, self).__init__()
+        self.train_generator = train_generator
+        self.dev_generator = dev_generator
+
+    def on_train_begin(self, logs=None):
+        print(f"** ClearGeneratorCache callback is ready")
+
+    def on_epoch_begin(self, epoch, logs=None):
+        self.train_generator.clear()
+        self.dev_generator.clear()
+
+
 class SaveBaseModel(Callback):
     def __init__(self, filepath, save_weights_only=False):
+        super(Callback, self).__init__()
         self.filepath = filepath
         self.save_weights_only = save_weights_only
 
@@ -62,7 +79,7 @@ class MultipleClassAUROC(Callback):
     Monitor mean AUROC and update model
     """
 
-    def __init__(self, generator, steps, class_names, weights_path, class_mode="multiclass", stats=None):
+    def __init__(self, generator: DataSequence, steps, class_names, weights_path, class_mode="multiclass", stats=None):
         super(Callback, self).__init__()
         self.generator = generator
         self.steps = steps
@@ -111,8 +128,10 @@ class MultipleClassAUROC(Callback):
 
         test_generator = self.generator
         step_test = test_generator.__len__()
-        y = np.array(test_generator.targets()).squeeze()
+        test_generator.clear()
+
         y_hat = np.array(self.model.predict_generator(generator=test_generator, steps=step_test, verbose=1)).squeeze()
+        y = np.array(test_generator.last_targets()).squeeze()
 
         if self.class_mode == "multibinary":
             y_hat = y_hat.swapaxes(0, 1)

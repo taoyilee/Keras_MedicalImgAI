@@ -26,12 +26,30 @@ class DataSequence(Sequence):
         self.total_images = self.batch.shape[0]
         self.batch_size = image_config.batch_size
         self.steps = math.ceil(self.total_images / self.image_config.batch_size)
+        self.recorded_targets = np.array([])
+        self.recorded_inputs = np.array([])
 
     def __len__(self):
         return self.image_config.dataset_dilation * self.steps
 
     def targets(self):
         return self.batch["One_Hot_Labels"].tolist()
+
+    def clear_targets(self):
+        self.recorded_targets = np.array([])
+
+    def clear(self):
+        self.clear_inputs()
+        self.clear_targets()
+
+    def clear_inputs(self):
+        self.recorded_inputs = np.array([])
+
+    def last_targets(self):
+        return self.recorded_targets
+
+    def last_inputs(self, mode="train"):
+        return self.recorded_inputs
 
     def inputs(self, index, mode="train"):
         return image_generator(self.batch["Image Index"].iloc[[index]], self.image_config, mode=mode,
@@ -47,10 +65,13 @@ class DataSequence(Sequence):
         if self.verbosity > 1:
             print(f'** images are = {batchi["Image Index"].tolist()}')
 
-        return batch_generator(batchi["Image Index"],
-                               batchi["One_Hot_Labels"].tolist(), mode=self.set_name,
-                               image_config=self.image_config,
-                               verbosity=self.verbosity)
+        inputs, targets = batch_generator(batchi["Image Index"],
+                                          batchi["One_Hot_Labels"].tolist(), mode=self.set_name,
+                                          image_config=self.image_config,
+                                          verbosity=self.verbosity)
+        self.recorded_inputs = np.concatenate([self.recorded_inputs, inputs], axis=0)
+        self.recorded_targets = np.concatenate([self.recorded_targets, inputs], axis=0)
+        return inputs, targets
 
 
 def pos_count(subset_series, class_names):
