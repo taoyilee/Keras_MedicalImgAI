@@ -7,6 +7,7 @@ from app.utilities.util_config import assign_raise, assign_fallback
 class ConfigBase:
     _batch_size = 32
     _force_resplit = False
+    cp: configparser.ConfigParser = None
 
     def __init__(self, cp: configparser.ConfigParser):
         """
@@ -59,4 +60,4 @@ class ConfigBase:
 
     @property
     def dataset_dilation(self):
-        return assign_raise(self.cp["DATASET"].getint("dataset_dilation"))
+        return assign_raise(self.cp["DATASET"].getfloat("dataset_dilation"))
