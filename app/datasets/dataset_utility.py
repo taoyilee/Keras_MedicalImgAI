@@ -1,5 +1,6 @@
 import math
 import os
+import threading
 
 import cv2
 import numpy as np
@@ -22,6 +23,7 @@ class DataSequence(Sequence):
         :param set_name:
         :param verbosity:
         """
+        self.lock = threading.Lock()
         self.verbosity = verbosity
         self.set_name = set_name
         self.batch = batch
@@ -70,6 +72,8 @@ class DataSequence(Sequence):
                                           batchi["One_Hot_Labels"].tolist(), mode=self.set_name,
                                           image_config=self.image_config,
                                           verbosity=self.verbosity)
+
+        self.lock.acquire()
         if self.recorded_inputs is None:
             self.recorded_inputs = inputs
         else:
@@ -86,6 +90,7 @@ class DataSequence(Sequence):
             self.recorded_targets = np.concatenate([self.recorded_targets, tmp_targets], axis=0)
             if self.verbosity > 0:
                 print(f'** recorded_targets = {np.shape(self.recorded_targets)}')
+        self.lock.release()
         return inputs, targets
 
 
