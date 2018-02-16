@@ -118,8 +118,6 @@ class Trainer:
         if self.conf.train_steps != "auto":
             print(f"** overriding train_steps: {self.conf.train_steps} **")
             self.fitter_kwargs["steps_per_epoch"] = self.conf.train_steps
-        else:
-            self.fitter_kwargs["steps_per_epoch"] = self.conf.dataset_dilation * self.train_generator.__len__()
 
         if self.conf.validation_steps != "auto":
             print(f"** overriding validation_steps: {self.conf.validation_steps} **")
