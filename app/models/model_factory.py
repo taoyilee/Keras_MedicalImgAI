@@ -20,7 +20,8 @@ def get_model(class_names, base_weights=None, weights_path=None, image_dimension
     Returns:
     model - Keras model
     """
-
+    if weights_path is not None:
+        base_weights = None
     base_model = DenseNet121(include_top=False, weights=base_weights, pooling="None")
     x = base_model.output
     x = GlobalAveragePooling2D()(x)

@@ -1,5 +1,4 @@
 import configparser
-import os
 
 from app.datasets.DatasetConfig import DatasetConfig
 from app.imagetoolbox.ImageConfig import ImageConfig
@@ -37,14 +36,6 @@ class Config(ConfigBase):
     @initial_learning_rate.setter
     def initial_learning_rate(self, value):
         self._initial_learning_rate = value
-
-    @property
-    def train_stats_file(self):
-        return os.path.join(self.output_dir, "training_stats.json")
-
-    @property
-    def isResumeMode(self):
-        return not self.DatasetConfig.force_resplit and self.ModelConfig.use_trained_model_weights
 
     @property
     def ImageConfig(self):

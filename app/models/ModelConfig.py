@@ -1,3 +1,5 @@
+import os
+
 from app.utilities.ConfigBase import ConfigBase
 from app.utilities.util_config import returnPropertIfNotNull, assignIfNotNull
 
@@ -35,9 +37,18 @@ class ModelConfig(ConfigBase):
     def use_trained_model_weights(self):
         return self._use_trained_model_weights
 
-    @use_trained_model_weights.setter
-    def use_trained_model_weights(self, value):
-        self._use_trained_model_weights = value
+    @property
+    def trained_model_weights(self):
+        trained_model = None
+        if self.isResumeMode and os.path.isfile(self.train_stats_file):
+            if self.use_best_weights:
+                print(f"** loading best model weight from {model_weights_file} **")
+                trained_model = os.path.join(self.output_dir, f"best_{self.output_weights_name}")
+
+            else:
+                print(f"** loading final model weight from {model_weights_file} **")
+                trained_model = os.path.join(self.output_dir, self.output_weights_name)
+        return trained_model
 
     @property
     def base_model_weights_file(self):

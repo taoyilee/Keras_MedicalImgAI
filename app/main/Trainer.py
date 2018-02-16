@@ -34,7 +34,7 @@ class Trainer:
     output_weights_path = None
     train_generator = None
     dev_generator = None
-    training_stats = []
+    training_stats = {"run": 0}
     conf = None
 
     def __init__(self, config_file):
@@ -96,19 +96,15 @@ class Trainer:
             )
 
     def prepare_datasets(self):
-        if self.conf.isResumeMode:
+        if self.conf.isResumeMode and os.path.isfile(self.conf.train_stats_file):
             print("** attempting to use trained model weights **")
-            # load training status for resuming
-            if os.path.isfile(self.conf.train_stats_file):
-                self.training_stats = json.load(open(self.conf.train_stats_file))
-                self.conf.initial_learning_rate = self.training_stats["lr"]
-                self.training_stats["run"] += 1
-                print("** Run #{} - learning rate is set to previous final".format(self.training_stats["run"]), end="")
-                print(f" {self.conf.initial_learning_rate} **")
-            else:
-                print("** Run #{self.run} - trained model weights not found, starting over **")
-                self.MDConfig.use_trained_model_weights = False
-                self.training_stats["run"] = 0
+            self.training_stats = json.load(open(self.conf.train_stats_file))
+            self.conf.initial_learning_rate = self.training_stats["lr"]
+            self.training_stats["run"] += 1
+            print("** Run #{} - learning rate is set to previous final".format(self.training_stats["run"]), end="")
+            print(f" {self.conf.initial_learning_rate} **")
+        else:
+            print("** Run #{self.run} - trained model weights not found, starting over **")
 
         print(f"backup config file to {self.conf.output_dir}")
         shutil.copy(self.config_file, os.path.join(self.conf.output_dir, os.path.split(self.config_file)[1]))
@@ -140,17 +136,8 @@ class Trainer:
         else:
             print(f"** Retrain with ImageNet weights **")
 
-        if self.MDConfig.use_trained_model_weights:
-            if self.MDConfig.use_best_weights:
-                model_weights_file = os.path.join(self.conf.output_dir, f"best_{self.MDConfig.output_weights_name}")
-                print(f"** loading best model weight from {model_weights_file} **")
-            else:
-                model_weights_file = os.path.join(self.conf.output_dir, self.MDConfig.output_weights_name)
-                print(f"** loading final model weight from {model_weights_file} **")
-        else:
-            model_weights_file = None
-
-        self.model = get_model(self.DSConfig.class_names, self.MDConfig.base_model_weights_file, model_weights_file,
+        self.model = get_model(self.DSConfig.class_names, self.MDConfig.base_model_weights_file,
+                               self.MDConfig.trained_model_weights,
                                image_dimension=self.IMConfig.img_dim, color_mode=self.IMConfig.color_mode,
                                class_mode=self.DSConfig.class_mode)
         if self.MDConfig.show_model_summary:
