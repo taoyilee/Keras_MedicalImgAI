@@ -29,4 +29,4 @@ class chexnet_loss:
         cross_entropy_p = tf.multiply(tf.multiply(self.wp, y_true), tf.log(y_pred))
         cross_entropy_n = tf.multiply(tf.multiply(self.wn, 1 - y_true), tf.log(1 - y_pred))
         cross_entropy = -(cross_entropy_p + cross_entropy_n)
-        return tf.reduce_sum(cross_entropy)
+        return tf.reduce_sum(cross_entropy) / len(self.class_names)
