@@ -1,6 +1,6 @@
 import math
 import os
-import threading
+from multiprocessing import Lock
 
 import cv2
 import numpy as np
@@ -23,7 +23,8 @@ class DataSequence(Sequence):
         :param set_name:
         :param verbosity:
         """
-        self.lock = threading.Lock()
+        print("** DataSequence is created")
+        self.lock = Lock()
         self.verbosity = verbosity
         self.set_name = set_name
         self.batch = batch
@@ -73,6 +74,7 @@ class DataSequence(Sequence):
                                           image_config=self.image_config,
                                           verbosity=self.verbosity)
 
+        # TODO: Add multithread locking mechanism
         self.lock.acquire()
         if self.recorded_inputs is None:
             self.recorded_inputs = inputs
@@ -126,16 +128,16 @@ def image_generator(image_filenames, image_config, mode="train", verbosity=0):
             image_config.AugmentConfig.dev_augmentation and mode == "dev")
 
     if aug_enable:
-        if verbosity > 0:
+        if verbosity > 2:
             print(f"** Augmentizer enabled received {np.shape(inputs)}")
         augmentizer = ImageAugmentizer(image_config.AugmentConfig)
         inputs = augmentizer.augmentize(inputs)
 
     normalizer = ImageNormalizer(image_config.NormalizeConfig)
-    if verbosity > 1:
+    if verbosity > 2:
         print(f"Image Mean/Std {np.mean(image)}/{np.std(image)} ", end="")
         inputs = normalizer.normalize(inputs)
-    if verbosity > 1:
+    if verbosity > 2:
         print(f"(Normalized) {np.mean(image)}/{np.std(image)}")
     return inputs
 
@@ -186,7 +188,7 @@ def load_image(image_name, image_config, verbosity=0, mode="train"):
 
     if mode != "raw":
         if np.shape(image)[0] == image_config.img_dim and np.shape(image)[1] == image_config.img_dim:
-            if verbosity > 1:
+            if verbosity > 2:
                 print(f"** Skip resizing")
         else:
             if image_config.img_dim is not None:
