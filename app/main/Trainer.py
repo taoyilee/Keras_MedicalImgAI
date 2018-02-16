@@ -92,8 +92,8 @@ class Trainer(Actions):
             self.fitter_kwargs["steps_per_epoch"] = self.conf.train_steps
         else:
             if self.conf.config_dilation < 1:
-                print(f"** overriding train_steps (dilation < 1):{self.conf.train_steps} **")
                 self.fitter_kwargs["steps_per_epoch"] = int(len(self.train_generator) * self.conf.dataset_dilation)
+                print("** overriding train_steps (dilation < 1):{} **".format(self.fitter_kwargs["steps_per_epoch"]))
 
         if self.conf.validation_steps is not None:
             print(f"** overriding validation_steps: {self.conf.validation_steps} **")

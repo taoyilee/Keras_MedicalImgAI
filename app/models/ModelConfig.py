@@ -55,7 +55,10 @@ class ModelConfig(ConfigBase):
             else:
                 model_weights_file = f"{self.output_weights_name}"
             trained_model = os.path.join(self.output_dir, model_weights_file)
-        return trained_model
+        if os.path.isfile(trained_model):
+            return trained_model
+        else:
+            return None
 
     @property
     def base_model_weights_file(self):
