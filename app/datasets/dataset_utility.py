@@ -25,6 +25,7 @@ class DataSequence(Sequence):
         self.image_config = image_config
         self.batch_size = image_config.batch_size
 
+
     def __len__(self):
         return self.image_config.dataset_dilation * math.ceil(self.batch.shape[0] / self.image_config.batch_size)
 
