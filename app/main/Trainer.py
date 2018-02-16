@@ -40,6 +40,7 @@ class Trainer:
         cp.read(config_file)
         self.config_file = config_file
         self.conf = Config(cp=cp)
+        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress debug message and warnings
         if self.conf.gpu != 0:
             print(f"** Use assigned numbers of gpu ({self.conf.gpu}) only")
             CUDA_VISIBLE_DEVICES = ",".join([str(i) for i in range(self.conf.gpu)])
