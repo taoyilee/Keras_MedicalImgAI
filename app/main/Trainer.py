@@ -104,7 +104,7 @@ class Trainer:
             print("** Run #{} - learning rate is set to previous final".format(self.training_stats["run"]), end="")
             print(f" {self.conf.initial_learning_rate} **")
         else:
-            print("** Run #{self.run} - trained model weights not found, starting over **")
+            print("** Run #{} - trained model weights not found, starting over **".format(self.training_stats["run"]))
 
         print(f"backup config file to {self.conf.output_dir}")
         shutil.copy(self.config_file, os.path.join(self.conf.output_dir, os.path.split(self.config_file)[1]))
