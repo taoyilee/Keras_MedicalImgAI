@@ -77,13 +77,13 @@ class DataSequence(Sequence):
             if self.verbosity > 0:
                 print(f'** recorded_inputs = {np.shape(self.recorded_inputs)}')
 
+        tmp_targets = targets
+        if self.image_config.class_mode == "multibinary":
+            tmp_targets = np.swapaxes(np.array(targets).squeeze(), 0, 1)
         if self.recorded_targets is None:
-            if self.image_config.class_mode == "multibinary":
-                self.recorded_targets = np.swapaxes(np.array(targets).squeeze(), 0, 1)
-            else:
-                self.recorded_targets = targets
+            self.recorded_targets = tmp_targets
         else:
-            self.recorded_targets = np.concatenate([self.recorded_targets, targets], axis=0)
+            self.recorded_targets = np.concatenate([self.recorded_targets, tmp_targets], axis=0)
             if self.verbosity > 0:
                 print(f'** recorded_targets = {np.shape(self.recorded_targets)}')
         return inputs, targets
