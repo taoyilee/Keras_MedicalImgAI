@@ -9,6 +9,7 @@ from keras.utils import multi_gpu_model
 
 from app.callback import MultipleClassAUROC, MultiGPUModelCheckpoint, SaveBaseModel, ShuffleGenerator
 from app.datasets import dataset_loader as dsload
+from app.loss_functions import chexnet_loss
 from app.main.Actions import Actions
 from app.models.model_factory import get_model
 
@@ -24,6 +25,7 @@ class Trainer(Actions):
     train_generator = None
     dev_generator = None
     training_stats = {"run": 0, "best_mean_auroc": 0, "lr": 0.001}
+    loss_function = "binary_crossentropy"
 
     def __init__(self, config_file: str):
         super().__init__(config_file)
@@ -98,10 +100,20 @@ class Trainer(Actions):
             print(f"** overriding validation_steps: {self.conf.validation_steps} **")
             self.fitter_kwargs["validation_steps"] = self.conf.validation_steps
 
-        print("** compute class weights from training data **")
-        self.fitter_kwargs["class_weight"] = data_set.class_weights()
         self.fitter_kwargs["generator"] = self.train_generator
         self.fitter_kwargs["validation_data"] = self.dev_generator
+
+    def prepare_loss_function(self):
+        keras_loss = ["mean_squared_error", "mean_absolute_error", "mean_absolute_percentage_error",
+                      "mean_squared_logarithmic_error", "squared_hinge", "hinge", "categorical_hinge",
+                      "categorical_crossentropy", "sparse_categorical_crossentropy", "binary_crossentropy",
+                      "kullback_leibler_divergence", "poisson", "cosine_proximity"]
+        if self.MDConfig.loss_function in keras_loss:
+            self.loss_function = self.MDConfig.loss_function
+        elif self.MDConfig.loss_function == "chexnet_binary_cross_entropy":
+            loss_generator = chexnet_loss.chexnet_loss(self.DSConfig.class_names, self.train_generator.targets())
+            self.loss_function = loss_generator.loss_function
+        print(f" ** Loss function is {self.loss_function}")
 
     def prepare_model(self):
         print(f"** Base Model = {self.MDConfig.base_model_weights_file} **")
@@ -121,16 +133,7 @@ class Trainer(Actions):
         print(f"** starting learning_rate is {self.conf.initial_learning_rate}**")
         optimizer = Adam(lr=self.conf.initial_learning_rate)
 
-        def loss_function(class_mode):
-            loss = "categorical_crossentropy"
-            if class_mode == "multiclass":
-                loss = "categorical_crossentropy"
-            elif class_mode == "multibinary":
-                loss = "binary_crossentropy"
-            print(f"** Loss function is {loss}")
-            return loss
-
-        self.model_train.compile(optimizer=optimizer, loss=loss_function(self.conf.class_mode))
+        self.model_train.compile(optimizer=optimizer, loss=self.loss_function)
         self.auroc = MultipleClassAUROC(generator=self.dev_generator, steps=self.conf.validation_steps,
                                         class_names=self.DSConfig.class_names, weights_path=self.output_weights_path,
                                         config=self.conf, class_mode=self.DSConfig.class_mode)
@@ -139,6 +142,7 @@ class Trainer(Actions):
         self.check_training_lock()
         try:
             self.prepare_datasets()
+            self.prepare_loss_function()
             self.prepare_model()
             trained_base_weight = os.path.join(self.conf.output_dir, "trained_base_model_weight.h5")
 

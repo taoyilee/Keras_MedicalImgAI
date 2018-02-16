@@ -77,5 +77,9 @@ class ModelConfig(ConfigBase):
         return assign_raise(self.cp[self.SECTION].get("output_weights_name"))
 
     @property
+    def loss_function(self):
+        return assign_raise(self.cp[self.SECTION].get("loss_function"))
+
+    @property
     def show_model_summary(self):
         return assign_fallback(self.cp[self.SECTION].getboolean("show_model_summary"), self._show_model_summary)
