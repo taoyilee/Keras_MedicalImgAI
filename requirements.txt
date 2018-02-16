@@ -1,5 +1,5 @@
 absl-py==0.1.10
-bleach==2.1.2
+bleach==1.5.0
 cachetools==2.0.1
 certifi==2018.1.18
 chardet==3.0.4
@@ -9,7 +9,7 @@ entrypoints==0.2.3
 enum34==1.1.6
 GPUtil==1.2.3
 h5py==2.7.1
-html5lib==1.0.1
+html5lib==0.9999999
 idna==2.6
 imgaug==0.2.5
 ipykernel==4.8.0
@@ -40,6 +40,7 @@ parso==0.1.1
 pexpect==4.4.0
 pickleshare==0.7.4
 Pillow==5.0.0
+pkg-resources==0.0.0
 prompt-toolkit==1.0.15
 protobuf==3.5.1
 ptyprocess==0.5.2
@@ -62,7 +63,7 @@ Send2Trash==1.4.2
 simplegeneric==0.8.1
 six==1.11.0
 tensorflow==1.5.0
-tensorflow-gpu==1.4.1
+tensorflow-gpu==1.5.0
 tensorflow-tensorboard==1.5.1
 terminado==0.8.1
 testpath==0.3.1
