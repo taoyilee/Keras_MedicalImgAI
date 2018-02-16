@@ -82,6 +82,8 @@ def image_generator(image_filenames, image_config, mode="train", verbosity=0):
             image_config.AugmentConfig.dev_augmentation and mode == "dev")
 
     if aug_enable:
+        if verbosity > 0:
+            print(f"** Augmentizer enabled")
         augmentizer = ImageAugmentizer(image_config.AugmentConfig)
         inputs = augmentizer.augmentize(inputs)
 
