@@ -25,8 +25,6 @@ class DataSequence(Sequence):
         :param set_name:
         :param verbosity:
         """
-        print("** DataSequence is created")
-        # self.lock = Lock()
         self.verbosity = verbosity
         self.set_name = set_name
         self.batch = batch

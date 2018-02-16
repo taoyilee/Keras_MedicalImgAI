@@ -129,7 +129,7 @@ class MultipleClassAUROC(Callback):
         test_generator = self.generator
         step_test = test_generator.__len__()
         y_hat = np.array(
-            self.model.predict_generator(generator=test_generator, steps=step_test, max_queue_size=10, workers=0,
+            self.model.predict_generator(generator=test_generator, steps=step_test, max_queue_size=10, workers=1,
                                          use_multiprocessing=False, verbose=1)).squeeze()
         y = np.array(test_generator.targets()).squeeze()
 
