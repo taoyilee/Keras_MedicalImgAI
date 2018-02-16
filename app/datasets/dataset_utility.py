@@ -2,6 +2,7 @@ import math
 import os
 
 import cv2
+import keras.backend as K
 import numpy as np
 from keras.utils import Sequence
 
@@ -43,11 +44,11 @@ class DataSequence(Sequence):
     def targets(self, index=None, steps=None):
         if steps is None or steps == "auto":
             if index is None:
-                return self.batch["One_Hot_Labels"].tolist()
+                return K.cast_to_floatx(self.batch["One_Hot_Labels"].tolist())
             else:
-                return self.batch["One_Hot_Labels"].iloc[[index]].tolist()
+                return K.cast_to_floatx(self.batch["One_Hot_Labels"].iloc[[index]].tolist())
         else:
-            return self.batch["One_Hot_Labels"].iloc[:self.batch_size * steps].tolist()
+            return K.cast_to_floatx(self.batch["One_Hot_Labels"].iloc[:self.batch_size * steps].tolist())
 
     def inputs(self, index, mode="train"):
         return image_generator(self.batch["Image Index"].iloc[[index]], self.image_config, mode=mode,
