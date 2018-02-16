@@ -21,9 +21,7 @@ class DatasetConfig(ConfigBase):
     def data_entry(self):
         return assign_raise(self.cp["DATASET"].get("data_entry_file"))
 
-    @property
-    def dataset_dilation(self):
-        return returnPropertIfNotNull(self.cp["DATASET"].getint("dataset_dilation"))
+
 
     @property
     def data_entry_dir(self):

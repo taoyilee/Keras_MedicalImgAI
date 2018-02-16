@@ -52,3 +52,7 @@ class ConfigBase:
     @property
     def force_resplit(self):
         return assign_fallback(self.cp["DATASET"].getboolean("force_resplit"), self._force_resplit)
+
+    @property
+    def dataset_dilation(self):
+        return assign_raise(self.cp["DATASET"].getint("dataset_dilation"))
