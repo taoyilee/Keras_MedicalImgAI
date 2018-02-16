@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 from keras.utils import Sequence
 
-from app.datasets.image_normalizer import ImageNormalizer
+from app.datasets import ImageNormalizer, ImageAugmentizer
 from app.imagetoolbox.ImageConfig import ImageConfig
 
 
@@ -77,6 +77,12 @@ def image_generator(image_filenames, image_config, mode="train", verbosity=0):
         inputs = np.array(
             image_filenames.apply(
                 lambda x: load_image(x, image_config, mode=mode, verbosity=verbosity)).tolist())
+
+    aug_enable = (image_config.AugmentConfig.train_augmentation and mode == "train") or (
+            image_config.AugmentConfig.dev_augmentation and mode == "dev")
+    if aug_enable:
+        augmentizer = ImageAugmentizer(image_config.AugmentConfig)
+        inputs = augmentizer.augmentize(inputs)
     return inputs
 
 
