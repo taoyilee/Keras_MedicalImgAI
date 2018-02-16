@@ -10,6 +10,9 @@ from app.imagetoolbox.ImageConfig import ImageConfig
 
 
 class DataSequence(Sequence):
+    recorded_targets = None
+    recorded_inputs = None
+
     def __init__(self, batch, image_config, set_name="train", verbosity=0):
         """
 
@@ -26,8 +29,6 @@ class DataSequence(Sequence):
         self.total_images = self.batch.shape[0]
         self.batch_size = image_config.batch_size
         self.steps = math.ceil(self.total_images / self.image_config.batch_size)
-        self.recorded_targets = np.array([])
-        self.recorded_inputs = np.array([])
 
     def __len__(self):
         return self.image_config.dataset_dilation * self.steps
