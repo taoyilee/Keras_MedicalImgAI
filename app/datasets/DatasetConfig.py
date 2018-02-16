@@ -22,6 +22,10 @@ class DatasetConfig(ConfigBase):
         return returnPropertIfNotNull(self.cp["DATASET"].get("data_entry_file"))
 
     @property
+    def dataset_dilation(self):
+        return returnPropertIfNotNull(self.cp["DATASET"].getint("dataset_dilation"))
+
+    @property
     def data_entry_dir(self):
         return os.path.dirname(self.data_entry)
 
