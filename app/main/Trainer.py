@@ -120,7 +120,17 @@ class Trainer(Actions):
         print("** compile model with class weights **")
         print(f"** starting learning_rate is {self.conf.initial_learning_rate}**")
         optimizer = Adam(lr=self.conf.initial_learning_rate)
-        self.model_train.compile(optimizer=optimizer, loss="binary_crossentropy")
+
+        def loss_function(class_mode):
+            loss = "categorical_crossentropy"
+            if class_mode == "multiclass":
+                loss = "categorical_crossentropy"
+            elif class_mode == "multibinary":
+                loss = "binary_crossentropy"
+            print(f"** Loss function is {loss}")
+            return loss
+
+        self.model_train.compile(optimizer=optimizer, loss=loss_function(self.conf.class_mode))
         self.auroc = MultipleClassAUROC(generator=self.dev_generator, steps=self.conf.validation_steps,
                                         class_names=self.DSConfig.class_names, weights_path=self.output_weights_path,
                                         config=self.conf, class_mode=self.DSConfig.class_mode)

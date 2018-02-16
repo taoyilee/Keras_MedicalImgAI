@@ -29,6 +29,7 @@ def get_model(class_names, base_weights=None, weights_path=None, image_dimension
     # dense layers for different class
     predictions = []
     if class_mode == 'multiclass':
+        print(f"** Final layer activation function is {final_activation}")
         prediction = Dense(4096, kernel_regularizer=regularizers.l2(weight_decay), name="fc_hidden_layer1")(x)
         predictions = Dense(len(class_names), activation=final_activation, name="fc_output_layer",
                             kernel_regularizer=regularizers.l2(weight_decay))(prediction)
