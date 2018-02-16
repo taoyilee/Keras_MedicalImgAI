@@ -4,51 +4,21 @@ import pickle
 import shutil
 from configparser import ConfigParser
 
+import GPUtil
 from keras.callbacks import ModelCheckpoint, TensorBoard, ReduceLROnPlateau
 from keras.optimizers import Adam
 from keras.utils import multi_gpu_model
 
 from app.callback import MultipleClassAUROC, MultiGPUModelCheckpoint, SaveBaseModel
 from app.datasets import dataset_loader as dsload
-from app.datasets.DatasetConfig import DatasetConfig
-from app.models.densenet121 import get_model
+from app.models.model_factory import get_model
+from app.utilities.Config import Config
 
 
 class Trainer:
-    output_dir = ""
-    image_source_dir = ""
-    model_name = "densenet121"
-    class_mode = "multiclass"
-    train_patient_ratio = 70
-    dev_patient_ratio = 20
-    data_entry_file = ""
-    class_names = ""
-    image_dimension = 256
-    verbosity = 0
-    progress_verbosity = 1
-    color_mode = "grayscale"
-    # model config
-    base_model_weights_file = None
-    # train config
-    use_base_model_weights = True
-    use_trained_model_weights = True
-    use_best_weights = False
-    output_weights_name = ""
-    epochs = 20
-    batch_size = 32
-    initial_learning_rate = 0.001
-    train_steps = "auto"
-    patience_reduce_lr = 1
-    validation_steps = "auto"
-    positive_weights_multiply = 1
-    use_class_balancing = True
-    use_default_split = False
-    force_resplit = False
-    training_stats = {}
-    split_dataset_random_state = 0
-    show_model_summary = False
-    running_flag_file = ""
     DSConfig = None
+    IMConfig = None
+    MDConfig = None
 
     # Runtime stuffs
     history = None
@@ -56,61 +26,58 @@ class Trainer:
     model = None
     model_train = None
     checkpoint = None
+    output_weights_path = None
+    train_generator = None
+    dev_generator = None
+    training_stats = {"run": 0, "best_mean_auroc": 0}
+    conf = None
 
     def __init__(self, config_file):
-        self.cp = ConfigParser()
-        self.cp.read(config_file)
+        if not os.path.isfile(config_file):
+            raise FileExistsError(f"Configuration file {config_file} not found")
+
+        cp = ConfigParser()
+        cp.read(config_file)
+        self.config_file = config_file
+        self.conf = Config(cp=cp)
+        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress debug message and warnings
+        if self.conf.gpu != 0:
+            print(f"** Use assigned numbers of gpu ({self.conf.gpu}) only")
+            CUDA_VISIBLE_DEVICES = ",".join([str(i) for i in range(self.conf.gpu)])
+        else:
+            try:
+                gpus = len(GPUtil.getGPUs())
+            except ValueError:
+                gpus = 1
+            print(f"** Use all gpus = ({gpus})")
+            CUDA_VISIBLE_DEVICES = ",".join([str(i) for i in range(gpus)])
+        os.environ["CUDA_VISIBLE_DEVICES"] = f"{CUDA_VISIBLE_DEVICES}"
+
+        self.fitter_kwargs = {"verbose": int(self.conf.progress_train_verbosity), "max_queue_size": 32, "workers": 32,
+                              "epochs": self.conf.epochs, "use_multiprocessing": True}
         self.parse_config()
+        self.running_flag_file = os.path.join(self.conf.output_dir, ".training.lock")
+        os.makedirs(self.conf.output_dir, exist_ok=True)  # check output_dir, create it if not exists
+        self.check_training_lock()
 
     def parse_config(self):
-        self.output_dir = self.cp["DEFAULT"].get("output_dir")
-        self.image_source_dir = self.cp["DEFAULT"].get("image_source_dir")
-        self.model_name = self.cp["DEFAULT"].get("nn_model")
-        self.class_mode = self.cp["DEFAULT"].get("class_mode")
-        self.train_patient_ratio = self.cp["DEFAULT"].getint("train_patient_ratio")
-        self.dev_patient_ratio = self.cp["DEFAULT"].getint("dev_patient_ratio")
-        self.data_entry_file = self.cp["DEFAULT"].get("data_entry_file")
-        self.class_names = self.cp["DEFAULT"].get("class_names").split(",")
-        self.image_dimension = self.cp["DEFAULT"].getint("image_dimension")
-        self.verbosity = self.cp["DEFAULT"].getint("verbosity")
-        self.progress_verbosity = self.cp["TRAIN"].getint("progress_verbosity")
-        self.color_mode = self.cp["DEFAULT"].get("color_mode")
-        # model config
-        self.base_model_weights_file = self.cp["TRAIN"].get("base_model_weights_file")
-
-        # train config
-        self.use_base_model_weights = self.cp["TRAIN"].getboolean("use_base_model_weights")
-        self.use_trained_model_weights = self.cp["TRAIN"].getboolean("use_trained_model_weights")
-        self.use_best_weights = self.cp["TRAIN"].getboolean("use_best_weights")
-        self.output_weights_name = self.cp["TRAIN"].get("output_weights_name")
-        self.epochs = self.cp["TRAIN"].getint("epochs")
-        self.batch_size = self.cp["TRAIN"].getint("batch_size")
-        self.initial_learning_rate = self.cp["TRAIN"].getfloat("initial_learning_rate")
-        self.train_steps = self.cp["TRAIN"].get("train_steps")
-        self.patience_reduce_lr = self.cp["TRAIN"].getint("patience_reduce_lr")
-        self.validation_steps = self.cp["TRAIN"].get("validation_steps")
-        self.positive_weights_multiply = self.cp["TRAIN"].getfloat("positive_weights_multiply")
-        self.use_class_balancing = self.cp["TRAIN"].getboolean("use_class_balancing")
-        self.use_default_split = self.cp["TRAIN"].getboolean("use_default_split")
-        self.force_resplit = self.cp["TRAIN"].getboolean("force_resplit")
-        self.split_dataset_random_state = self.cp["TRAIN"].getint("split_dataset_random_state")
-        self.show_model_summary = self.cp["TRAIN"].getboolean("show_model_summary")
-
-        # DatasetConfig
-        self.DSConfig = DatasetConfig(self.cp)
-        self.running_flag_file = os.path.join(self.output_dir, ".training.lock")
+        self.DSConfig = self.conf.DatasetConfig
+        self.IMConfig = self.conf.ImageConfig
+        self.MDConfig = self.conf.ModelConfig
 
     def check_training_lock(self):
         if os.path.isfile(self.running_flag_file):
-            raise RuntimeError("A process is running in this directory!!!")
+            raise RuntimeError(f"A process is running in this directory {self.running_flag_file} !!!")
         else:
             open(self.running_flag_file, "a").close()
 
     def dump_history(self):
         # dump history
         print("** dump history **")
-        with open(os.path.join(self.output_dir, "history.pkl"), "wb") as f:
+        with open(os.path.join(self.conf.output_dir, "history.pkl"), "wb") as f:
             pickle.dump({"history": self.history.history, "auroc": self.auroc.aurocs, }, f)
+        with open(self.conf.train_stats_file, 'w') as f:
+            json.dump(self.training_stats, f)
         print("** done! **")
 
     def check_gpu_availability(self):
@@ -121,6 +88,7 @@ class Trainer:
         if gpus > 1:
             print(f"** multi_gpu_model is used! gpus={gpus} **")
             self.model_train = multi_gpu_model(self.model, gpus)
+            self.model_train.base_model = self.model.base_model
             # FIXME: currently (Keras 2.1.2) checkpoint doesn't work with multi_gpu_model
             self.checkpoint = MultiGPUModelCheckpoint(
                 filepath=self.output_weights_path,
@@ -128,132 +96,88 @@ class Trainer:
             )
 
     def prepare_datasets(self):
-        if not self.force_resplit and self.use_trained_model_weights:
-            # resuming mode
+        if self.MDConfig.is_resume_mode and os.path.isfile(self.conf.train_stats_file):
             print("** attempting to use trained model weights **")
-            # load training status for resuming
-            training_stats_file = os.path.join(self.output_dir, ".training_stats.json")
-            if os.path.isfile(training_stats_file):
-                training_stats = json.load(open(training_stats_file))
-                initial_learning_rate = training_stats["lr"]
-                print(f"** learning rate is set to previous final {initial_learning_rate} **")
-            else:
-                print("** trained model weights not found, starting over **")
-                self.use_trained_model_weights = False
+            self.training_stats = json.load(open(self.conf.train_stats_file))
+            self.conf.initial_learning_rate = self.training_stats["lr"]
+            self.training_stats["run"] += 1
+            print("** Run #{} - learning rate is set to previous final".format(self.training_stats["run"]), end="")
+            print(f" {self.conf.initial_learning_rate} **")
+        else:
+            print("** Run #{self.run} - trained model weights not found, starting over **")
 
-        print(f"backup config file to {output_dir}")
-        shutil.copy(self.config_file, os.path.join(self.output_dir, os.path.split(self.config_file)[1]))
+        print(f"backup config file to {self.conf.output_dir}")
+        shutil.copy(self.config_file, os.path.join(self.conf.output_dir, os.path.split(self.config_file)[1]))
 
-        if self.use_default_split:  # split train/dev/test
-            datasets = ["train", "dev", "test"]
-            for d in datasets:
-                shutil.copy(f"./data/default_split/{d}.csv", self.output_dir)
+        data_set = dsload.DataSet(self.conf.DatasetConfig)
 
-        data_set = dsload.DataSet(image_dir=image_source_dir, data_entry=data_entry_file,
-                                  train_ratio=train_patient_ratio,
-                                  dev_ratio=dev_patient_ratio,
-                                  output_dir=output_dir, img_dim=256, class_names=class_names,
-                                  random_state=split_dataset_random_state, class_mode=class_mode,
-                                  use_class_balancing=use_class_balancing,
-                                  positive_weights_multiply=positive_weights_multiply,
-                                  force_resplit=force_resplit)
         print("** create image generators **")
-        train_generator = data_set.train_generator(verbosity=verbosity)
-        dev_generator = data_set.dev_generator(verbosity=verbosity)
+        self.train_generator = data_set.train_generator(verbosity=self.conf.verbosity)
+        self.dev_generator = data_set.dev_generator(verbosity=self.conf.verbosity)
 
-        # compute steps
-        if self.train_steps == "auto":
-            train_steps = train_generator.__len__()
-        else:
-            try:
-                train_steps = int(self.train_steps)
-            except ValueError:
-                raise ValueError(f"""
-                      train_steps: {train_steps} is invalid,
-                      please use 'auto' or integer.
-                      """)
-        print(f"** train_steps: {train_steps} **")
+        if self.conf.train_steps != "auto":
+            print(f"** overriding train_steps: {self.conf.train_steps} **")
+            self.fitter_kwargs["steps_per_epoch"] = self.conf.train_steps
 
-        if self.validation_steps == "auto":
-            validation_steps = dev_generator.__len__()
-        else:
-            try:
-                validation_steps = int(self.validation_steps)
-            except ValueError:
-                raise ValueError(f"""
-                      validation_steps: {validation_steps} is invalid,
-                      please use 'auto' or integer.
-                      """)
-        print(f"** validation_steps: {validation_steps} **")
+        if self.conf.validation_steps != "auto":
+            print(f"** overriding validation_steps: {self.conf.validation_steps} **")
+            self.fitter_kwargs["validation_steps"] = self.conf.validation_steps
 
-        # compute class weights
         print("** compute class weights from training data **")
-        self.class_weights = data_set.class_weights()
+        self.fitter_kwargs["class_weight"] = data_set.class_weights()
+
+        self.fitter_kwargs["generator"] = self.train_generator
+        self.fitter_kwargs["validation_data"] = self.dev_generator
 
     def prepare_model(self):
         print("** load model **")
-        if not self.use_base_model_weights:
-            self.base_model_weights_file = None
-            print(f"** retrain without base model weight **")
+        if self.MDConfig.base_model_weights_file is not None:
+            print(f"** loading base model weight from {self.MDConfig.base_model_weights_file} **")
         else:
-            print(f"** loading base model weight from {base_model_weights_file} **")
+            print(f"** Retrain with {self.MDConfig.base_model_weights_file} **")
 
-        if self.use_trained_model_weights:
-            if self.use_best_weights:
-                model_weights_file = os.path.join(self.output_dir, f"best_{output_weights_name}")
-                print(f"** loading best model weight from {model_weights_file} **")
-            else:
-                model_weights_file = os.path.join(self.output_dir, self.output_weights_name)
-                print(f"** loading final model weight from {model_weights_file} **")
-        else:
-            model_weights_file = None
-
-        self.model = get_model(self.class_names, self.base_model_weights_file, model_weights_file,
-                               image_dimension=self.image_dimension, color_mode=self.color_mode,
-                               class_mode=self.class_mode)
-        if self.show_model_summary:
+        self.model = get_model(self.DSConfig.class_names, self.MDConfig.base_model_weights_file,
+                               self.MDConfig.trained_model_weights,
+                               image_dimension=self.IMConfig.img_dim, color_mode=self.IMConfig.color_mode,
+                               class_mode=self.DSConfig.class_mode)
+        if self.MDConfig.show_model_summary:
             print(self.model.summary())
 
-        output_weights_path = os.path.join(self.output_dir, self.output_weights_name)
-        print(f"** set output weights path to: {output_weights_path} **")
+        self.output_weights_path = os.path.join(self.conf.output_dir, self.MDConfig.output_weights_name)
+        print(f"** set output weights path to: {self.output_weights_path} **")
         self.check_gpu_availability()
 
         print("** compile model with class weights **")
-        optimizer = Adam(lr=self.initial_learning_rate)
+        optimizer = Adam(lr=self.conf.initial_learning_rate)
         self.model_train.compile(optimizer=optimizer, loss="binary_crossentropy")
-        self.auroc = MultipleClassAUROC(generator=dev_generator, steps=validation_steps,
-                                        class_names=self.class_names,
-                                        class_mode=self.class_mode, weights_path=output_weights_path,
-                                        stats=training_stats)
+        self.auroc = MultipleClassAUROC(generator=self.dev_generator, steps=self.conf.validation_steps,
+                                        class_names=self.DSConfig.class_names,
+                                        class_mode=self.DSConfig.class_mode, weights_path=self.output_weights_path,
+                                        stats=self.training_stats)
 
     def train(self):
-        self.check_training_lock()
-        os.makedirs(self.output_dir, exist_ok=True)  # check output_dir, create it if not exists
-        self.prepare_datasets()
-        self.prepare_model()
-
-        callbacks = [
-            self.checkpoint,
-            TensorBoard(log_dir=os.path.join(self.output_dir, "logs"), batch_size=self.batch_size),
-            ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=self.patience_reduce_lr, verbose=1),
-            self.auroc,
-            SaveBaseModel(filepath=self.base_model_weights_file, save_weights_only=False)
-        ]
 
         try:
-            print("** training start **")
-            print(f"** training with: {epochs} epochs @ {train_steps} steps/epoch **")
-            self.history = self.model_train.fit_generator(
-                generator=train_generator,
-                steps_per_epoch=train_steps,
-                epochs=self.epochs,
-                verbose=self.progress_verbosity,
-                validation_data=dev_generator,
-                validation_steps=validation_steps,
-                callbacks=callbacks,
-                class_weight=class_weights,
-                max_queue_size=4, workers=4, use_multiprocessing=True
-            )
+            self.prepare_datasets()
+            self.prepare_model()
+            trained_base_weight = os.path.join(self.conf.output_dir, "trained_base_model_weight.h5")
+
+            self.fitter_kwargs["callbacks"] = []
+            self.fitter_kwargs["callbacks"].append(self.checkpoint)
+            self.fitter_kwargs["callbacks"].append(TensorBoard(
+                log_dir=os.path.join(self.conf.output_dir, "logs", "run{}".format(self.training_stats["run"])),
+                batch_size=self.conf.batch_size, histogram_freq=0, write_graph=False,
+                write_grads=False, write_images=False, embeddings_freq=0))
+            self.fitter_kwargs["callbacks"].append(ReduceLROnPlateau(monitor='val_loss', factor=0.1,
+                                                                     patience=self.conf.patience_reduce_lr, verbose=1))
+            self.fitter_kwargs["callbacks"].append(self.auroc)
+            self.fitter_kwargs["callbacks"].append(SaveBaseModel(filepath=trained_base_weight, save_weights_only=False))
+
+            print("** training start with parameters: **")
+            for k, v in self.fitter_kwargs.items():
+                print(f"\t{k}: {v}")
+            self.history = self.model_train.fit_generator(**self.fitter_kwargs)
             self.dump_history()
+
         finally:
             os.remove(self.running_flag_file)

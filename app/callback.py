@@ -41,6 +41,9 @@ class SaveBaseModel(Callback):
         self.filepath = filepath
         self.save_weights_only = save_weights_only
 
+    def on_train_begin(self, logs={}):
+        print(f"** SaveBaseModel callback is ready")
+
     def on_epoch_end(self, epoch, logs={}):
         if self.save_weights_only:
             self.model.base_model.save_weights(self.filepath, overwrite=True)
@@ -79,7 +82,7 @@ class MultipleClassAUROC(Callback):
             ".training_stats.json"
         )
         # for resuming previous training
-        if stats:
+        if stats["run"] != 0:
             self.stats = stats
         else:
             self.stats = {"best_mean_auroc": 0}
@@ -88,6 +91,9 @@ class MultipleClassAUROC(Callback):
         self.aurocs = {}
         for c in self.class_names:
             self.aurocs[c] = []
+
+    def on_train_begin(self, logs={}):
+        print(f"** MultipleClassAUROC callback is ready")
 
     def on_epoch_end(self, epoch, logs={}):
         """
@@ -106,14 +112,13 @@ class MultipleClassAUROC(Callback):
         test_generator = self.generator
         step_test = test_generator.__len__()
         y = np.array(test_generator.targets()).squeeze()
-        y_hat = np.array(self.model.predict_generator(generator=test_generator, steps=step_test, verbose=1))
+        y_hat = np.array(self.model.predict_generator(generator=test_generator, steps=step_test, verbose=1)).squeeze()
+
+        if self.class_mode == "multibinary":
+            y_hat = y_hat.swapaxes(0, 1)
         print(f"*** epoch#{epoch + 1} dev auroc ***")
         print(f"y = {np.shape(y)}")
         print(f"y_hat = {np.shape(y_hat)}")
-
-        current_auroc = []
-        if self.class_mode == "multibinary":
-            y = y.squeeze().swapaxes(0, 1)
 
         current_auroc = roc_auc_score(y, y_hat, average=None)
         if len(self.class_names) != len(current_auroc):

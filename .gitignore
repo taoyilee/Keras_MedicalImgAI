@@ -1,10 +1,11 @@
 *.png
+datasets/pxr_ds/intertrocfx
 __pycache__
 venv/
 experiments/
 *.log
 imgdir
-.idea/
 datasets/chexnet_ds/images
-datasets/chexnet_ds/images_1024
-datasets/pxr_ds/intertrocfx/
+datasets/chexnet_ds/images_out
+.idea/
+.python-version
