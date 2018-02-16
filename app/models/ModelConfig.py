@@ -48,17 +48,15 @@ class ModelConfig(ConfigBase):
 
     @property
     def trained_model_weights(self):
-        trained_model = None
         if self._use_trained_model_weights:
             if self.use_best_weights:
                 model_weights_file = f"best_{self.output_weights_name}"
             else:
                 model_weights_file = f"{self.output_weights_name}"
             trained_model = os.path.join(self.output_dir, model_weights_file)
-        if os.path.isfile(trained_model):
-            return trained_model
-        else:
-            return None
+            if os.path.isfile(trained_model):
+                return trained_model
+        return None
 
     @property
     def base_model_weights_file(self):
