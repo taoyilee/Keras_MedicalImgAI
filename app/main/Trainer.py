@@ -44,7 +44,10 @@ class Trainer:
             print(f"** Use assigned numbers of gpu ({self.conf.gpu}) only")
             CUDA_VISIBLE_DEVICES = ",".join([str(i) for i in range(self.conf.gpu)])
         else:
-            gpus = len(GPUtil.getGPUs())
+            try:
+                gpus = len(GPUtil.getGPUs())
+            except ValueError:
+                gpus = 1
             print(f"** Use all gpus = ({gpus})")
             CUDA_VISIBLE_DEVICES = ",".join([str(i) for i in range(gpus)])
         os.environ["CUDA_VISIBLE_DEVICES"] = f"{CUDA_VISIBLE_DEVICES}"

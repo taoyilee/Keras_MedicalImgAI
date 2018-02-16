@@ -120,7 +120,7 @@ def load_image(image_name, image_config, verbosity=0, mode="train"):
     :param mode: Generating mode: train, dev, test and raw
     :return:
     """
-    image_file = image_config.image_dir + "/" + image_name
+    image_file = os.path.join(image_config.image_dir, image_name)
     if not os.path.isfile(image_file):
         raise Exception(f"{image_file} not found")
     if verbosity > 1:
