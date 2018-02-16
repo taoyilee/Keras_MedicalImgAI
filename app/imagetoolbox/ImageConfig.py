@@ -1,4 +1,4 @@
-from app.datasets import NormalizeConfig, AugmentConfig
+import app.datasets
 from app.imagetoolbox.ImageConfigBase import ImageConfigBase
 from app.utilities.util_config import assignIfNotNull, returnPropertIfNotNull
 
@@ -21,8 +21,8 @@ class ImageConfig(ImageConfigBase):
 
     @property
     def NormalizeConfig(self):
-        return NormalizeConfig(self.cp)
+        return app.datasets.NormalizeConfig(self.cp)
 
     @property
     def AugmentConfig(self):
-        return AugmentConfig(self.cp)
+        return app.datasets.AugmentConfig(self.cp)

@@ -17,8 +17,6 @@ class DatasetConfig(ConfigBase):
     def ImageConfig(self):
         return ImageConfig(self.cp)
 
-
-
     @property
     def data_entry(self):
         return returnPropertIfNotNull(self.cp["DATASET"].get("data_entry_file"))
