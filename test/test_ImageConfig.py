@@ -7,7 +7,7 @@ from app.imagetoolbox.ImageConfig import ImageConfig
 class TestImageConfig(unittest.TestCase):
     def setUp(self):
         self.cp = configparser.ConfigParser()
-        self.cp['IMAGE'] = {"image_dir": "image/", "img_dim": 256, "scale": 1. / 255, "class_mode": "multiclass",
+        self.cp['IMAGE'] = {"image_dir": "image/", "image_dimension": 256, "scale": 1. / 255, "class_mode": "multiclass",
                             "use_class_balancing": True, "color_mode": "grayscale"}
 
         self.cp['DATASET'] = {"data_entry": "image/data_entry.csv", "class_names": "", "output_dir": "",
@@ -15,7 +15,7 @@ class TestImageConfig(unittest.TestCase):
                               "class_mode": "multiclass", "use_class_balancing": True, "positive_weights_multiply": 1,
                               "force_resplit": False}
 
-    def test_img_dim_default(self):
+    def test_image_dimension_default(self):
         self.cp['DATASET'] = {"data_entry": "image/data_entry.csv", "class_names": "", "output_dir": ""}
         self.cp['IMAGE'] = {"image_dir": "image/"}
         ic = ImageConfig(self.cp)
@@ -33,15 +33,15 @@ class TestImageConfig(unittest.TestCase):
         ic = ImageConfig(self.cp)
         self.assertEqual(ic.color_mode, "grayscale")
 
-    def test_img_dim_setvalue(self):
+    def test_image_dimension_setvalue(self):
         self.cp['DATASET'] = {"data_entry": "image/data_entry.csv", "class_names": "", "output_dir": ""}
-        self.cp['IMAGE'] = {"image_dir": "image/", "img_dim": 1024}
+        self.cp['IMAGE'] = {"image_dir": "image/", "image_dimension": 1024}
         ic = ImageConfig(self.cp)
         self.assertEqual(ic.img_dim, 1024)
-        self.cp['IMAGE'] = {"image_dir": "image/", "img_dim": 512}
+        self.cp['IMAGE'] = {"image_dir": "image/", "image_dimension": 512}
         ic = ImageConfig(self.cp)
         self.assertEqual(ic.img_dim, 512)
-        self.cp['IMAGE'] = {"image_dir": "image/", "img_dim": 256}
+        self.cp['IMAGE'] = {"image_dir": "image/", "image_dimension": 256}
         ic = ImageConfig(self.cp)
         self.assertEqual(ic.img_dim, 256)
 
@@ -69,7 +69,7 @@ class TestImageConfig(unittest.TestCase):
         ic = ImageConfig(self.cp)
         self.assertEqual(ic.color_mode, "hsv")
 
-    def test_img_dim_type(self):
+    def test_image_dimension_type(self):
         ic = ImageConfig(self.cp)
         self.assertIsInstance(ic.img_dim, int)
 

@@ -8,9 +8,10 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 import imgaug as ia
+import numpy as np
 from imgaug import augmenters as iaa
 
-from app.datasets.NormalizeConfig import NormalizeConfig
+from app.datasets.AugmentConfig import AugmentConfig
 
 
 class ImageAugmentizer:
@@ -21,42 +22,37 @@ class ImageAugmentizer:
         :type nrm_config: NormalizeConfig
         """
         ia.seed(1)
-        self.aug_config = aug_config
+        if not isinstance(aug_config, AugmentConfig):
+            raise TypeError(f"{aug_config} is not a AugmentConfig")
+        else:
+            self.aug_config = aug_config
 
-        self.seq = iaa.Sequential([
-            iaa.Fliplr(0.5),  # horizontal flips
-            iaa.Crop(percent=(0, 0.1)),  # random crops
-            # Small gaussian blur with random sigma between 0 and 0.5.
-            # But we only blur about 50% of all images.
-            iaa.Sometimes(0.5,
-                          iaa.GaussianBlur(sigma=(0, 0.5))
-                          ),
-            # Strengthen or weaken the contrast in each image.
-            iaa.ContrastNormalization((0.75, 1.5)),
-            # Add gaussian noise.
-            # For 50% of all images, we sample the noise once per pixel.
-            # For the other 50% of all images, we sample the noise per pixel AND
-            # channel. This can change the color (not only brightness) of the
-            # pixels.
-            iaa.AdditiveGaussianNoise(loc=0, scale=(0.0, 0.05 * 255), per_channel=0.5),
-            # Make some images brighter and some darker.
-            # In 20% of all cases, we sample the multiplier once per channel,
-            # which can end up changing the color of the images.
-            iaa.Multiply((0.8, 1.2), per_channel=0.2),
-            # Apply affine transformations to each image.
-            # Scale/zoom them, translate/move them, rotate them and shear them.
-            iaa.Affine(
-                scale={"x": (0.8, 1.2), "y": (0.8, 1.2)},
-                translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)},
-                rotate=(-25, 25),
-                shear=(-8, 8)
-            )
-        ], random_order=True)  # apply augmenters in random order
+        aug_seq = []
+        if self.aug_config.random_horz_flip:
+            aug_seq.append(iaa.Fliplr(self.aug_config.flip_prob, name="fliplr0"))
 
-    def augmentize(self, images):
-        # images = np.array(
-        #     [ia.quokka(size=(64, 64)) for _ in range(32)],
-        #     dtype=np.uint8
-        # )
-        images_aug = self.seq.augment_images(images)
+        if self.aug_config.random_vert_flip:
+            aug_seq.append(iaa.Flipud(self.aug_config.flip_prob, name="flipud0"))
+
+        # print(f"augmenting sequence = {aug_seq}")
+        self.seq = iaa.Sequential(aug_seq, random_order=False)  # apply augmenters in random order
+
+    def augmentize(self, images: np.ndarray):
+        """
+
+        :param images:
+        :return:
+        """
+        if images.ndim < 3:
+            raise ValueError(
+                f"Received a {images.ndim} array, this method does not support image with less than 3 dimensions")
+
+        if images.ndim > 4:
+            raise ValueError(
+                f"Received a {images.ndim} array, this method does not support image array with more than 4 dimensions")
+
+        if images.ndim == 3:
+            images_aug = np.array(self.seq.augment_image(images))
+        else:
+            images_aug = np.array(self.seq.augment_images(images))
         return images_aug

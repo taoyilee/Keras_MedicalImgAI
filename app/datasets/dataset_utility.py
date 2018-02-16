@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 from keras.utils import Sequence
 
-from app.datasets import ImageNormalizer, ImageAugmentizer
+from app.datasets import ImageAugmentizer, ImageNormalizer
 from app.imagetoolbox.ImageConfig import ImageConfig
 
 
@@ -80,9 +80,19 @@ def image_generator(image_filenames, image_config, mode="train", verbosity=0):
 
     aug_enable = (image_config.AugmentConfig.train_augmentation and mode == "train") or (
             image_config.AugmentConfig.dev_augmentation and mode == "dev")
+
     if aug_enable:
+        if verbosity > 0:
+            print(f"** Augmentizer enabled")
         augmentizer = ImageAugmentizer(image_config.AugmentConfig)
         inputs = augmentizer.augmentize(inputs)
+
+    normalizer = ImageNormalizer(image_config.NormalizeConfig)
+    if verbosity > 1:
+        print(f"Image Mean/Std {np.mean(image)}/{np.std(image)} ", end="")
+        inputs = normalizer.normalize(inputs)
+    if verbosity > 1:
+        print(f"(Normalized) {np.mean(image)}/{np.std(image)}")
     return inputs
 
 
@@ -139,13 +149,6 @@ def load_image(image_name, image_config, verbosity=0, mode="train"):
                 image = cv2.resize(image, (image_config.img_dim, image_config.img_dim))
         if image_config.scale is not None:
             image = image * image_config.scale
-
-        normalizer = ImageNormalizer(image_config.NormalizeConfig)
-        if verbosity > 1:
-            print(f"Image Mean/Std {np.mean(image)}/{np.std(image)} ", end="")
-        image = normalizer.normalize(image)
-        if verbosity > 1:
-            print(f"(Normalized) {np.mean(image)}/{np.std(image)}")
 
     return image
 

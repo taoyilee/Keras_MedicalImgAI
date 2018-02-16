@@ -1,5 +1,5 @@
 from app.utilities.ConfigBase import ConfigBase
-from app.utilities.util_config import assignIfNotNull
+from app.utilities.util_config import assign_fallback
 
 
 class ImageConfigBase(ConfigBase):
@@ -7,4 +7,4 @@ class ImageConfigBase(ConfigBase):
 
     @property
     def color_mode(self):
-        return assignIfNotNull(self.cp["IMAGE"].get("color_mode"), self._color_mode)
+        return assign_fallback(self.cp["IMAGE"].get("color_mode"), self._color_mode)
