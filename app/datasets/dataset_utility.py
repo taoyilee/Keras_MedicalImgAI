@@ -27,7 +27,6 @@ class DataSequence(Sequence):
         self.batch_size = image_config.batch_size
         self.steps = math.ceil(self.total_images / self.image_config.batch_size)
 
-
     def __len__(self):
         return self.image_config.dataset_dilation * self.steps
 
@@ -84,7 +83,7 @@ def image_generator(image_filenames, image_config, mode="train", verbosity=0):
 
     aug_enable = (image_config.AugmentConfig.train_augmentation and mode == "train") or (
             image_config.AugmentConfig.dev_augmentation and mode == "dev")
-    
+
     if aug_enable:
         if verbosity > 0:
             print(f"** Augmentizer enabled received {np.shape(inputs)}")
