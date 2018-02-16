@@ -4,7 +4,7 @@ import shutil
 
 import numpy as np
 import pandas as pd
-import sklearn as sk
+from sklearn.utils.class_weight import compute_class_weight
 
 from app.datasets.DatasetConfig import DatasetConfig
 from app.datasets.dataset_utility import label2vec, pos_count, DataSequence, get_class_weights_multibinary
@@ -113,13 +113,12 @@ class DataSet:
         print(f"** {self.dsconfig.class_mode} class_weights **")
         if self.dsconfig.class_mode == 'multiclass':
             class_id = range(len(self.dsconfig.class_names))
-            class_weight_sk = sk.utils.class_weight.compute_class_weight('balanced', self.dsconfig.class_names,
-                                                                         [lbl for sublist in
-                                                                          self.train["Finding Labels"].tolist() for lbl
-                                                                          in sublist.split("|")])
+            concat_labels = [lbl for sublist in self.train["Finding Labels"].tolist() for lbl in sublist.split("|")]
+            concat_labels = [lbl for lbl in concat_labels if lbl != "No Finding"]
+            class_weight_sk = compute_class_weight('balanced', self.dsconfig.class_names, concat_labels)
             class_weight = dict(zip(class_id, class_weight_sk))
             for c, w in class_weight.items():
-                print(f"  {c} [{self.dsconfig.class_names[c]}]: {w}")
+                print(f"  {c+1} [{self.dsconfig.class_names[c]}]: {w}")
         elif self.dsconfig.class_mode == 'multibinary':
             class_weight = get_class_weights_multibinary(
                 self.img_count(subdataset="train"),

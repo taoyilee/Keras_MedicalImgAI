@@ -31,7 +31,6 @@ class Trainer(Actions):
                               "epochs": self.conf.epochs, "use_multiprocessing": True, "shuffle": False}
 
         os.makedirs(self.conf.output_dir, exist_ok=True)  # check output_dir, create it if not exists
-        self.check_training_lock()
 
     def check_training_lock(self):
         if os.path.isfile(self.conf.train_lock_file):
@@ -127,7 +126,7 @@ class Trainer(Actions):
                                         config=self.conf, class_mode=self.DSConfig.class_mode)
 
     def train(self):
-
+        self.check_training_lock()
         try:
             self.prepare_datasets()
             self.prepare_model()
