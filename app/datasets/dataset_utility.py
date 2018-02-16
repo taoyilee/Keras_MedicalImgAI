@@ -76,7 +76,10 @@ class DataSequence(Sequence):
             self.recorded_inputs = np.concatenate([self.recorded_inputs, inputs], axis=0)
 
         if self.recorded_targets is None:
-            self.recorded_targets = targets
+            if self.image_config.class_mode == "multibinary":
+                self.recorded_targets = np.swapaxes(np.array(targets).squeeze(), 0, 1)
+            else:
+                self.recorded_targets = targets
         else:
             self.recorded_targets = np.concatenate([self.recorded_targets, targets], axis=0)
         return inputs, targets
