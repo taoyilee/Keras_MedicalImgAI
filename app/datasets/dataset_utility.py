@@ -74,6 +74,8 @@ class DataSequence(Sequence):
             self.recorded_inputs = inputs
         else:
             self.recorded_inputs = np.concatenate([self.recorded_inputs, inputs], axis=0)
+            if self.verbosity > 0:
+                print(f'** recorded_inputs = {np.shape(self.recorded_inputs)}')
 
         if self.recorded_targets is None:
             if self.image_config.class_mode == "multibinary":
@@ -82,6 +84,8 @@ class DataSequence(Sequence):
                 self.recorded_targets = targets
         else:
             self.recorded_targets = np.concatenate([self.recorded_targets, targets], axis=0)
+            if self.verbosity > 0:
+                print(f'** recorded_targets = {np.shape(self.recorded_targets)}')
         return inputs, targets
 
 
