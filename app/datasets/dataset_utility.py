@@ -23,11 +23,13 @@ class DataSequence(Sequence):
         self.set_name = set_name
         self.batch = batch
         self.image_config = image_config
+        self.total_images = self.batch.shape[0]
         self.batch_size = image_config.batch_size
+        self.steps = math.ceil(self.total_images / self.image_config.batch_size)
 
 
     def __len__(self):
-        return self.image_config.dataset_dilation * math.ceil(self.batch.shape[0] / self.image_config.batch_size)
+        return self.image_config.dataset_dilation * self.steps
 
     def targets(self):
         return self.batch["One_Hot_Labels"].tolist()
@@ -37,6 +39,7 @@ class DataSequence(Sequence):
                                verbosity=self.verbosity)
 
     def __getitem__(self, idx):
+        idx = idx % self.steps
         slice0 = idx * self.batch_size
         slice1 = (idx + 1) * self.batch_size
         batchi = self.batch.iloc[slice0:slice1]
@@ -81,10 +84,10 @@ def image_generator(image_filenames, image_config, mode="train", verbosity=0):
 
     aug_enable = (image_config.AugmentConfig.train_augmentation and mode == "train") or (
             image_config.AugmentConfig.dev_augmentation and mode == "dev")
-
+    
     if aug_enable:
         if verbosity > 0:
-            print(f"** Augmentizer enabled")
+            print(f"** Augmentizer enabled received {np.shape(inputs)}")
         augmentizer = ImageAugmentizer(image_config.AugmentConfig)
         inputs = augmentizer.augmentize(inputs)
 
