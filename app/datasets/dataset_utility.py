@@ -1,6 +1,6 @@
 import math
 import os
-from multiprocessing import Lock
+#from multiprocessing import Lock
 
 import cv2
 import numpy as np
@@ -24,7 +24,7 @@ class DataSequence(Sequence):
         :param verbosity:
         """
         print("** DataSequence is created")
-        self.lock = Lock()
+        # self.lock = Lock()
         self.verbosity = verbosity
         self.set_name = set_name
         self.batch = batch
@@ -75,7 +75,7 @@ class DataSequence(Sequence):
                                           verbosity=self.verbosity)
 
         # TODO: Add multithread locking mechanism
-        self.lock.acquire()
+        # self.lock.acquire()
         if self.recorded_inputs is None:
             self.recorded_inputs = inputs
         else:
@@ -92,7 +92,7 @@ class DataSequence(Sequence):
             self.recorded_targets = np.concatenate([self.recorded_targets, tmp_targets], axis=0)
             if self.verbosity > 0:
                 print(f'** recorded_targets = {np.shape(self.recorded_targets)}')
-        self.lock.release()
+        # self.lock.release()
         return inputs, targets
 
 
