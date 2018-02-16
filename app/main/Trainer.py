@@ -29,7 +29,7 @@ class Trainer:
     output_weights_path = None
     train_generator = None
     dev_generator = None
-    training_stats = {"run": 0}
+    training_stats = {"run": 0, "best_mean_auroc": 0}
     conf = None
 
     def __init__(self, config_file):

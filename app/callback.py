@@ -82,7 +82,7 @@ class MultipleClassAUROC(Callback):
             ".training_stats.json"
         )
         # for resuming previous training
-        if stats:
+        if stats["run"] != 0:
             self.stats = stats
         else:
             self.stats = {"best_mean_auroc": 0}
