@@ -10,3 +10,5 @@ datasets/chexnet_ds/images_out
 .idea/
 .python-version
 *.pyc
+chexnet_config.ini
+kernels.bmp
