@@ -1,6 +1,8 @@
 import configparser
 import os
 
+from app.datasets.DatasetConfig import DatasetConfig
+from app.models.ModelConfig import ModelConfig
 from app.utilities.util_config import returnPropertIfNotNull, assignIfNotNull
 
 
@@ -10,10 +12,15 @@ class ConfigBase:
     def __init__(self, cp):
         """
 
-        :param cp: Config Parser
-        :type cp: configparser.ConfigParser
+        :param cp: File name of config.ini or a ConfigParser
         """
-        self.cp = cp
+
+        if os.path.isfile(cp):
+            print(f"** Reading config file {cp}")
+            self.cp = configparser.ConfigParser()
+            self.cp.read(cp)
+        else:
+            self.cp = cp
 
     @property
     def output_dir(self):
@@ -36,6 +43,14 @@ class ConfigBase:
     @property
     def train_stats_file(self):
         return os.path.join(self.output_dir, "training_stats.json")
+
+    @property
+    def DatasetConfig(self):
+        return DatasetConfig(self.cp)
+
+    @property
+    def ModelConfig(self):
+        return ModelConfig(self.cp)
 
     @property
     def isResumeMode(self):

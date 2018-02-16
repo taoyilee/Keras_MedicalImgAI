@@ -1,8 +1,4 @@
-import configparser
-
-from app.datasets.DatasetConfig import DatasetConfig
 from app.imagetoolbox.ImageConfig import ImageConfig
-from app.models.ModelConfig import ModelConfig
 from app.utilities.ConfigBase import ConfigBase
 from app.utilities.util_config import assignIfNotNull
 
@@ -17,18 +13,6 @@ class Config(ConfigBase):
     _patience_reduce_lr = 1
     _gpu = 1
 
-    def __init__(self, cp, config_file=None):
-        """
-
-        :param cp: Config Parser
-        :type cp: configparser.ConfigParser
-        """
-        if config_file is not None:
-            print(f"** Reading config {config_file}")
-            self.cp = configparser.ConfigParser(config_file=config_file)
-        if cp is not None:
-            super().__init__(cp)
-
     @property
     def initial_learning_rate(self):
         return assignIfNotNull(self.cp["TRAIN"].getfloat("initial_learning_rate"), self._initial_learning_rate)
@@ -40,14 +24,6 @@ class Config(ConfigBase):
     @property
     def ImageConfig(self):
         return ImageConfig(self.cp)
-
-    @property
-    def DatasetConfig(self):
-        return DatasetConfig(self.cp)
-
-    @property
-    def ModelConfig(self):
-        return ModelConfig(self.cp)
 
     @property
     def patience_reduce_lr(self):
