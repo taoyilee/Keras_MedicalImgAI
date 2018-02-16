@@ -1,6 +1,6 @@
 import app.datasets
 from app.imagetoolbox.ImageConfigBase import ImageConfigBase
-from app.utilities.util_config import assignIfNotNull, returnPropertIfNotNull
+from app.utilities.util_config import assign_fallback, assign_raise
 
 
 class ImageConfig(ImageConfigBase):
@@ -9,15 +9,15 @@ class ImageConfig(ImageConfigBase):
 
     @property
     def image_dir(self):
-        return returnPropertIfNotNull(self.cp["IMAGE"].get("image_source_dir"))
+        return assign_raise(self.cp["IMAGE"].get("image_source_dir"))
 
     @property
     def img_dim(self):
-        return assignIfNotNull(self.cp["IMAGE"].getint("image_dimension"), self._img_dim)
+        return assign_fallback(self.cp["IMAGE"].getint("image_dimension"), self._img_dim)
 
     @property
     def scale(self):
-        return assignIfNotNull(self.cp["IMAGE"].getfloat("scale"), self._scale)
+        return assign_fallback(self.cp["IMAGE"].getfloat("scale"), self._scale)
 
     @property
     def NormalizeConfig(self):
