@@ -172,8 +172,8 @@ class Trainer:
                                                                      patience=self.conf.patience_reduce_lr, verbose=1))
             self.fitter_kwargs["callbacks"].append(self.auroc)
             self.fitter_kwargs["callbacks"].append(SaveBaseModel(filepath=trained_base_weight, save_weights_only=False))
-            self.fitter_kwargs["callbacks"].append(
-                ClearGeneratorCache(train_generator=self.train_generator, dev_generator=self.dev_generator))
+            #self.fitter_kwargs["callbacks"].append(
+            #    ClearGeneratorCache(train_generator=self.train_generator, dev_generator=self.dev_generator))
 
             print("** training start with parameters: **")
             for k, v in self.fitter_kwargs.items():

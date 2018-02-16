@@ -1,6 +1,5 @@
 import math
 import os
-#from multiprocessing import Lock
 
 import cv2
 import numpy as np
@@ -8,6 +7,9 @@ from keras.utils import Sequence
 
 from app.datasets import ImageAugmentizer, ImageNormalizer
 from app.imagetoolbox.ImageConfig import ImageConfig
+
+
+# from multiprocessing import Lock
 
 
 class DataSequence(Sequence):
@@ -39,22 +41,6 @@ class DataSequence(Sequence):
     def targets(self):
         return self.batch["One_Hot_Labels"].tolist()
 
-    def clear_targets(self):
-        self.recorded_targets = None
-
-    def clear(self):
-        self.clear_inputs()
-        self.clear_targets()
-
-    def clear_inputs(self):
-        self.recorded_inputs = None
-
-    def last_targets(self):
-        return self.recorded_targets
-
-    def last_inputs(self, mode="train"):
-        return self.recorded_inputs
-
     def inputs(self, index, mode="train"):
         return image_generator(self.batch["Image Index"].iloc[[index]], self.image_config, mode=mode,
                                verbosity=self.verbosity)
@@ -74,25 +60,6 @@ class DataSequence(Sequence):
                                           image_config=self.image_config,
                                           verbosity=self.verbosity)
 
-        # TODO: Add multithread locking mechanism
-        # self.lock.acquire()
-        if self.recorded_inputs is None:
-            self.recorded_inputs = inputs
-        else:
-            self.recorded_inputs = np.concatenate([self.recorded_inputs, inputs], axis=0)
-            if self.verbosity > 0:
-                print(f'** recorded_inputs = {np.shape(self.recorded_inputs)}')
-
-        tmp_targets = targets
-        if self.image_config.class_mode == "multibinary":
-            tmp_targets = np.swapaxes(np.array(targets).squeeze(), 0, 1)
-        if self.recorded_targets is None:
-            self.recorded_targets = tmp_targets
-        else:
-            self.recorded_targets = np.concatenate([self.recorded_targets, tmp_targets], axis=0)
-            if self.verbosity > 0:
-                print(f'** recorded_targets = {np.shape(self.recorded_targets)}')
-        # self.lock.release()
         return inputs, targets
 
 
