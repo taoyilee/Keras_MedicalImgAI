@@ -36,7 +36,7 @@ class DataSequence(Sequence):
         self.steps = math.ceil(self.total_images / self.image_config.batch_size)
 
     def __len__(self):
-        return self.image_config.dataset_dilation * self.steps
+        return self.steps
 
     def targets(self):
         return self.batch["One_Hot_Labels"].tolist()
@@ -46,7 +46,6 @@ class DataSequence(Sequence):
                                verbosity=self.verbosity)
 
     def __getitem__(self, idx):
-        idx = idx % self.steps
         slice0 = idx * self.batch_size
         slice1 = (idx + 1) * self.batch_size
         batchi = self.batch.iloc[slice0:slice1]
