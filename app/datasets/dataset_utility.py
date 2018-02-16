@@ -34,6 +34,9 @@ class DataSequence(Sequence):
     def __len__(self):
         return int(self.dilation * self.steps)
 
+    def shuffle(self):
+        self.batch = self.batch.sample(frac=1)
+
     def targets(self, index=None, steps=None):
         if steps is None or steps == "auto":
             if index is None:

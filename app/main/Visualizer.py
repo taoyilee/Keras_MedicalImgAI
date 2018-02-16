@@ -50,4 +50,4 @@ class Visualizer(Actions):
             for j in range(8):
                 weights_mosaic[i * 7:(i + 1) * 7, j * 7:(j + 1) * 7, :] = weights[:, :, :, i * 8 + j].squeeze()
         weights_mosaic = cv2.resize(weights_mosaic, (1024, 1024))
-        cv2.imwrite("kernels.png", weights_mosaic)
+        cv2.imwrite("kernels.bmp", weights_mosaic)
