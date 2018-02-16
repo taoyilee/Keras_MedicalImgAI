@@ -30,6 +30,9 @@ class DataSequence(Sequence):
         self.total_images = self.batch.shape[0]
         self.batch_size = image_config.batch_size
         self.steps = math.ceil(self.total_images / self.image_config.batch_size)
+        if self.dilation < 1:
+            raise ValueError(
+                "Dilation is not allowed to < 1 in dataset generator, it may cause unexpected dataset truncation.")
 
     def __len__(self):
         return int(self.dilation * self.steps)

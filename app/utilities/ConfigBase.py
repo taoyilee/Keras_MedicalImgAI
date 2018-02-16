@@ -60,4 +60,11 @@ class ConfigBase:
 
     @property
     def dataset_dilation(self):
+        if self.config_dilation < 1:
+            return 1
+        else:
+            return self.config_dilation
+
+    @property
+    def config_dilation(self):
         return assign_raise(self.cp["DATASET"].getfloat("dataset_dilation"))
