@@ -11,4 +11,5 @@ datasets/chexnet_ds/images_out
 .python-version
 *.pyc
 chexnet_config.ini
+pxr_config.ini
 kernels.bmp
