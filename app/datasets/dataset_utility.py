@@ -36,14 +36,14 @@ class DataSequence(Sequence):
         return self.batch["One_Hot_Labels"].tolist()
 
     def clear_targets(self):
-        self.recorded_targets = np.array([])
+        self.recorded_targets = None
 
     def clear(self):
         self.clear_inputs()
         self.clear_targets()
 
     def clear_inputs(self):
-        self.recorded_inputs = np.array([])
+        self.recorded_inputs = None
 
     def last_targets(self):
         return self.recorded_targets
@@ -69,8 +69,15 @@ class DataSequence(Sequence):
                                           batchi["One_Hot_Labels"].tolist(), mode=self.set_name,
                                           image_config=self.image_config,
                                           verbosity=self.verbosity)
-        self.recorded_inputs = np.concatenate([self.recorded_inputs, inputs], axis=0)
-        self.recorded_targets = np.concatenate([self.recorded_targets, inputs], axis=0)
+        if self.recorded_inputs is None:
+            self.recorded_inputs = inputs
+        else:
+            self.recorded_inputs = np.concatenate([self.recorded_inputs, inputs], axis=0)
+
+        if self.recorded_targets is None:
+            self.recorded_targets = targets
+        else:
+            self.recorded_targets = np.concatenate([self.recorded_targets, targets], axis=0)
         return inputs, targets
 
 
