@@ -24,7 +24,7 @@ class chexnet_loss:
                                                                                  self.wn[i], self.wp[i] / self.wn[i]))
 
     def loss_function(self, y_true, y_pred):
-        y_pred = np.clip(y_pred, self.eps, 1 - self.eps)
+        y_pred = tf.clip_by_value(y_pred, self.eps, 1 - self.eps)
         cross_entropy_p = tf.multiply(tf.multiply(self.wp, y_true), tf.log(y_pred))
         cross_entropy_n = tf.multiply(tf.multiply(self.wn, 1 - y_true), tf.log(1 - y_pred))
         cross_entropy = -(cross_entropy_p + cross_entropy_n)
