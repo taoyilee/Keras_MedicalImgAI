@@ -4,5 +4,7 @@ venv/
 experiments/
 *.log
 imgdir
-datasets/chexnet_ds/images
 .idea/
+datasets/chexnet_ds/images
+datasets/chexnet_ds/images_1024
+datasets/pxr_ds/intertrocfx/
