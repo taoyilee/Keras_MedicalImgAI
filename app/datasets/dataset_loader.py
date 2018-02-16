@@ -114,7 +114,9 @@ class DataSet:
         if self.dsconfig.class_mode == 'multiclass':
             class_id = range(len(self.dsconfig.class_names))
             class_weight_sk = sk.utils.class_weight.compute_class_weight('balanced', self.dsconfig.class_names,
-                                                                         self.train["Finding Labels"].tolist())
+                                                                         [lbl for sublist in
+                                                                          self.train["Finding Labels"].tolist() for lbl
+                                                                          in sublist.split("|")])
             class_weight = dict(zip(class_id, class_weight_sk))
             for c, w in class_weight.items():
                 print(f"  {c} [{self.dsconfig.class_names[c]}]: {w}")
