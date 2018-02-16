@@ -12,6 +12,7 @@ class DatasetConfig(ConfigBase):
     _use_class_balancing = True
     _use_default_split = True
     _positive_weights_multiply = 1
+    _final_activation = "softmax"
 
     @property
     def ImageConfig(self):
@@ -20,8 +21,6 @@ class DatasetConfig(ConfigBase):
     @property
     def data_entry(self):
         return assign_raise(self.cp["DATASET"].get("data_entry_file"))
-
-
 
     @property
     def data_entry_dir(self):
@@ -55,3 +54,7 @@ class DatasetConfig(ConfigBase):
     @property
     def random_state(self):
         return assign_fallback(self.cp["DATASET"].getint("split_dataset_random_state"), self._random_state)
+
+    @property
+    def final_activation(self):
+        return assign_fallback(self.cp["DATASET"].get("final_activation"), self._final_activation)

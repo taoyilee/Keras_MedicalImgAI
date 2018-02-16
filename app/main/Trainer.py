@@ -110,7 +110,7 @@ class Trainer(Actions):
         self.model = get_model(self.DSConfig.class_names, self.MDConfig.base_model_weights_file,
                                self.MDConfig.trained_model_weights,
                                image_dimension=self.IMConfig.img_dim, color_mode=self.IMConfig.color_mode,
-                               class_mode=self.DSConfig.class_mode)
+                               class_mode=self.DSConfig.class_mode, final_activation=self.DSConfig.final_activation)
         if self.MDConfig.show_model_summary:
             print(self.model.summary())
 

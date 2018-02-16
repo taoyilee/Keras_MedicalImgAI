@@ -9,7 +9,7 @@ from keras.models import Model
 
 
 def get_model(class_names, base_weights=None, weights_path=None, image_dimension=224, color_mode='grayscale',
-              weight_decay=1e-4, class_mode='multiclass'):
+              weight_decay=1e-4, class_mode='multiclass', final_activation="softmax"):
     """
     Create model for transfer learning
 
@@ -30,7 +30,7 @@ def get_model(class_names, base_weights=None, weights_path=None, image_dimension
     predictions = []
     if class_mode == 'multiclass':
         prediction = Dense(4096, kernel_regularizer=regularizers.l2(weight_decay), name="fc_hidden_layer1")(x)
-        predictions = Dense(len(class_names), activation="softmax", name="fc_output_layer",
+        predictions = Dense(len(class_names), activation=final_activation, name="fc_output_layer",
                             kernel_regularizer=regularizers.l2(weight_decay))(prediction)
     elif class_mode == 'multibinary':
         for i, class_name in enumerate(class_names):
