@@ -8,8 +8,8 @@ from keras.layers.core import Dense
 from keras.models import Model
 
 
-def get_model(class_names, base_weights_path=None, weights_path=None, image_dimension=224, color_mode='grayscale',
-              weight_decay=1e-4, class_mode='multiclass', use_base_model_weights=True):
+def get_model(class_names, base_weights=None, weights_path=None, image_dimension=224, color_mode='grayscale',
+              weight_decay=1e-4, class_mode='multiclass'):
     """
     Create model for transfer learning
 
@@ -20,11 +20,8 @@ def get_model(class_names, base_weights_path=None, weights_path=None, image_dime
     Returns:
     model - Keras model
     """
-    base_weights = {True: 'imagenet', False: None}
-    if weights_path == "":
-        weights_path = None
 
-    base_model = DenseNet121(include_top=False, weights=base_weights[use_base_model_weights], pooling="None")
+    base_model = DenseNet121(include_top=False, weights=base_weights, pooling="None")
     x = base_model.output
     x = GlobalAveragePooling2D()(x)
 

@@ -41,8 +41,11 @@ class ModelConfig(ConfigBase):
 
     @property
     def base_model_weights_file(self):
-        if self.use_ext_base_model_weights:
-            return returnPropertIfNotNull(self.cp[self.SECTION].get("base_model_weights_file"))
+        if self.use_base_model_weights:
+            if self.use_ext_base_model_weights:
+                return returnPropertIfNotNull(self.cp[self.SECTION].get("base_model_weights_file"))
+            else:
+                return "imagenet"
         else:
             return None
 
