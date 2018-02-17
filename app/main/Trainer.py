@@ -97,12 +97,16 @@ class Trainer:
 
     def prepare_datasets(self):
         if self.MDConfig.is_resume_mode:
-            if os.path.isfile(self.conf.train_stats_file):
-                self.training_stats = json.load(open(self.conf.train_stats_file))
-                self.conf.initial_learning_rate = self.training_stats["lr"]
-                self.training_stats["run"] += 1
-                print("** Run #{} - learning rate is set to previous final".format(self.training_stats["run"]), end="")
-                print(f" {self.conf.initial_learning_rate} **")
+            if not os.path.isfile(self.conf.train_stats_file):
+                raise FileNotFoundError(
+                    f"** Resume mode is assumed but train stats {self.conf.train_stats_file} is not found")
+            self.training_stats = json.load(open(self.conf.train_stats_file))
+            self.conf.initial_learning_rate = self.training_stats["lr"]
+            self.training_stats["run"] += 1
+            with open(self.conf.train_stats_file, 'w') as f:
+                json.dump(self.training_stats, f)
+            print("** Run #{} - learning rate is set to previous final".format(
+                self.training_stats["run"]) + f"** {self.conf.initial_learning_rate} **")
         else:
             print("** Run #{} - trained model weights not found, starting over **".format(self.training_stats["run"]))
 
