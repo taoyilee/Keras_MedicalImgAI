@@ -35,7 +35,7 @@ class ModelConfig(ConfigBase):
 
     @property
     def use_trained_model_weights(self):
-        return self._use_trained_model_weights
+        return assign_fallback(self.cp[self.SECTION].getboolean("use_trained_model_weights"), self._use_trained_model_weights)
 
     @property
     def is_resume_mode(self):
