@@ -2,24 +2,18 @@ import json
 import os
 import pickle
 import shutil
-from configparser import ConfigParser
 
-import GPUtil
 from keras.callbacks import ModelCheckpoint, TensorBoard, ReduceLROnPlateau
 from keras.optimizers import Adam
 from keras.utils import multi_gpu_model
 
 from app.callback import MultipleClassAUROC, MultiGPUModelCheckpoint, SaveBaseModel
 from app.datasets import dataset_loader as dsload
+from app.main.Actions import Actions
 from app.models.model_factory import get_model
-from app.utilities.Config import Config
 
 
-class Trainer:
-    DSConfig = None
-    IMConfig = None
-    MDConfig = None
-
+class Trainer(Actions):
     # Runtime stuffs
     history = None
     auroc = None
@@ -30,46 +24,20 @@ class Trainer:
     train_generator = None
     dev_generator = None
     training_stats = {"run": 0, "best_mean_auroc": 0, "lr": 0.001}
-    conf = None
 
-    def __init__(self, config_file):
-        if not os.path.isfile(config_file):
-            raise FileExistsError(f"Configuration file {config_file} not found")
-
-        cp = ConfigParser()
-        cp.read(config_file)
-        self.config_file = config_file
-        self.conf = Config(cp=cp)
-        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress debug message and warnings
-        if self.conf.gpu != 0:
-            print(f"** Use assigned numbers of gpu ({self.conf.gpu}) only")
-            CUDA_VISIBLE_DEVICES = ",".join([str(i) for i in range(self.conf.gpu)])
-        else:
-            try:
-                gpus = len(GPUtil.getGPUs())
-            except ValueError:
-                gpus = 1
-            print(f"** Use all gpus = ({gpus})")
-            CUDA_VISIBLE_DEVICES = ",".join([str(i) for i in range(gpus)])
-        os.environ["CUDA_VISIBLE_DEVICES"] = f"{CUDA_VISIBLE_DEVICES}"
-
+    def __init__(self, config_file: str):
+        super().__init__(config_file)
         self.fitter_kwargs = {"verbose": int(self.conf.progress_train_verbosity), "max_queue_size": 32, "workers": 32,
                               "epochs": self.conf.epochs, "use_multiprocessing": True}
-        self.parse_config()
-        self.running_flag_file = os.path.join(self.conf.output_dir, ".training.lock")
+
         os.makedirs(self.conf.output_dir, exist_ok=True)  # check output_dir, create it if not exists
         self.check_training_lock()
 
-    def parse_config(self):
-        self.DSConfig = self.conf.DatasetConfig
-        self.IMConfig = self.conf.ImageConfig
-        self.MDConfig = self.conf.ModelConfig
-
     def check_training_lock(self):
-        if os.path.isfile(self.running_flag_file):
-            raise RuntimeError(f"A process is running in this directory {self.running_flag_file} !!!")
+        if os.path.isfile(self.conf.train_lock_file):
+            raise RuntimeError(f"A process is running in this directory {self.conf.train_lock_file}")
         else:
-            open(self.running_flag_file, "a").close()
+            open(self.conf.train_lock_file, "a").close()
 
     def dump_history(self):
         # dump history
@@ -186,4 +154,4 @@ class Trainer:
             self.dump_history()
 
         finally:
-            os.remove(self.running_flag_file)
+            os.remove(self.conf.train_lock_file)

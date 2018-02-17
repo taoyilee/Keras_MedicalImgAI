@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     # use argparse to accept command line variables (config.ini)
     parser = argparse.ArgumentParser(description='Train a specfic dataset')
-    parser.add_argument('config', metavar='config', type=str, help='an integer for the accumulator')
+    parser.add_argument('config', metavar='config', type=str, help='Configuration file')
     args = parser.parse_args()
 
     main(config_file=args.config)

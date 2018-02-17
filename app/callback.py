@@ -6,10 +6,9 @@ import warnings
 import keras.backend as kb
 import numpy as np
 from keras.callbacks import Callback
-from sklearn.metrics import roc_auc_score
 
 from app.datasets.dataset_utility import DataSequence
-from app.utilities import Config
+from app.utilities import Config, metrics
 
 
 def load_generator_data(generator, steps, class_num, cam=False):
@@ -120,29 +119,9 @@ class MultipleClassAUROC(Callback):
         y_hat shape: (#samples, len(class_names))
         y: [(#samples, 1), (#samples, 1) ... (#samples, 1)]
         """
-
-        test_generator = self.generator
-        step_test = test_generator.__len__()
-        y_hat = np.array(
-            self.model.predict_generator(generator=test_generator, steps=step_test, max_queue_size=10, workers=1,
-                                         use_multiprocessing=False, verbose=1)).squeeze()
-        y = np.array(test_generator.targets()).squeeze()
-
-        if self.class_mode == "multibinary":
-            y_hat = y_hat.swapaxes(0, 1)
         print(f"*** epoch#{epoch + 1} dev auroc ***")
-        print(f"y = {np.shape(y)}")
-        print(f"y_hat = {np.shape(y_hat)}")
+        _, mean_auroc = metrics.compute_auroc(self.model, self.generator, self.class_mode, self.class_names)
 
-        current_auroc = roc_auc_score(y, y_hat, average=None)
-        if len(self.class_names) != len(current_auroc):
-            raise Exception(f"Wrong shape in either y or y_hat {len(self.class_names)} != {len(current_auroc)}")
-        for i, v in enumerate(self.class_names):
-            print(f" {i+1}. {v} AUC = {np.around(current_auroc[i], 3)}")
-
-        # customize your multiple class metrics here
-        mean_auroc = np.mean(current_auroc)
-        print(f"Mean AUC: {np.around(mean_auroc, 3)}\n")
         if mean_auroc > self.stats["best_mean_auroc"]:
             print(f"update best auroc from {self.stats['best_mean_auroc']} to {mean_auroc}")
 

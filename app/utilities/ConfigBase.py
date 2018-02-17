@@ -50,6 +50,10 @@ class ConfigBase:
         return os.path.join(self.output_dir, ".training.lock")
 
     @property
+    def test_lock_file(self):
+        return os.path.join(self.output_dir, ".testing.lock")
+
+    @property
     def force_resplit(self):
         return assign_fallback(self.cp["DATASET"].getboolean("force_resplit"), self._force_resplit)
 

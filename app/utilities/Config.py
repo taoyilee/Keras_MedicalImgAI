@@ -11,9 +11,11 @@ class Config(ConfigBase):
     _progress_verbosity = 1
     _initial_learning_rate = 0.0001
     _train_steps = "auto"
+    _test_steps = "auto"
     _validation_steps = "auto"
     _patience_reduce_lr = 1
     _gpu = 1
+    _enable_grad_cam = True
 
     @property
     def initial_learning_rate(self):
@@ -61,6 +63,23 @@ class Config(ConfigBase):
         self._train_steps = value
 
     @property
+    def test_steps(self):
+        test_steps = assign_fallback(self.cp["TEST"].get("steps"), self._test_steps)
+        if test_steps != "auto":
+            try:
+                test_steps = int(self.cp["TEST"].get("steps"))
+            except ValueError:
+                raise ValueError("** test_steps: {} is invalid,please use 'auto' or integer.".format(
+                    self.cp["TEST"].get("steps")))
+
+            self._test_steps = assign_fallback(test_steps, self._test_steps)
+        return self._test_steps
+
+    @test_steps.setter
+    def test_steps(self, value):
+        self._test_steps = value
+
+    @property
     def validation_steps(self):
         validation_steps = assign_fallback(self.cp["TRAIN"].get("validation_steps"), self._validation_steps)
         if validation_steps != "auto":
@@ -93,3 +112,6 @@ class Config(ConfigBase):
     def ModelConfig(self):
         return ModelConfig(self.cp)
 
+    @property
+    def enable_grad_cam(self):
+        return assign_fallback(self.cp["TEST"].getint("enable_grad_cam"), self._enable_grad_cam)
