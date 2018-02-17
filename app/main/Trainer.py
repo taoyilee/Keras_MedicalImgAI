@@ -96,13 +96,13 @@ class Trainer:
             )
 
     def prepare_datasets(self):
-        if self.MDConfig.is_resume_mode and os.path.isfile(self.conf.train_stats_file):
-            print("** attempting to use trained model weights **")
-            self.training_stats = json.load(open(self.conf.train_stats_file))
-            self.conf.initial_learning_rate = self.training_stats["lr"]
-            self.training_stats["run"] += 1
-            print("** Run #{} - learning rate is set to previous final".format(self.training_stats["run"]), end="")
-            print(f" {self.conf.initial_learning_rate} **")
+        if self.MDConfig.is_resume_mode:
+            if os.path.isfile(self.conf.train_stats_file):
+                self.training_stats = json.load(open(self.conf.train_stats_file))
+                self.conf.initial_learning_rate = self.training_stats["lr"]
+                self.training_stats["run"] += 1
+                print("** Run #{} - learning rate is set to previous final".format(self.training_stats["run"]), end="")
+                print(f" {self.conf.initial_learning_rate} **")
         else:
             print("** Run #{} - trained model weights not found, starting over **".format(self.training_stats["run"]))
 
@@ -130,12 +130,15 @@ class Trainer:
         self.fitter_kwargs["validation_data"] = self.dev_generator
 
     def prepare_model(self):
-        print("** load model **")
-        if self.MDConfig.base_model_weights_file is not None:
-            print(f"** loading base model weight from {self.MDConfig.base_model_weights_file} **")
-        else:
-            print(f"** Retrain with {self.MDConfig.base_model_weights_file} **")
+        if self.MDConfig.trained_model_weights is None:
+            print("** Load model **")
+            if self.MDConfig.base_model_weights_file is not None:
+                print(f"** loading base model weight from {self.MDConfig.base_model_weights_file} **")
+            else:
+                print(f"** Retrain with {self.MDConfig.base_model_weights_file} **")
 
+        print(f"** Base Model = {self.MDConfig.base_model_weights_file} **")
+        print(f"** Trained Model = {self.MDConfig.trained_model_weights} **")
         self.model = get_model(self.DSConfig.class_names, self.MDConfig.base_model_weights_file,
                                self.MDConfig.trained_model_weights,
                                image_dimension=self.IMConfig.img_dim, color_mode=self.IMConfig.color_mode,
