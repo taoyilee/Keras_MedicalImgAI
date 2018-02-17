@@ -43,7 +43,7 @@ class ConfigBase:
 
     @property
     def train_stats_file(self):
-        return os.path.join(self.output_dir, "training_stats.json")
+        return os.path.join(self.output_dir, ".training_stats.json")
 
     @property
     def train_lock_file(self):
