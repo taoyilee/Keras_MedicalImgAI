@@ -9,6 +9,7 @@ from keras.callbacks import Callback
 from sklearn.metrics import roc_auc_score
 
 from app.datasets.dataset_utility import DataSequence
+from app.utilities import Config
 
 
 def load_generator_data(generator, steps, class_num, cam=False):
@@ -79,7 +80,8 @@ class MultipleClassAUROC(Callback):
     Monitor mean AUROC and update model
     """
 
-    def __init__(self, generator: DataSequence, steps, class_names, weights_path, class_mode="multiclass", stats=None):
+    def __init__(self, generator: DataSequence, steps, class_names, weights_path, config: Config,
+                 class_mode="multiclass"):
         super(Callback, self).__init__()
         self.generator = generator
         self.steps = steps
@@ -94,15 +96,8 @@ class MultipleClassAUROC(Callback):
             os.path.split(weights_path)[0],
             "best_auroc.log",
         )
-        self.stats_output_path = os.path.join(
-            os.path.split(weights_path)[0],
-            ".training_stats.json"
-        )
-        # for resuming previous training
-        if stats["run"] != 0:
-            self.stats = stats
-        else:
-            self.stats = {"best_mean_auroc": 0}
+        self.stats_output_path = config.train_stats_file
+        self.stats = json.load(open(self.stats_output_path))
 
         # aurocs log
         self.aurocs = {}

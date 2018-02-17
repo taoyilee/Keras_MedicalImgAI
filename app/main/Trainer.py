@@ -29,7 +29,7 @@ class Trainer:
     output_weights_path = None
     train_generator = None
     dev_generator = None
-    training_stats = {"run": 0, "best_mean_auroc": 0}
+    training_stats = {"run": 0, "best_mean_auroc": 0, "lr": 0.001}
     conf = None
 
     def __init__(self, config_file):
@@ -158,9 +158,8 @@ class Trainer:
         optimizer = Adam(lr=self.conf.initial_learning_rate)
         self.model_train.compile(optimizer=optimizer, loss="binary_crossentropy")
         self.auroc = MultipleClassAUROC(generator=self.dev_generator, steps=self.conf.validation_steps,
-                                        class_names=self.DSConfig.class_names,
-                                        class_mode=self.DSConfig.class_mode, weights_path=self.output_weights_path,
-                                        stats=self.training_stats)
+                                        class_names=self.DSConfig.class_names, weights_path=self.output_weights_path,
+                                        config=self.conf, class_mode=self.DSConfig.class_mode)
 
     def train(self):
 
