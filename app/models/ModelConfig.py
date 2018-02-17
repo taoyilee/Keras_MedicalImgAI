@@ -35,7 +35,8 @@ class ModelConfig(ConfigBase):
 
     @property
     def use_trained_model_weights(self):
-        return assign_fallback(self.cp[self.SECTION].getboolean("use_trained_model_weights"), self._use_trained_model_weights)
+        return assign_fallback(self.cp[self.SECTION].getboolean("use_trained_model_weights"),
+                               self._use_trained_model_weights)
 
     @property
     def is_resume_mode(self):
@@ -44,13 +45,15 @@ class ModelConfig(ConfigBase):
     @property
     def trained_model_weights(self):
         trained_model = None
-        if self.is_resume_mode and os.path.isfile(self.train_stats_file):
+        if self._use_trained_model_weights:
             if self.use_best_weights:
                 model_weights_file = f"best_{self.output_weights_name}"
             else:
                 model_weights_file = f"{self.output_weights_name}"
-            print(f"** loading final model weight from {model_weights_file} **")
             trained_model = os.path.join(self.output_dir, model_weights_file)
+            print(f"** Loading final model weight from {trained_model} **")
+        else:
+            print(f"** Trained model does not exist **")
         return trained_model
 
     @property
