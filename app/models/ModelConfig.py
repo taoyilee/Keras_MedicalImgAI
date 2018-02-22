@@ -51,9 +51,6 @@ class ModelConfig(ConfigBase):
             else:
                 model_weights_file = f"{self.output_weights_name}"
             trained_model = os.path.join(self.output_dir, model_weights_file)
-            print(f"** Loading final model weight from {trained_model} **")
-        else:
-            print(f"** Trained model does not exist **")
         return trained_model
 
     @property

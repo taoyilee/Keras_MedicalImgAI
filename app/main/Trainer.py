@@ -44,9 +44,11 @@ class Trainer(Actions):
         print("** dump history **")
         with open(os.path.join(self.conf.output_dir, "history.pkl"), "wb") as f:
             pickle.dump({"history": self.history.history, "auroc": self.auroc.aurocs, }, f)
+        self.dump_stats()
+
+    def dump_stats(self):
         with open(self.conf.train_stats_file, 'w') as f:
             json.dump(self.training_stats, f)
-        print("** done! **")
 
     def check_gpu_availability(self):
         self.model_train = self.model
@@ -66,18 +68,17 @@ class Trainer(Actions):
     def prepare_datasets(self):
         if self.MDConfig.is_resume_mode:
             if not os.path.isfile(self.conf.train_stats_file):
-                raise FileNotFoundError(
-                    f"** Resume mode is assumed but train stats {self.conf.train_stats_file} is not found")
-            self.training_stats = json.load(open(self.conf.train_stats_file))
-            self.conf.initial_learning_rate = self.training_stats["lr"]
-            self.training_stats["run"] += 1
-            with open(self.conf.train_stats_file, 'w') as f:
-                json.dump(self.training_stats, f)
-            print("** Run #{} - learning rate is set to previous final".format(
+                print(f"** Resume mode is assumed but train stats {self.conf.train_stats_file} is not found")
+            else:
+                self.training_stats = json.load(open(self.conf.train_stats_file))
+                self.conf.initial_learning_rate = self.training_stats["lr"]
+                self.training_stats["run"] += 1
+
+            print("** Run #{} - learning rate is set to ".format(
                 self.training_stats["run"]) + f"** {self.conf.initial_learning_rate} **")
         else:
             print("** Run #{} - trained model weights not found, starting over **".format(self.training_stats["run"]))
-
+        self.dump_stats()
         print(f"backup config file to {self.conf.output_dir}")
         shutil.copy(self.config_file, os.path.join(self.conf.output_dir, os.path.split(self.config_file)[1]))
 
@@ -102,13 +103,6 @@ class Trainer(Actions):
         self.fitter_kwargs["validation_data"] = self.dev_generator
 
     def prepare_model(self):
-        if self.MDConfig.trained_model_weights is None:
-            print("** Load model **")
-            if self.MDConfig.base_model_weights_file is not None:
-                print(f"** loading base model weight from {self.MDConfig.base_model_weights_file} **")
-            else:
-                print(f"** Retrain with {self.MDConfig.base_model_weights_file} **")
-
         print(f"** Base Model = {self.MDConfig.base_model_weights_file} **")
         print(f"** Trained Model = {self.MDConfig.trained_model_weights} **")
         self.model = get_model(self.DSConfig.class_names, self.MDConfig.base_model_weights_file,
