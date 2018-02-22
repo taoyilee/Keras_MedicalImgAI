@@ -65,8 +65,7 @@ class Test(Actions):
 
     def prepare_model(self):
         print("** load model **")
-        self.model = get_model(self.DSConfig.class_names, self.MDConfig.base_model_weights_file,
-                               self.MDConfig.trained_model_weights,
+        self.model = get_model(self.DSConfig.class_names, weights_path=self.MDConfig.trained_model_weights,
                                image_dimension=self.IMConfig.img_dim, color_mode=self.IMConfig.color_mode,
                                class_mode=self.DSConfig.class_mode)
 
