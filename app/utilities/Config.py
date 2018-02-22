@@ -10,8 +10,8 @@ class Config(ConfigBase):
     _verbosity = 0
     _progress_verbosity = 1
     _initial_learning_rate = 0.0001
-    _train_steps = "auto"
-    _test_steps = "auto"
+    _train_steps = None
+    _test_steps = None
     _validation_steps = "auto"
     _patience_reduce_lr = 1
     _gpu = 1

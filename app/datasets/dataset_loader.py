@@ -165,5 +165,5 @@ class DataSetTest:
         print(f"Total images for test = {self.test_count}")
 
     def test_generator(self, verbosity=0):
-        batch = self.test.sample(frac=1)  # shuffle
-        return DataSequence(batch, image_config=self.dsconfig.ImageConfig, verbosity=verbosity)
+        return DataSequence(self.test, image_config=self.dsconfig.ImageConfig, set_name='test', dilation=1,
+                            verbosity=verbosity)

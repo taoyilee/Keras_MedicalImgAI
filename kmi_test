@@ -4,18 +4,19 @@ import argparse
 from app.main.Tester import Test
 
 
-def main(config_file):
-    tst = Test(config_file)
+def main(config_file, grad_cam_only=False):
+    tst = Test(config_file, grad_cam_only=grad_cam_only)
     tst.test()
 
 
 if __name__ == "__main__":
-    '''        Entry Point
-        '''
+    """
+    """
 
     # use argparse to accept command line variables (config.ini)
     parser = argparse.ArgumentParser(description='Test a trained model')
     parser.add_argument('config', metavar='config', type=str, help='Configuration file')
+    parser.add_argument('-g', help='perform Grad-CAM only', action='store_true')
     args = parser.parse_args()
 
-    main(config_file=args.config)
+    main(config_file=args.config, grad_cam_only=args.g)

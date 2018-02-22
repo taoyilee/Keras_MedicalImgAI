@@ -37,15 +37,36 @@ class DataSequence(Sequence):
     def __len__(self):
         return int(self.dilation * self.steps)
 
-    def targets(self, steps=None):
+    def targets(self, index, steps=None):
         if steps is None:
-            return self.batch["One_Hot_Labels"].tolist()
+            return self.batch["One_Hot_Labels"].iloc[[index]].tolist()
         else:
             return self.batch["One_Hot_Labels"].iloc[:self.batch_size * steps].tolist()
 
     def inputs(self, index, mode="train"):
         return image_generator(self.batch["Image Index"].iloc[[index]], self.image_config, mode=mode,
                                verbosity=self.verbosity)
+
+    def getitem_cam(self, idx):
+        idx = idx % self.steps
+        slice0 = idx * self.batch_size
+        slice1 = (idx + 1) * self.batch_size
+        batchi = self.batch.iloc[slice0:slice1]
+        if self.verbosity > 0:
+            print(f'** now yielding {self.set_name} batch = {batchi["Patient ID"].tolist()[0:5]} ... ')
+        if self.verbosity > 1:
+            print(f'** images are = {batchi["Image Index"].tolist()}')
+
+        inputs, targets = batch_generator(batchi["Image Index"],
+                                          batchi["One_Hot_Labels"].tolist(), mode=self.set_name,
+                                          image_config=self.image_config,
+                                          verbosity=self.verbosity)
+        inputs_orig, _ = batch_generator(batchi["Image Index"],
+                                         batchi["One_Hot_Labels"].tolist(), mode="raw",
+                                         image_config=self.image_config,
+                                         verbosity=self.verbosity)
+
+        return inputs, targets, inputs_orig
 
     def __getitem__(self, idx):
         idx = idx % self.steps
