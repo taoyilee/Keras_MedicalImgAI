@@ -38,6 +38,10 @@ class ModelConfig(ConfigBase):
         return assign_fallback(self.cp[self.SECTION].getboolean("use_trained_model_weights"),
                                self._use_trained_model_weights)
 
+    @use_trained_model_weights.setter
+    def use_trained_model_weights(self, value):
+        self._use_trained_model_weights = value
+
     @property
     def is_resume_mode(self):
         return not self.force_resplit and self.use_trained_model_weights

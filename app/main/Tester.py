@@ -26,7 +26,7 @@ class Test(Actions):
         print("** perform grad cam **")
         if self.MDConfig.show_model_summary:
             self.model.summary()
-        os.makedirs("imgdir", exist_ok=True)
+        os.makedirs(self.conf.grad_cam_outputdir, exist_ok=True)
         pred_log_path = os.path.join(self.conf.output_dir, "predicted_class.csv")
         with open(pred_log_path, 'w', newline='') as csvfile:
             csvwriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -37,8 +37,11 @@ class Test(Actions):
 
             for i in range(self.test_generator.__len__()):
                 inputs, y, inputs_orig = self.test_generator.getitem_cam(i)
-                y = np.array(y).swapaxes(0, 1).squeeze()
-                y_hat = np.array(self.model.predict_on_batch(inputs)).squeeze().swapaxes(0, 1)
+                y = np.array(y).squeeze()
+                y_hat = np.array(self.model.predict_on_batch(inputs)).squeeze()
+                if self.DSConfig.class_mode == "multibinary":
+                    y = y.swapaxes(0, 1)
+                    y_hat = y_hat.swapaxes(0, 1)
                 for b in range(self.conf.batch_size):
                     imageid = i * self.conf.batch_size + b
                     print(f"** y    [{imageid}] = ", end="")
@@ -77,9 +80,9 @@ class Test(Actions):
                                                              np.round(y_hat[b][y_hat_top3[-3]], 3)),
                                 (5, 80), self.FONT, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
-                    print(f"Writing cam file to imgdir/gradcam_{imageid}.jpg")
-
-                    cv2.imwrite(f"imgdir/gradcam_{imageid}.jpg", np.concatenate((x_orig, cam), axis=1))
+                    output_file = os.path.join(self.conf.grad_cam_outputdir, f"gradcam_{imageid}.jpg")
+                    print(f"Writing cam file to {output_file}")
+                    cv2.imwrite(output_file, np.concatenate((x_orig, cam), axis=1))
 
     def prepare_dataset(self):
         dataset0 = DataSetTest(self.DSConfig)
@@ -89,6 +92,8 @@ class Test(Actions):
 
     def prepare_model(self):
         print("** load model **")
+        self.MDConfig.use_trained_model_weights = True
+        print(f"** Trained Model = {self.MDConfig.trained_model_weights} **")
         self.model = get_model(self.DSConfig.class_names, weights_path=self.MDConfig.trained_model_weights,
                                image_dimension=self.IMConfig.img_dim, color_mode=self.IMConfig.color_mode,
                                class_mode=self.DSConfig.class_mode)

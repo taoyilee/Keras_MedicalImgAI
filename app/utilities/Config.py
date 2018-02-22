@@ -2,7 +2,7 @@ from app.datasets import DatasetConfig
 from app.imagetoolbox.ImageConfig import ImageConfig
 from app.models.ModelConfig import ModelConfig
 from app.utilities.ConfigBase import ConfigBase
-from app.utilities.util_config import assign_fallback
+from app.utilities.util_config import assign_fallback, assign_raise
 
 
 class Config(ConfigBase):
@@ -46,6 +46,10 @@ class Config(ConfigBase):
         return assign_fallback(self.cp["TRAIN"].getint("epochs"), self._epochs)
 
     @property
+    def grad_cam_outputdir(self):
+        return assign_raise(self.cp["TEST"].get("grad_cam_outputdir"))
+
+    @property
     def train_steps(self):
         train_steps = assign_fallback(self.cp["TRAIN"].get("train_steps"), self._train_steps)
         if train_steps != "auto":
@@ -65,7 +69,7 @@ class Config(ConfigBase):
     @property
     def test_steps(self):
         test_steps = assign_fallback(self.cp["TEST"].get("steps"), self._test_steps)
-        if test_steps != "auto":
+        if test_steps != "auto" and test_steps != None:
             try:
                 test_steps = int(self.cp["TEST"].get("steps"))
             except ValueError:
