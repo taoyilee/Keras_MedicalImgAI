@@ -114,4 +114,4 @@ class Config(ConfigBase):
 
     @property
     def enable_grad_cam(self):
-        return assign_fallback(self.cp["TEST"].getint("enable_grad_cam"), self._enable_grad_cam)
+        return assign_fallback(self.cp["TEST"].getboolean("enable_grad_cam"), self._enable_grad_cam)
