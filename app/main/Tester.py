@@ -14,6 +14,7 @@ from app.utilities import metrics
 class Test(Actions):
     y = None
     y_hat = None
+    FONT = cv2.FONT_HERSHEY_SIMPLEX
 
     def __init__(self, config_file):
         super().__init__(config_file)
@@ -40,16 +41,15 @@ class Test(Actions):
                 print(f"** Label/Prediction: {labeled_classes}/{self.DSConfig.class_names[predicted_class]}")
                 csv_row = [str(i + 1), f"{self.DSConfig.class_names[predicted_class]}"] + [str(vi.round(3)) for vi in v]
                 csvwriter.writerow(csv_row)
-                x_orig = self.test_generator.orig_input(i).squeeze()
-                x_orig = cv2.cvtColor(x_orig, cv2.COLOR_GRAY2RGB)
-                x = self.test_generator.model_input(i)
+                x_orig = self.test_generator.inputs(index=i, mode="raw").squeeze()
+                x = self.test_generator.inputs(index=i, mode="test")
                 cam = gc.grad_cam(self.model, x, x_orig, predicted_class, "conv5_blk_scale", self.DSConfig.class_names)
-                font = cv2.FONT_HERSHEY_SIMPLEX
-                cv2.putText(x_orig, f"Labeled as:{labeled_classes}", (5, 20), font, 1,
+
+                cv2.putText(x_orig, f"Labeled as:{labeled_classes}", (5, 20), self.FONT, 1,
                             (255, 255, 255),
                             2, cv2.LINE_AA)
 
-                cv2.putText(cam, f"Predicted as:{self.DSConfig.class_names[predicted_class]}", (5, 20), font, 1,
+                cv2.putText(cam, f"Predicted as:{self.DSConfig.class_names[predicted_class]}", (5, 20), self.FONT, 1,
                             (255, 255, 255),
                             2, cv2.LINE_AA)
 
@@ -75,7 +75,8 @@ class Test(Actions):
         print("** make predictions **")
         aurocs, mean_auroc, self.y, self.y_hat = metrics.compute_auroc(self.model, self.test_generator,
                                                                        self.conf.class_mode,
-                                                                       self.DSConfig.class_names)
+                                                                       self.DSConfig.class_names,
+                                                                       step_test=self.conf.test_steps)
 
         test_log_path = os.path.join(self.conf.output_dir, "test.log")
 

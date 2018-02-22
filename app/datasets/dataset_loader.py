@@ -162,7 +162,7 @@ class DataSetTest:
         self.test_count = len(self.test)
 
         print(f"Total patients for test = {self.test_patient_count}")
-        print(f"Total images  for test = {self.test_count}")
+        print(f"Total images for test = {self.test_count}")
 
     def test_generator(self, verbosity=0):
         batch = self.test.sample(frac=1)  # shuffle

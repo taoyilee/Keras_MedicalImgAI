@@ -37,8 +37,11 @@ class DataSequence(Sequence):
     def __len__(self):
         return int(self.dilation * self.steps)
 
-    def targets(self):
-        return self.batch["One_Hot_Labels"].tolist()
+    def targets(self, steps=None):
+        if steps is None:
+            return self.batch["One_Hot_Labels"].tolist()
+        else:
+            return self.batch["One_Hot_Labels"].iloc[:self.batch_size * steps].tolist()
 
     def inputs(self, index, mode="train"):
         return image_generator(self.batch["Image Index"].iloc[[index]], self.image_config, mode=mode,
@@ -99,12 +102,14 @@ def image_generator(image_filenames, image_config, mode="train", verbosity=0):
         augmentizer = ImageAugmentizer(image_config.AugmentConfig)
         inputs = augmentizer.augmentize(inputs)
 
-    normalizer = ImageNormalizer(image_config.NormalizeConfig)
-    if verbosity > 2:
-        print(f"Image Mean/Std {np.mean(image)}/{np.std(image)} ", end="")
-        inputs = normalizer.normalize(inputs)
-    if verbosity > 2:
-        print(f"(Normalized) {np.mean(image)}/{np.std(image)}")
+    norm_enable = (mode != "raw")
+    if norm_enable:
+        normalizer = ImageNormalizer(image_config.NormalizeConfig)
+        if verbosity > 2:
+            print(f"Image Mean/Std {np.mean(image)}/{np.std(image)} ", end="")
+            inputs = normalizer.normalize(inputs)
+        if verbosity > 2:
+            print(f"(Normalized) {np.mean(image)}/{np.std(image)}")
     return inputs
 
 
