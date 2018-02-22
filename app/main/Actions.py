@@ -1,6 +1,8 @@
 import os
 from configparser import ConfigParser
 
+import GPUtil
+
 from app.utilities.Config import Config
 
 
