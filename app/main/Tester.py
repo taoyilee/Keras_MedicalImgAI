@@ -71,6 +71,8 @@ class Test(Actions):
                                class_mode=self.DSConfig.class_mode)
 
     def test(self):
+        self.prepare_dataset()
+        self.prepare_model()
         print("** make predictions **")
         aurocs, mean_auroc, self.y, self.y_hat = metrics.compute_auroc(self.model, self.test_generator,
                                                                        self.conf.class_mode,
