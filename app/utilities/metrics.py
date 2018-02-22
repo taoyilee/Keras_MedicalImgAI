@@ -27,4 +27,4 @@ def compute_auroc(model: Model, test_generator, class_mode, class_names, step_te
     # customize your multiple class metrics here
     mean_auroc = np.mean(current_auroc)
     print(f"Mean AUC: {np.around(mean_auroc, 3)}\n")
-    return current_auroc, mean_auroc, y, y_hat
+    return current_auroc, mean_auroc

@@ -99,10 +99,10 @@ class Test(Actions):
 
         if not self.grad_cam_only:
             print("** make predictions **")
-            aurocs, mean_auroc, self.y, self.y_hat = metrics.compute_auroc(self.model, self.test_generator,
-                                                                           self.conf.class_mode,
-                                                                           self.DSConfig.class_names,
-                                                                           step_test=self.conf.test_steps)
+            aurocs, mean_auroc = metrics.compute_auroc(self.model, self.test_generator,
+                                                       self.conf.class_mode,
+                                                       self.DSConfig.class_names,
+                                                       step_test=self.conf.test_steps)
 
             test_log_path = os.path.join(self.conf.output_dir, "test.log")
 

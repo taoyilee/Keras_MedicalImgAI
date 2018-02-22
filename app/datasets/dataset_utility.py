@@ -37,9 +37,12 @@ class DataSequence(Sequence):
     def __len__(self):
         return int(self.dilation * self.steps)
 
-    def targets(self, index, steps=None):
+    def targets(self, index=None, steps=None):
         if steps is None:
-            return self.batch["One_Hot_Labels"].iloc[[index]].tolist()
+            if index is None:
+                return self.batch["One_Hot_Labels"].tolist()
+            else:
+                return self.batch["One_Hot_Labels"].iloc[[index]].tolist()
         else:
             return self.batch["One_Hot_Labels"].iloc[:self.batch_size * steps].tolist()
 
