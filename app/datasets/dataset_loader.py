@@ -151,7 +151,8 @@ class DataSetTest:
         :type dsconfig: DatasetConfig
         """
         self.dsconfig = dsconfig
-        self.test = pd.read_csv(self.dsconfig.data_entry)
+        test_set = os.path.join(dsconfig.output_dir, "test.csv")
+        self.test = pd.read_csv(test_set)
 
         # one hot encode
         self.test["One_Hot_Labels"] = self.test["Finding Labels"].apply(
