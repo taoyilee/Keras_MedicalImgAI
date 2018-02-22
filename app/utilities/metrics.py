@@ -1,9 +1,9 @@
-import keras.models.Model
+from keras.models import Model
 import numpy as np
 from sklearn.metrics import roc_auc_score
 
 
-def compute_auroc(model: keras.models.Model, test_generator, class_mode, class_names, step_test=None):
+def compute_auroc(model: Model, test_generator, class_mode, class_names, step_test=None):
     if step_test is None:
         step_test = test_generator.__len__()
     y_hat = np.array(
