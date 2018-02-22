@@ -64,10 +64,18 @@ class Test(Actions):
                     cv2.putText(x_orig, f"Labeled as:{labeled_classes}", (5, 20), self.FONT, 1,
                                 (255, 255, 255),
                                 2, cv2.LINE_AA)
-
+                    y_hat_top3 = np.argsort(y_hat[b])
                     cv2.putText(cam, "Predicted as:{}({:.3f})".format(self.DSConfig.class_names[predicted_class],
                                                                       np.round(y_hat[b][predicted_class], 3)),
                                 (5, 20), self.FONT, 1, (255, 255, 255), 2, cv2.LINE_AA)
+
+                    cv2.putText(cam, "(2) {}({:.3f})".format(self.DSConfig.class_names[y_hat_top3[-2]],
+                                                             np.round(y_hat[b][y_hat_top3[-2]], 3)),
+                                (5, 50), self.FONT, 1, (255, 255, 255), 2, cv2.LINE_AA)
+
+                    cv2.putText(cam, "(3) {}({:.3f})".format(self.DSConfig.class_names[y_hat_top3[-3]],
+                                                             np.round(y_hat[b][y_hat_top3[-3]], 3)),
+                                (5, 80), self.FONT, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
                     print(f"Writing cam file to imgdir/gradcam_{imageid}.jpg")
 
