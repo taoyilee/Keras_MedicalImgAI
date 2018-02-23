@@ -79,7 +79,7 @@ class Test(Actions):
 
             for j in range(3):
                 if abs(-j - 1) <= len(y_hat_top3):
-                    cv2.putText(cam, "({}) {}({:.3f})".format(j + 1, self.DSConfig.class_names[y_hat_top3[-j - 1]],
+                    cv2.putText(cam, "Predicted as: ({}) {}({:.3f})".format(j + 1, self.DSConfig.class_names[y_hat_top3[-j - 1]],
                                                               np.round(y_hat[y_hat_top3[-j - 1]], 3)),
                                 (5, 20 + 30 * j), self.FONT, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
