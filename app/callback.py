@@ -120,7 +120,7 @@ class MultipleClassAUROC(Callback):
         y: [(#samples, 1), (#samples, 1) ... (#samples, 1)]
         """
         print(f"*** epoch#{epoch + 1} dev auroc ***")
-        _, mean_auroc = metrics.compute_auroc(self.model, self.generator, self.class_mode, self.class_names)
+        _, mean_auroc, _, _ = metrics.compute_auroc(self.model, self.generator, self.class_mode, self.class_names)
 
         if mean_auroc > self.stats["best_mean_auroc"]:
             print(f"update best auroc from {self.stats['best_mean_auroc']} to {mean_auroc}")

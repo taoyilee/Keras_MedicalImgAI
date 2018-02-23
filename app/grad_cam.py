@@ -104,11 +104,9 @@ def grad_cam(input_model, model_x, orig_x, category_index, layer_name, class_nam
     loss = K.sum(model.layers[-1].output)
     conv_output = model.get_layer(layer_name).output
     grads = normalize(K.gradients(loss, conv_output)[0])
-    #print("grads tensor = {}".format(grads))
     gradient_function = K.function([model.layers[0].input, K.learning_phase()], [conv_output, grads])
 
     output, grads_val = gradient_function([model_x, 0])
-    #print("output = {}, grads_val = {}".format(np.shape(output), np.shape(grads_val)))
     output, grads_val = output[0, :], grads_val[0, :, :, :]
 
     weights = np.mean(grads_val, axis=(0, 1))
