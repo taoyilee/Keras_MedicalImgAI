@@ -30,19 +30,17 @@ class Test(Actions):
             csv_file_handle = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
             csv_header = ['ID', 'Labels', 'Most probable diagnosis']
             csv_file_handle.writerow(csv_header)
-
-            for i, yi in enumerate(self.y):
-                y = np.array(yi).squeeze()
-                y_hat = np.array(self.y_hat[i]).squeeze()
-                if self.DSConfig.class_mode == "multibinary":
-                    y = y.swapaxes(0, 1)
-                    y_hat = y_hat.swapaxes(0, 1)
-                predicted_priority = np.argsort(y_hat)
-                image_id = str(i + 1)
+            y = np.array(self.y).squeeze()
+            y_hat = np.array(self.y_hat).squeeze()
+            if self.DSConfig.class_mode == "multibinary":
+                y = y.swapaxes(0, 1)
+                y_hat = y_hat.swapaxes(0, 1)
+            for image_id, yi in enumerate(y):
+                predicted_priority = np.argsort(y_hat[image_id])
                 labeled_classes = "/".join([self.DSConfig.class_names[yi] for yi, yiv in enumerate(y) if yiv == 1])
                 predicted_classes = ["{}({:.3f})".format(self.DSConfig.class_names[p], y_hat[p]) for p in
                                      predicted_priority]
-                csv_row = [image_id, labeled_classes] + predicted_classes
+                csv_row = [image_id + 1, labeled_classes] + predicted_classes
                 csv_file_handle.writerow(csv_row)
 
     def grad_cam(self):
@@ -79,8 +77,9 @@ class Test(Actions):
 
             for j in range(3):
                 if abs(-j - 1) <= len(y_hat_top3):
-                    cv2.putText(cam, "Predicted as: ({}) {}({:.3f})".format(j + 1, self.DSConfig.class_names[y_hat_top3[-j - 1]],
-                                                              np.round(y_hat[y_hat_top3[-j - 1]], 3)),
+                    cv2.putText(cam, "Predicted as: ({}) {}({:.3f})".format(j + 1, self.DSConfig.class_names[
+                        y_hat_top3[-j - 1]],
+                                                                            np.round(y_hat[y_hat_top3[-j - 1]], 3)),
                                 (5, 20 + 30 * j), self.FONT, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
             output_file = os.path.join(self.conf.grad_cam_outputdir, f"gradcam_{i}.jpg")
@@ -121,6 +120,7 @@ class Test(Actions):
             f.write("-------------------------\n")
             f.write(f"mean AUC: {mean_auroc}\n")
         self.prediction_summary()
-
+        # TODO: Add ROC curve plotter and confusion matrix plotter
+        # TODO: Add F1 metric and Accuracy
         if self.conf.enable_grad_cam and not self.no_grad_cam:
             self.grad_cam()

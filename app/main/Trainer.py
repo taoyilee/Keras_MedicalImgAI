@@ -145,6 +145,7 @@ class Trainer(Actions):
             for k, v in self.fitter_kwargs.items():
                 print(f"\t{k}: {v}")
             self.history = self.model_train.fit_generator(**self.fitter_kwargs)
+            # TODO: Add training_stat callback such that learning rate is properly updated and recorded
             self.dump_history()
 
         finally:
