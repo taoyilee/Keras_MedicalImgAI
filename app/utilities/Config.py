@@ -28,6 +28,8 @@ class Config(ConfigBase):
             except ValueError:
                 raise ValueError(
                     "** train_steps: {} is invalid,please use 'auto' or integer.".format(config_train_steps))
+        else:
+            config_train_steps = None
 
         config_validation_steps = assign_fallback(self.cp["TRAIN"].get("validation_steps"), self._validation_steps)
         if config_validation_steps != "auto" and config_validation_steps is not None:
@@ -36,6 +38,8 @@ class Config(ConfigBase):
             except ValueError:
                 raise ValueError(
                     "** validation_steps: {} is invalid,please use 'auto' or integer.".format(config_validation_steps))
+        else:
+            config_validation_steps = None
 
         config_test_steps = assign_fallback(self.cp["TEST"].get("steps"), self._test_steps)
         if config_test_steps != "auto" and config_test_steps is not None:
@@ -43,6 +47,8 @@ class Config(ConfigBase):
                 config_test_steps = int(config_test_steps)
             except ValueError:
                 raise ValueError("** test_steps: {} is invalid,please use 'auto' or integer.".format(config_test_steps))
+        else:
+            config_test_steps = None
 
         self._train_steps = assign_fallback(config_train_steps, self._train_steps)
         self._validation_steps = assign_fallback(config_validation_steps, self._validation_steps)

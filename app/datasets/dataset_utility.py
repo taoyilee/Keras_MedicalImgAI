@@ -38,7 +38,7 @@ class DataSequence(Sequence):
         return int(self.dilation * self.steps)
 
     def targets(self, index=None, steps=None):
-        if steps is None:
+        if steps is None or steps == "auto":
             if index is None:
                 return self.batch["One_Hot_Labels"].tolist()
             else:
