@@ -37,7 +37,8 @@ class Test(Actions):
                 y_hat = y_hat.swapaxes(0, 1)
             for image_id, yi in enumerate(y):
                 predicted_priority = np.argsort(y_hat[image_id])
-                labeled_classes = "/".join([self.DSConfig.class_names[yi] for yi, yiv in enumerate(y) if yiv == 1])
+                labeled_classes = "/".join(
+                    [self.DSConfig.class_names[diagi] for diagi, diag in enumerate(yi) if diag == 1])
                 predicted_classes = ["{}({:.3f})".format(self.DSConfig.class_names[p], y_hat[p]) for p in
                                      predicted_priority]
                 csv_row = [image_id + 1, labeled_classes] + predicted_classes
