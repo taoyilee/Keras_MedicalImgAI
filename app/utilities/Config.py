@@ -17,9 +17,40 @@ class Config(ConfigBase):
     _gpu = 1
     _enable_grad_cam = True
 
+    def __init__(self, cp):
+        super().__init__(cp=cp)
+        self._initial_learning_rate = assign_fallback(self.cp["TRAIN"].getfloat("initial_learning_rate"),
+                                                      self._initial_learning_rate)
+        config_train_steps = self.cp["TRAIN"].get("train_steps")
+        if config_train_steps != "auto" and config_train_steps is not None:
+            try:
+                config_train_steps = int(config_train_steps)
+            except ValueError:
+                raise ValueError(
+                    "** train_steps: {} is invalid,please use 'auto' or integer.".format(config_train_steps))
+
+        config_validation_steps = assign_fallback(self.cp["TRAIN"].get("validation_steps"), self._validation_steps)
+        if config_validation_steps != "auto" and config_validation_steps is not None:
+            try:
+                config_validation_steps = int(config_validation_steps)
+            except ValueError:
+                raise ValueError(
+                    "** validation_steps: {} is invalid,please use 'auto' or integer.".format(config_validation_steps))
+
+        config_test_steps = assign_fallback(self.cp["TEST"].get("steps"), self._test_steps)
+        if config_test_steps != "auto" and config_test_steps is not None:
+            try:
+                config_test_steps = int(config_test_steps)
+            except ValueError:
+                raise ValueError("** test_steps: {} is invalid,please use 'auto' or integer.".format(config_test_steps))
+
+        self._train_steps = assign_fallback(config_train_steps, self._train_steps)
+        self._validation_steps = assign_fallback(config_validation_steps, self._validation_steps)
+        self._test_steps = assign_fallback(config_test_steps, self._test_steps)
+
     @property
     def initial_learning_rate(self):
-        return assign_fallback(self.cp["TRAIN"].getfloat("initial_learning_rate"), self._initial_learning_rate)
+        return self._initial_learning_rate
 
     @initial_learning_rate.setter
     def initial_learning_rate(self, value):
@@ -51,15 +82,6 @@ class Config(ConfigBase):
 
     @property
     def train_steps(self):
-        train_steps = assign_fallback(self.cp["TRAIN"].get("train_steps"), self._train_steps)
-        if train_steps != "auto":
-            try:
-                train_steps = int(self.cp["TRAIN"].get("train_steps"))
-            except ValueError:
-                raise ValueError("** train_steps: {} is invalid,please use 'auto' or integer.".format(
-                    self.cp["TRAIN"].get("train_steps")))
-
-            self._train_steps = assign_fallback(train_steps, self._train_steps)
         return self._train_steps
 
     @train_steps.setter
@@ -68,15 +90,6 @@ class Config(ConfigBase):
 
     @property
     def test_steps(self):
-        test_steps = assign_fallback(self.cp["TEST"].get("steps"), self._test_steps)
-        if test_steps != "auto" and test_steps != None:
-            try:
-                test_steps = int(self.cp["TEST"].get("steps"))
-            except ValueError:
-                raise ValueError("** test_steps: {} is invalid,please use 'auto' or integer.".format(
-                    self.cp["TEST"].get("steps")))
-
-            self._test_steps = assign_fallback(test_steps, self._test_steps)
         return self._test_steps
 
     @test_steps.setter
@@ -85,15 +98,6 @@ class Config(ConfigBase):
 
     @property
     def validation_steps(self):
-        validation_steps = assign_fallback(self.cp["TRAIN"].get("validation_steps"), self._validation_steps)
-        if validation_steps != "auto":
-            try:
-                validation_steps = int(self.cp["TRAIN"].get("validation_steps"))
-            except ValueError:
-                raise ValueError("** validation_steps: {} is invalid,please use 'auto' or integer.".format(
-                    self.cp["TRAIN"].get("validation_steps")))
-
-            self._validation_steps = assign_fallback(validation_steps, self._validation_steps)
         return self._validation_steps
 
     @validation_steps.setter

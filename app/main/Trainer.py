@@ -74,8 +74,7 @@ class Trainer(Actions):
                 self.conf.initial_learning_rate = self.training_stats["lr"]
                 self.training_stats["run"] += 1
 
-            print("** Run #{} - learning rate is set to ".format(
-                self.training_stats["run"]) + f"** {self.conf.initial_learning_rate} **")
+            print("** Run #{}".format(self.training_stats["run"]))
         else:
             print("** Run #{} - trained model weights not found, starting over **".format(self.training_stats["run"]))
         self.dump_stats()
@@ -117,6 +116,7 @@ class Trainer(Actions):
         self.check_gpu_availability()
 
         print("** compile model with class weights **")
+        print(f"** starting learning_rate is {self.conf.initial_learning_rate}**")
         optimizer = Adam(lr=self.conf.initial_learning_rate)
         self.model_train.compile(optimizer=optimizer, loss="binary_crossentropy")
         self.auroc = MultipleClassAUROC(generator=self.dev_generator, steps=self.conf.validation_steps,
