@@ -97,7 +97,6 @@ class Trainer(Actions):
 
         print("** compute class weights from training data **")
         self.fitter_kwargs["class_weight"] = data_set.class_weights()
-
         self.fitter_kwargs["generator"] = self.train_generator
         self.fitter_kwargs["validation_data"] = self.dev_generator
 

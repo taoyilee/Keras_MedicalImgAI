@@ -9,9 +9,6 @@ from app.datasets import ImageAugmentizer, ImageNormalizer
 from app.imagetoolbox.ImageConfig import ImageConfig
 
 
-# from multiprocessing import Lock
-
-
 class DataSequence(Sequence):
     recorded_targets = None
     recorded_inputs = None
@@ -55,10 +52,9 @@ class DataSequence(Sequence):
         slice0 = idx * self.batch_size
         slice1 = (idx + 1) * self.batch_size
         batchi = self.batch.iloc[slice0:slice1]
-        if self.verbosity > 0:
-            print(f'** now yielding {self.set_name} batch = {batchi["Patient ID"].tolist()[0:5]} ... ')
-        if self.verbosity > 1:
-            print(f'** images are = {batchi["Image Index"].tolist()}')
+        pid_string = str(batchi["Patient ID"].tolist()[0:5]) + ",...," + str(batchi["Patient ID"].tolist()[-3:-1])
+        print(f'** Now yielding {self.set_name} batch = {pid_string} ... ') if self.verbosity > 0 else None
+        print(f'** images are = {batchi["Image Index"].tolist()}') if self.verbosity > 1 else None
 
         inputs, targets = batch_generator(batchi["Image Index"],
                                           batchi["One_Hot_Labels"].tolist(), mode=self.set_name,
@@ -77,14 +73,16 @@ def pos_count(subset_series, class_names):
     return ret_dict
 
 
-def image_generator(image_filenames, image_config, mode="train", verbosity=0):
+def image_generator(image_filenames, image_config, mode="train", aug=None, norm=None, verbosity=0):
     """
 
     :param image_filenames:
     :param image_config:
     :type image_config: ImageConfig
     :param verbosity:
-    :param mode:
+    :param aug:
+    :param norm:
+    :param mode: train, test, dev, raw
     :return:
     """
     if image_config.color_mode == 'grayscale':
@@ -96,23 +94,14 @@ def image_generator(image_filenames, image_config, mode="train", verbosity=0):
             image_filenames.apply(
                 lambda x: load_image(x, image_config, mode=mode, verbosity=verbosity)).tolist())
 
-    aug_enable = (image_config.AugmentConfig.train_augmentation and mode == "train") or (
-            image_config.AugmentConfig.dev_augmentation and mode == "dev")
+    if aug is not None:
+        print(f"** Augmentizer enabled received {np.shape(inputs)}") if verbosity > 2 else None
+        inputs = aug.augmentize(inputs)
 
-    if aug_enable:
-        if verbosity > 2:
-            print(f"** Augmentizer enabled received {np.shape(inputs)}")
-        augmentizer = ImageAugmentizer(image_config.AugmentConfig)
-        inputs = augmentizer.augmentize(inputs)
-
-    norm_enable = (mode != "raw")
-    if norm_enable:
-        normalizer = ImageNormalizer(image_config.NormalizeConfig)
-        if verbosity > 2:
-            print(f"Image Mean/Std {np.mean(image)}/{np.std(image)} ", end="")
-            inputs = normalizer.normalize(inputs)
-        if verbosity > 2:
-            print(f"(Normalized) {np.mean(image)}/{np.std(image)}")
+    if norm is not None:
+        print(f"Image Mean/Std {np.mean(inputs)}/{np.std(inputs)} ", end="") if verbosity > 2 else None
+        inputs = norm.normalize(inputs)
+        print(f"(Normalized) {np.mean(inputs)}/{np.std(inputs)}") if verbosity > 2 else None
     return inputs
 
 
@@ -121,11 +110,21 @@ def batch_generator(image_filenames, labels, image_config, mode="train", verbosi
     :param image_filenames:
     :param labels:
     :param image_config:
+    :param mode:
     :type image_config: ImageConfig
     :param verbosity:
     :return:
     """
-    inputs = image_generator(image_filenames=image_filenames, image_config=image_config, mode=mode, verbosity=verbosity)
+
+    aug_enable = (image_config.AugmentConfig.train_augmentation and mode == "train") or (
+            image_config.AugmentConfig.dev_augmentation and mode == "dev")
+    norm_enable = (mode != "raw")
+
+    augmentizer = ImageAugmentizer(image_config.AugmentConfig) if aug_enable else None
+    normalizer = ImageNormalizer(image_config.NormalizeConfig) if norm_enable else None
+
+    inputs = image_generator(image_filenames=image_filenames, image_config=image_config, mode=mode, aug=augmentizer,
+                             norm=normalizer, verbosity=verbosity)
 
     targets = np.array(labels)
 
@@ -133,9 +132,8 @@ def batch_generator(image_filenames, labels, image_config, mode="train", verbosi
         targets = np.swapaxes(labels, 0, 1)
         targets = [np.array(targets[i, :]) for i in range(np.shape(targets)[0])]
 
-    if verbosity > 2:
-        print(f"(input, targets) = ({np.shape(inputs)}, {np.shape(targets)})")
-        print(f"targets = {targets}")
+    print(f"(input, targets) = ({np.shape(inputs)}, {np.shape(targets)})") if verbosity > 2 else None
+    print(f"targets = {targets}") if verbosity > 2 else None
 
     return inputs, targets
 

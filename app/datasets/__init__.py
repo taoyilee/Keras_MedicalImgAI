@@ -1,4 +1,5 @@
-__all__ = ["AugmentConfig", "NormalizeConfig", "DatasetConfig", "image_augmentizer", "image_normalizer"]
+__all__ = ["AugmentConfig", "NormalizeConfig", "DatasetConfig", "image_augmentizer", "image_normalizer",
+           "ImageAugmentizer", "ImageNormalizer"]
 
 from app.datasets.AugmentConfig import AugmentConfig
 from app.datasets.DatasetConfig import DatasetConfig
