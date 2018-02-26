@@ -12,10 +12,16 @@ class Config(ConfigBase):
     _initial_learning_rate = 0.0001
     _train_steps = None
     _test_steps = None
-    _validation_steps = "auto"
+    _validation_steps = None
     _patience_reduce_lr = 1
     _gpu = 1
     _enable_grad_cam = True
+
+    _histogram_freq = 0
+    _write_graph = False
+    _write_grads = False
+    _write_images = False
+    _embeddings_freq = 0
 
     def __init__(self, cp):
         super().__init__(cp=cp)
@@ -129,3 +135,23 @@ class Config(ConfigBase):
     @property
     def enable_grad_cam(self):
         return assign_fallback(self.cp["TEST"].getboolean("enable_grad_cam"), self._enable_grad_cam)
+
+    @property
+    def histogram_freq(self):
+        return assign_fallback(self.cp["TRAIN"].getint("histogram_freq"), self._histogram_freq)
+
+    @property
+    def write_graph(self):
+        return assign_fallback(self.cp["TRAIN"].getboolean("write_graph"), self._write_graph)
+
+    @property
+    def write_grads(self):
+        return assign_fallback(self.cp["TRAIN"].getboolean("write_grads"), self._write_grads)
+
+    @property
+    def write_images(self):
+        return assign_fallback(self.cp["TRAIN"].getboolean("write_images"), self._write_images)
+
+    @property
+    def embeddings_freq(self):
+        return assign_fallback(self.cp["TRAIN"].getint("embeddings_freq"), self._embeddings_freq)

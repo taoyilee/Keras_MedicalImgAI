@@ -87,11 +87,11 @@ class Trainer(Actions):
         self.train_generator = data_set.train_generator(verbosity=self.conf.verbosity)
         self.dev_generator = data_set.dev_generator(verbosity=self.conf.verbosity)
 
-        if self.conf.train_steps != "auto":
+        if self.conf.train_steps is not None:
             print(f"** overriding train_steps: {self.conf.train_steps} **")
             self.fitter_kwargs["steps_per_epoch"] = self.conf.train_steps
 
-        if self.conf.validation_steps != "auto":
+        if self.conf.validation_steps is not None:
             print(f"** overriding validation_steps: {self.conf.validation_steps} **")
             self.fitter_kwargs["validation_steps"] = self.conf.validation_steps
 
@@ -133,8 +133,9 @@ class Trainer(Actions):
             self.fitter_kwargs["callbacks"].append(self.checkpoint)
             self.fitter_kwargs["callbacks"].append(TensorBoard(
                 log_dir=os.path.join(self.conf.output_dir, "logs", "run{}".format(self.training_stats["run"])),
-                batch_size=self.conf.batch_size, histogram_freq=0, write_graph=False,
-                write_grads=False, write_images=False, embeddings_freq=0))
+                batch_size=self.conf.batch_size, histogram_freq=self.conf.histogram_freq,
+                write_graph=self.conf.write_graph, write_grads=self.conf.write_grads,
+                write_images=self.conf.write_images, embeddings_freq=self.conf.embeddings_freq))
             self.fitter_kwargs["callbacks"].append(ReduceLROnPlateau(monitor='val_loss', factor=0.1,
                                                                      patience=self.conf.patience_reduce_lr, verbose=1))
             self.fitter_kwargs["callbacks"].append(self.auroc)
