@@ -7,7 +7,7 @@ from keras.callbacks import ModelCheckpoint, TensorBoard, ReduceLROnPlateau
 from keras.optimizers import Adam
 from keras.utils import multi_gpu_model
 
-from app.callback import MultipleClassAUROC, MultiGPUModelCheckpoint, SaveBaseModel
+from app.callback import MultipleClassAUROC, MultiGPUModelCheckpoint, SaveBaseModel, ShuffleGenerator
 from app.datasets import dataset_loader as dsload
 from app.main.Actions import Actions
 from app.models.model_factory import get_model
@@ -28,7 +28,7 @@ class Trainer(Actions):
     def __init__(self, config_file: str):
         super().__init__(config_file)
         self.fitter_kwargs = {"verbose": int(self.conf.progress_train_verbosity), "max_queue_size": 32, "workers": 32,
-                              "epochs": self.conf.epochs, "use_multiprocessing": True}
+                              "epochs": self.conf.epochs, "use_multiprocessing": True, "shuffle": False}
 
         os.makedirs(self.conf.output_dir, exist_ok=True)  # check output_dir, create it if not exists
         self.check_training_lock()
@@ -144,6 +144,7 @@ class Trainer(Actions):
                                                                      patience=self.conf.patience_reduce_lr, verbose=1))
             self.fitter_kwargs["callbacks"].append(self.auroc)
             self.fitter_kwargs["callbacks"].append(SaveBaseModel(filepath=trained_base_weight, save_weights_only=False))
+            self.fitter_kwargs["callbacks"].append(ShuffleGenerator(generator=self.train_generator))
 
             print("** training start with parameters: **")
             for k, v in self.fitter_kwargs.items():

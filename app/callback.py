@@ -52,6 +52,15 @@ class ClearGeneratorCache(Callback):
         self.dev_generator.clear()
 
 
+class ShuffleGenerator(Callback):
+    def __init__(self, generator):
+        super(Callback, self).__init__()
+        self.generator = generator
+
+    def on_epoch_end(self, epoch, logs={}):
+        self.generator.shuffle()
+
+
 class SaveBaseModel(Callback):
     def __init__(self, filepath, save_weights_only=False):
         super(Callback, self).__init__()
